@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:name=".core.ComikuApplication"
+        android:allowBackup="true"
+        android:usesCleartextTraffic="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Comiku"
+        tools:targetApi="31">
+        <activity
+            android:name=".screens.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".screens.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ManualCreationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ManualVolumeCreationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.SearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.LibraryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.WishlistActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ComicDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.VolumeDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.BarcodeScannerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ImageCropperActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ImagePreviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Comiku" />
+        <activity
+            android:name=".screens.ThematicListsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.CreateThematicListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.MyThematicListsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ThematicListDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.FriendsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ContactActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ActivitiesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.NotificationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ChatsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.ChatViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.SelectFriendForChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.CreateGroupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.GroupMembersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screens.BlockedUsersActivity"
+            android:exported="false" />
+    </application>
+
+</manifest>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textoTituloBusquedaAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/amigos_busqueda_titulo"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textoLeadBusquedaAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/amigos_busqueda_lead"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/campoBusquedaAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/amigos_busqueda_hint"
+            android:inputType="text"
+            android:maxLength="120" />
+
+        <ProgressBar
+            android:id="@+id/barraCargaAmigos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textoEstadoBusquedaAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/amigos_busqueda_vacia" />
+
+        <LinearLayout
+            android:id="@+id/contenedorResultadosBusquedaAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/textoTituloSolicitudesAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/amigos_solicitudes_titulo"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textoEstadoSolicitudesAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/amigos_solicitudes_cargando" />
+
+        <LinearLayout
+            android:id="@+id/contenedorSolicitudesAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/textoTituloMisAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/amigos_mis_amigos_titulo"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textoEstadoMisAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/amigos_cargando" />
+
+        <LinearLayout
+            android:id="@+id/contenedorMisAmigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>

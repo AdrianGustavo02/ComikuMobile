@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_perfil"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="@string/menu_perfil" />
+
+    <item
+        android:id="@+id/menu_biblioteca"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="@string/menu_biblioteca" />
+
+    <item
+        android:id="@+id/menu_deseados"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="@string/menu_deseados" />
+
+    <item
+        android:id="@+id/menu_listas_tematicas"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="@string/menu_listas_tematicas" />
+
+    <item
+        android:id="@+id/menu_amigos"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="@string/menu_amigos" />
+
+    <item
+        android:id="@+id/menu_chats"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="@string/menu_chats" />
+
+    <item
+        android:id="@+id/menu_contactanos"
+        android:icon="@android:drawable/ic_menu_send"
+        android:title="@string/menu_contactanos" />
+
+    <item
+        android:id="@+id/menu_actividades"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="@string/menu_actividades" />
+
+    <item
+        android:id="@+id/menu_notificaciones"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="@string/menu_notificaciones" />
+
+    <item
+        android:id="@+id/menu_cerrar_sesion"
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:title="@string/menu_cerrar_sesion" />
+
+</menu>

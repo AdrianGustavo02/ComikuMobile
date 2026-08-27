@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray">#FF9E9E9E</color>
+    <color name="gray_light">#FFF5F5F5</color>
+    <color name="gray_dark">#FF616161</color>
+    <color name="red">#FFF44336</color>
+    <color name="orange">#FFFF9800</color>
+    <color name="blue">#FF2196F3</color>
+    <color name="blue_light">#FFE3F2FD</color>
+
+    <!-- Colores de chat -->
+    <color name="chat_escribiendo">#FF2196F3</color>
+    <color name="chat_estado_activo">#FF9E9E9E</color>
+    <color name="badge_azul_claro">#FF81D4FA</color>
+</resources>

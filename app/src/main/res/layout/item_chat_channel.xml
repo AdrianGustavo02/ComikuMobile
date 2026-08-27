@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical">
+
+    <!-- Foto del otro usuario -->
+    <ImageView
+        android:id="@+id/fotoPerfil"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/app_name"
+        android:background="@drawable/default_profile_picture" />
+
+    <!-- Información del chat -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
+
+        <!-- Nombre del otro usuario o grupo -->
+        <TextView
+            android:id="@+id/nombreChat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <!-- Último mensaje -->
+        <TextView
+            android:id="@+id/ultimoMensaje"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/gray"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- Hora relativa -->
+        <TextView
+            android:id="@+id/horaRelativa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textSize="12sp"
+            android:textColor="@color/gray_light" />
+    </LinearLayout>
+
+    <!-- Contador de no leídos -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp">
+
+        <TextView
+            android:id="@+id/contadorNoLeidos"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:gravity="center"
+            android:textSize="10sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/bg_badge_azul_claro"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

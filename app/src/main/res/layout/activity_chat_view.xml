@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Encabezado con info del otro usuario -->
+    <LinearLayout
+        android:id="@+id/encabezadoChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:elevation="2dp">
+
+        <!-- Boton de retroceso -->
+        <ImageButton
+            android:id="@+id/botonRetroceso"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="@string/atras" />
+
+        <!-- Foto del otro usuario -->
+        <ImageView
+            android:id="@+id/fotoOtroUsuario"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:layout_marginStart="12dp"
+            android:contentDescription="@string/app_name"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp" />
+
+        <!-- Nombre y estado -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/nombreOtroUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/blue"
+                android:background="?attr/selectableItemBackground"
+                android:padding="8dp"
+                android:layout_marginStart="-8dp"
+                android:layout_marginEnd="-8dp" />
+
+            <TextView
+                android:id="@+id/estadoOtroUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:textColor="@color/gray" />
+        </LinearLayout>
+
+        <!-- Opciones -->
+        <ImageButton
+            android:id="@+id/botonOpciones"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_manage"
+            android:contentDescription="@string/opciones" />
+    </LinearLayout>
+
+    <!-- Separador -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray_light" />
+
+    <!-- Lista de mensajes con estado de carga y error -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Componente nativo de Stream: lista de mensajes con reacciones e hilos -->
+        <io.getstream.chat.android.ui.feature.messages.list.MessageListView
+            android:id="@+id/messageListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <!-- Indicador de carga -->
+        <ProgressBar
+            android:id="@+id/indicadorCargaMensajes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+        <!-- Estado de error -->
+        <LinearLayout
+            android:id="@+id/estadoError"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/error_cargar_mensajes"
+                android:textSize="16sp"
+                android:textColor="@color/red" />
+
+            <Button
+                android:id="@+id/botonReintentarMensajes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reintentar"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Componente nativo de Stream: entrada de mensajes con adjuntos y audio -->
+    <io.getstream.chat.android.ui.feature.messages.composer.MessageComposerView
+        android:id="@+id/messageComposerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:streamUiMessageComposerAttachmentsButtonVisible="true"
+        app:streamUiMessageComposerCommandsButtonVisible="false"
+        app:streamUiMessageComposerAudioRecordingButtonVisible="true"
+        app:streamUiMessageComposerAudioRecordingButtonPreferred="true"
+        android:visibility="gone" />
+
+</LinearLayout>

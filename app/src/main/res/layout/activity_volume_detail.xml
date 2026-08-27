@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Barra de carga -->
+    <ProgressBar
+        android:id="@+id/barraCargaVolumeDetail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- Mensaje de error -->
+    <TextView
+        android:id="@+id/textoErrorVolumeDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_light"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!-- Contenido -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Nombre del comic y numero de tomo -->
+            <TextView
+                android:id="@+id/textoNombreComicVolumeDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/textoNumeroTomoVolumeDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center" />
+
+            <!-- Portada del tomo -->
+            <ImageView
+                android:id="@+id/imagenPortadaVolumeDetail"
+                android:layout_width="200dp"
+                android:layout_height="280dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="@string/portada_del_tomo" />
+
+            <!-- ISBN -->
+            <TextView
+                android:id="@+id/textoIsbnVolumeDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Fecha de publicacion -->
+            <TextView
+                android:id="@+id/textoFechaPublicacionVolumeDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:id="@+id/textoEstadoLecturaVolumeDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/contenedorLecturaVolumeDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lectura_fecha_label"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <EditText
+                    android:id="@+id/campoFechaLecturaVolumeDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/lectura_fecha_hint"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/botonIngresarFechaLecturaVolumeDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ingresar_fecha_lectura"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lectura_historial_titulo"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/textoSinLecturasVolumeDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lectura_historial_vacio"
+                    android:visibility="gone"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/contenedorHistorialLecturaVolumeDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textoAyudaLecturaVolumeDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lectura_necesita_biblioteca"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Contenedor de comercios cercanos (despues de textoAyudaLectura, antes de botones) -->
+            <LinearLayout
+                android:id="@+id/contenedorComerciosCercanos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tituloComerciosCercanos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="¿Donde comprar este tomo?"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/avisoComerciosCercanos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Comiku no conoce la disponibilidad de este tomo. Consulta el stock directamente con el comercio."
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/botonBuscarComerciosCercanos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Buscar cerca mio"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Control segmentado para radios (oculto hasta primera busqueda) -->
+                <LinearLayout
+                    android:id="@+id/controlRadioComerciosCercanos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp">
+
+                    <Button
+                        android:id="@+id/botonRadio20km"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="20 km"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/botonRadio50km"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="50 km"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+
+                <!-- Indicador de carga -->
+                <ProgressBar
+                    android:id="@+id/cargaComerciosCercanos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- RecyclerView para comercios con scroll propio -->
+                <FrameLayout
+                    android:id="@+id/contenedorListaComerciosCercanos"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:visibility="gone">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerViewComerciosCercanos"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scrollbars="vertical" />
+                </FrameLayout>
+
+                <!-- Mensaje vacio (sin resultados) -->
+                <TextView
+                    android:id="@+id/textoComerciosCercanosVacio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sin resultados en 20 km. Ampliar a 50 km?"
+                    android:textAlignment="center"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Mensaje de error -->
+                <TextView
+                    android:id="@+id/textoErrorComerciosCercanos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Botones de acciones -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/botonAgregarBibliotecaVolumeDetail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/agregar_biblioteca"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/botonAgregarDeseadosVolumeDetail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/agregar_deseados"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/botonReportarVolumeDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/reporte_boton_reportar" />
+
+</LinearLayout>

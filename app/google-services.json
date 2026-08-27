@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "673151564721",
+    "project_id": "fumetto-bf8e1",
+    "storage_bucket": "fumetto-bf8e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:673151564721:android:e7dc223740fd27721a9b90",
+        "android_client_info": {
+          "package_name": "com.example.comiku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-Z8IYrg9g4Y68IrvgqZNIxkMQqIwbYcs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

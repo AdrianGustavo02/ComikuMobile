@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="¿Donde comprar este tomo?"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/textViewAviso"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Comiku no conoce la disponibilidad de este tomo. Consulta el stock directamente con el comercio."
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/botonBuscarCercaMio"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Buscar cerca mio"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:id="@+id/contenedorSegmentado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp">
+
+        <Button
+            android:id="@+id/boton20km"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="20 km" />
+
+        <Button
+            android:id="@+id/boton50km"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="50 km" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBarCargando"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textViewEstado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textAlignment="center"
+        android:layout_marginBottom="12dp" />
+
+    <RecyclerView
+        android:id="@+id/recyclerViewComerciosCercanos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
