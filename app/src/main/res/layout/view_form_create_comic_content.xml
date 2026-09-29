@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tituloCreacionManualComic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/creacion_manual_comic_titulo"
+        android:textColor="@android:color/white"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/subtituloCreacionManualComic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/creacion_manual_comic_subtitulo"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_nombre"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/campoNombreComicManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:hint="@string/creacion_manual_comic_hint_nombre"
+        android:inputType="text"
+        android:maxLength="120" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_autores"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/campoAutoresComicManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/creacion_manual_comic_hint_autor"
+        android:inputType="text"
+        android:maxLength="300" />
+
+    <Button
+        android:id="@+id/botonAgregarAutorComicManual"
+        style="@style/Theme.Comiku.ButtonSecondaryActionSoft"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/creacion_manual_comic_boton_autor" />
+
+    <LinearLayout
+        android:id="@+id/contenedorAutoresComicManual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_editorial"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/campoEditorialComicManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:hint="@string/creacion_manual_comic_hint_editorial"
+        android:inputType="text"
+        android:maxLength="120" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_pais_editorial"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerPaisEditorialComicManual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_input_premium"
+        android:paddingStart="14dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_estado_titulo"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerEstadoComicManual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_input_premium"
+        android:paddingStart="14dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_formato"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/campoFormatoComicManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/creacion_manual_comic_hint_formato"
+        android:inputType="text"
+        android:maxLength="80" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_genero_titulo"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textoGenerosComicManual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/creacion_manual_comic_generos"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/botonGenerosComicManual"
+        style="@style/Theme.Comiku.ButtonSecondaryActionSoft"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="@string/creacion_manual_comic_boton_generos" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_comic_descripcion"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/campoDescripcionComicManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="top|start"
+        android:hint="@string/creacion_manual_comic_hint_descripcion"
+        android:inputType="textMultiLine"
+        android:maxLength="1000"
+        android:minLines="3" />
+
+    <TextView
+        android:id="@+id/textoErrorCreacionManualComic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@android:color/holo_red_dark" />
+
+    <ProgressBar
+        android:id="@+id/barraCargaCreacionManualComic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/botonContinuarCreacionManualComic"
+        style="@style/Theme.Comiku.ButtonPrimaryAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/creacion_manual_comic_boton_continuar" />
+</LinearLayout>

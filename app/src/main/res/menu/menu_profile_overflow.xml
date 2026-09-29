@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_perfil_editar_datos"
+        android:title="Editar datos" />
+    <item
+        android:id="@+id/menu_perfil_usuarios_bloqueados"
+        android:title="Usuarios bloqueados" />
+    <item
+        android:id="@+id/menu_perfil_reportar_usuario"
+        android:title="Reportar usuario" />
+    <item
+        android:id="@+id/menu_perfil_bloquear_usuario"
+        android:title="Bloquear usuario" />
+    <item
+        android:id="@+id/menu_perfil_eliminar_cuenta"
+        android:title="Eliminar cuenta" />
+</menu>

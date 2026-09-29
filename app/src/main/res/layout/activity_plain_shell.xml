@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutPantallaPlana"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <View
+        android:id="@+id/viewRemateSuperiorPlano"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@drawable/status_bar_round_cap" />
+
+    <FrameLayout
+        android:id="@+id/contenedorContenidoPlano"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textoTituloContacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/contacto_titulo"
+        android:textColor="@android:color/white"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textoLeadContacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/contacto_lead"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/textoTipoMensajeContacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/contacto_tipo_label"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/selectorTipoMensajeContacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_input_premium"
+        android:paddingStart="14dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="12dp" />
+
+    <TextView
+        android:id="@+id/textoMensajeContacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/contacto_mensaje_label"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/campoMensajeContacto"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="top|start"
+        android:hint="@string/contacto_mensaje_hint"
+        android:inputType="textMultiLine"
+        android:maxLength="300"
+        android:minLines="5" />
+
+    <ProgressBar
+        android:id="@+id/barraCargaContacto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textoEstadoContacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/botonEnviarContacto"
+        style="@style/Theme.Comiku.ButtonPrimaryAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/contacto_boton_enviar" />
+</LinearLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_image_picker_field_container"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="12dp"
+    android:paddingBottom="8dp">
+
+    <Button
+        android:id="@+id/botonSelectorImagenComponente"
+        style="@style/Theme.Comiku.ImagePickerTriggerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/image_picker_select_button" />
+
+    <TextView
+        android:id="@+id/textoNombreArchivoComponente"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1"
+        android:breakStrategy="high_quality"
+        android:text="@string/image_picker_no_file_selected"
+        android:textColor="#F8F3FF"
+        android:textSize="13sp" />
+</LinearLayout>

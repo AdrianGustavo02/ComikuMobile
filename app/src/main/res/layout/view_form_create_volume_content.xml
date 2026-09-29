@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tituloCreacionManualTomo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/creacion_manual_tomo_titulo"
+        android:textColor="@android:color/white"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/subtituloCreacionManualTomo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/creacion_manual_tomo_subtitulo"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/creacion_manual_seccion_tomo"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/grupoModoTomoManual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioModoNumeroTomoManual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/creacion_manual_tomo_modo_numero"
+            android:textColor="@android:color/white" />
+
+        <RadioButton
+            android:id="@+id/radioModoUnicoTomoManual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/creacion_manual_tomo_modo_unico"
+            android:textColor="@android:color/white" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/campoNumeroTomoManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/creacion_manual_tomo_numero"
+        android:inputType="number"
+        android:maxLength="4" />
+
+    <EditText
+        android:id="@+id/campoIsbnTomoManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/creacion_manual_tomo_isbn"
+        android:inputType="number"
+        android:maxLength="13" />
+
+    <EditText
+        android:id="@+id/campoFechaPublicacionTomoManual"
+        style="@style/Theme.Comiku.GenericTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:focusable="false"
+        android:hint="@string/creacion_manual_tomo_fecha_publicacion"
+        android:inputType="none" />
+
+    <com.example.comiku.screens.RoundedImageView
+        android:id="@+id/imagenPortadaTomoManual"
+        android:layout_width="140dp"
+        android:layout_height="180dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:contentDescription="@string/creacion_manual_tomo_portada_contenido"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/botonElegirPortadaTomoManual"
+        style="@style/Theme.Comiku.ImagePickerTriggerButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/creacion_manual_tomo_boton_portada" />
+
+    <Button
+        android:id="@+id/botonAgregarTomoResumenManual"
+        style="@style/Theme.Comiku.ButtonSecondaryActionSoft"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/creacion_manual_tomo_boton_agregar" />
+
+</LinearLayout>
