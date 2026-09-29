@@ -14,7 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/delete_account_title"
-            android:textSize="18sp"
+            android:textAllCaps="true"
+            android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/red"
             android:layout_marginBottom="16dp" />
@@ -25,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/delete_account_warning_1"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textColor="@color/black"
             android:layout_marginBottom="16dp"
             android:lineSpacingMultiplier="1.2" />
@@ -58,19 +59,22 @@
 
             <Button
                 android:id="@+id/deleteAccountCancelButton"
+                style="@style/Theme.Comiku.ButtonSecondaryAction"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
+                android:minHeight="48dp"
                 android:text="@string/cancel"
-                android:textColor="@color/black"
                 android:layout_marginEnd="8dp" />
 
             <Button
                 android:id="@+id/deleteAccountConfirmButton"
+                style="@style/Theme.Comiku.DangerButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
+                android:minHeight="48dp"
+                android:layout_marginStart="8dp"
                 android:text="@string/delete_account_understand"
-                android:textColor="@color/white"
-                android:backgroundTint="@color/red" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
 

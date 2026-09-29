@@ -1,55 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="12dp">
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        app:cardBackgroundColor="@color/gray_light"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="0dp">
-
-        <ImageView
-            android:id="@+id/fotoPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop" />
-    </androidx.cardview.widget.CardView>
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="14dp">
+
+        <com.example.comiku.screens.RoundedImageView
+            android:id="@+id/fotoPerfil"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:contentDescription="@string/app_name"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_profile_picture" />
 
         <TextView
             android:id="@+id/nick"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/nombre"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="@color/gray"
-            android:textSize="14sp" />
+        <CheckBox
+            android:id="@+id/checkSeleccionado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <CheckBox
-        android:id="@+id/checkSeleccionado"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#14000000" />
 
 </LinearLayout>

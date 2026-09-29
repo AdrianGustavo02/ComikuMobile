@@ -14,10 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import com.example.comiku.R;
+import com.example.comiku.core.ui.GenericFormContainerComponent;
 import com.example.comiku.core.ui.ThematicListUiHelper;
 import com.example.comiku.core.validation.InputValidator;
 import com.example.comiku.data.model.ComicDetailData;
@@ -38,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class CreateThematicListActivity extends AppCompatActivity {
+public class CreateThematicListActivity extends BasePlainScreenActivity {
 
     public static final String EXTRA_LIST_ID = "extra_list_id";
 
@@ -55,6 +53,7 @@ public class CreateThematicListActivity extends AppCompatActivity {
     private Button botonAtras;
     private Button botonGuardar;
     private TextView textoMensaje;
+    private TextView textoTituloPantalla;
     private android.widget.ProgressBar barraCarga;
 
     private String listId;
@@ -72,13 +71,17 @@ public class CreateThematicListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_thematic_list);
+        setupPlainScreenShell(R.layout.activity_create_thematic_list);
+        GenericFormContainerComponent.inflateFormContent(
+                findViewById(android.R.id.content),
+                R.layout.view_form_create_thematic_list_content
+        );
 
         listId = getIntent().getStringExtra(EXTRA_LIST_ID);
         esModoEdicion = !TextUtils.isEmpty(listId);
 
         bindViews();
-        setupToolbar();
+        setupScreenTitle();
         setupSpinnerGuia();
         setupInputSanitizers();
         setupButtons();
@@ -104,19 +107,15 @@ public class CreateThematicListActivity extends AppCompatActivity {
         botonAtras = findViewById(R.id.botonAtras);
         botonGuardar = findViewById(R.id.botonGuardarLista);
         textoMensaje = findViewById(R.id.textoMensajeCreacion);
+        textoTituloPantalla = findViewById(R.id.textoTituloCrearListaTematica);
         barraCarga = findViewById(R.id.barraCargaCreacion);
     }
 
-    // Configura la barra superior de la pantalla.
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbarCrearListaTematica);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(esModoEdicion
-                    ? getString(R.string.crear_lista_titulo_editar)
-                    : getString(R.string.crear_lista_titulo));
-        }
+    // Muestra el titulo principal de la pantalla.
+    private void setupScreenTitle() {
+        textoTituloPantalla.setText(esModoEdicion
+                ? getString(R.string.crear_lista_titulo_editar)
+                : getString(R.string.crear_lista_titulo));
     }
 
     // Configura el spinner de guia de lectura.
@@ -335,6 +334,7 @@ public class CreateThematicListActivity extends AppCompatActivity {
         if (resultados == 0) {
             TextView textoVacio = new TextView(this);
             textoVacio.setText(getString(R.string.crear_lista_sin_resultados));
+            textoVacio.setTextColor(getColor(R.color.carousel_subtitle));
             contenedorResultados.addView(textoVacio);
         }
     }
@@ -350,6 +350,7 @@ public class CreateThematicListActivity extends AppCompatActivity {
     // Construye una fila para un resultado de busqueda.
     private View buildSearchResultRow(ComicDetailData comic, VolumeDetailData tomo) {
         LinearLayout fila = ThematicListUiHelper.createCardContainer(this);
+        fila.setBackgroundResource(R.drawable.bg_thematic_list_search_result_card);
         fila.setPadding(
                 ThematicListUiHelper.dpToPx(this, 8),
                 ThematicListUiHelper.dpToPx(this, 8),
@@ -365,10 +366,18 @@ public class CreateThematicListActivity extends AppCompatActivity {
         LinearLayout info = new LinearLayout(this);
         info.setOrientation(LinearLayout.VERTICAL);
         info.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        info.addView(ThematicListUiHelper.createTitle(this, comic.nombre + " - " + tomo.getNumeroFormateado(), 14f));
+        TextView textoTitulo = ThematicListUiHelper.createTitle(
+                this,
+                comic.nombre + " - " + tomo.getNumeroFormateado(),
+                16f
+        );
+        textoTitulo.setTextColor(getColor(android.R.color.white));
+        info.addView(textoTitulo);
 
         TextView textoMeta = new TextView(this);
         textoMeta.setText(buildComicMeta(comic));
+        textoMeta.setTextColor(getColor(R.color.carousel_subtitle));
+        textoMeta.setTextSize(14f);
         info.addView(textoMeta);
 
         contenido.addView(info);
@@ -431,6 +440,8 @@ public class CreateThematicListActivity extends AppCompatActivity {
         if (tomosSeleccionados.isEmpty()) {
             TextView textoVacio = new TextView(this);
             textoVacio.setText(getString(R.string.crear_lista_sin_tomos));
+            textoVacio.setTextColor(getColor(R.color.carousel_subtitle));
+            textoVacio.setTextSize(17f);
             contenedorSeleccionados.addView(textoVacio);
             return;
         }
@@ -443,13 +454,14 @@ public class CreateThematicListActivity extends AppCompatActivity {
 
     // Construye una fila para un tomo seleccionado.
     private View buildSelectedVolumeRow(ThematicListVolumeCard card, int indice) {
-        LinearLayout fila = new LinearLayout(this);
+        LinearLayout fila = ThematicListUiHelper.createCardContainer(this);
+        fila.setBackgroundResource(R.drawable.bg_thematic_list_search_result_card);
         fila.setOrientation(LinearLayout.HORIZONTAL);
         fila.setPadding(
-                ThematicListUiHelper.dpToPx(this, 4),
-                ThematicListUiHelper.dpToPx(this, 4),
-                ThematicListUiHelper.dpToPx(this, 4),
-                ThematicListUiHelper.dpToPx(this, 4)
+                ThematicListUiHelper.dpToPx(this, 8),
+                ThematicListUiHelper.dpToPx(this, 8),
+                ThematicListUiHelper.dpToPx(this, 8),
+                ThematicListUiHelper.dpToPx(this, 8)
         );
 
         fila.addView(ThematicListUiHelper.createMiniCover(this,
@@ -457,15 +469,38 @@ public class CreateThematicListActivity extends AppCompatActivity {
                 60,
                 90));
 
-        TextView textoTomo = new TextView(this);
-        textoTomo.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        textoTomo.setText(card.comicNombre + " - " + getVolumeLabel(card.tomoData));
-        fila.addView(textoTomo);
+        LinearLayout columnaInfo = new LinearLayout(this);
+        columnaInfo.setOrientation(LinearLayout.VERTICAL);
+        columnaInfo.setLayoutParams(new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
 
-        Button botonQuitar = new Button(this);
+        TextView textoTomo = new TextView(this);
+        textoTomo.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        textoTomo.setText(card.comicNombre + " - " + getVolumeLabel(card.tomoData));
+        textoTomo.setTextColor(getColor(android.R.color.white));
+        textoTomo.setTextSize(17f);
+        textoTomo.setTypeface(null, android.graphics.Typeface.BOLD);
+        columnaInfo.addView(textoTomo);
+
+        android.view.ContextThemeWrapper contextoDanger = new android.view.ContextThemeWrapper(this, R.style.Theme_Comiku_DangerButton);
+        Button botonQuitar = new Button(contextoDanger, null, 0);
+        LinearLayout.LayoutParams parametrosBoton = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        parametrosBoton.topMargin = ThematicListUiHelper.dpToPx(this, 8);
+        botonQuitar.setLayoutParams(parametrosBoton);
         botonQuitar.setText(getString(R.string.crear_lista_quitar));
         botonQuitar.setOnClickListener(v -> removeSelectedVolume(indice));
-        fila.addView(botonQuitar);
+        columnaInfo.addView(botonQuitar);
+
+        fila.addView(columnaInfo);
 
         return fila;
     }

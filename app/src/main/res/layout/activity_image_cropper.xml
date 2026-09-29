@@ -24,7 +24,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@drawable/bg_crop_image_container"
+        android:clipToOutline="true">
 
         <ImageView
             android:id="@+id/imagenRecorte"
@@ -43,7 +45,9 @@
         android:id="@+id/barraZoomRecorte"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp" />
+        android:layout_marginTop="12dp"
+        android:progressTint="#12091D"
+        android:thumbTint="#12091D" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -53,6 +57,7 @@
 
         <Button
             android:id="@+id/botonDescartarRecorte"
+            style="@style/Theme.Comiku.DangerButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -60,6 +65,7 @@
 
         <Button
             android:id="@+id/botonConfirmarRecorte"
+            style="@style/Theme.Comiku.ButtonPrimaryAction"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

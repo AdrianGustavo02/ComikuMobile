@@ -7,7 +7,6 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,7 +49,7 @@ public class FriendSelectorAdapter extends RecyclerView.Adapter<FriendSelectorAd
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView fotoPerfil;
+        private final RoundedImageView fotoPerfil;
         private final TextView nick;
         private final TextView nombre;
 
@@ -59,6 +58,7 @@ public class FriendSelectorAdapter extends RecyclerView.Adapter<FriendSelectorAd
             fotoPerfil = itemView.findViewById(R.id.fotoPerfil);
             nick = itemView.findViewById(R.id.nick);
             nombre = itemView.findViewById(R.id.nombre);
+            fotoPerfil.setCircular(true);
         }
 
         public void bind(UserSearchData amigo, OnFriendClickListener listener) {

@@ -1,15 +1,14 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.view.ContextThemeWrapper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ThematicListUiHelper;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.validation.InputValidator;
 import com.example.comiku.data.model.FriendRequestData;
 import com.example.comiku.data.model.UserSearchData;
@@ -206,8 +207,7 @@ public class FriendsActivity extends BaseDrawerActivity {
 
         if (TextUtils.isEmpty(termino)) {
             barraCarga.setVisibility(View.GONE);
-            textoEstadoBusqueda.setText(getString(R.string.amigos_busqueda_vacia));
-            textoEstadoBusqueda.setVisibility(View.VISIBLE);
+            textoEstadoBusqueda.setVisibility(View.GONE);
             return;
         }
 
@@ -327,34 +327,56 @@ public class FriendsActivity extends BaseDrawerActivity {
             String tipoBloqueo
     ) {
         LinearLayout tarjeta = new LinearLayout(this);
-        tarjeta.setOrientation(LinearLayout.HORIZONTAL);
+        tarjeta.setOrientation(LinearLayout.VERTICAL);
         tarjeta.setGravity(Gravity.CENTER_VERTICAL);
-        tarjeta.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
+        tarjeta.setPadding(dpToPx(14), dpToPx(14), dpToPx(14), dpToPx(14));
 
         LinearLayout.LayoutParams paramsTarjeta = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        paramsTarjeta.bottomMargin = dpToPx(8);
+        paramsTarjeta.bottomMargin = dpToPx(10);
         tarjeta.setLayoutParams(paramsTarjeta);
-        tarjeta.setBackgroundResource(android.R.drawable.dialog_holo_light_frame);
+        tarjeta.setBackgroundResource(R.drawable.bg_carousel_container);
+        tarjeta.addView(buildUserIdentityRow(
+                uidPerfil,
+                nick,
+                nombre,
+                fotoPerfilDataUrl,
+                mostrarNombre,
+                puedeAbrirPerfil,
+                tipoBloqueo
+        ));
+        return tarjeta;
+    }
 
-        ImageView imagenPerfil = new ImageView(this);
-        LinearLayout.LayoutParams paramsImagen = new LinearLayout.LayoutParams(dpToPx(48), dpToPx(48));
+    // Crea la fila base de usuario con avatar y textos.
+    private View buildUserIdentityRow(
+            String uidPerfil,
+            String nick,
+            String nombre,
+            String fotoPerfilDataUrl,
+            boolean mostrarNombre,
+            boolean puedeAbrirPerfil,
+            String tipoBloqueo
+    ) {
+        LinearLayout fila = new LinearLayout(this);
+        fila.setOrientation(LinearLayout.HORIZONTAL);
+        fila.setGravity(Gravity.CENTER_VERTICAL);
+
+        RoundedImageView imagenPerfil = ThematicListUiHelper.createCircularProfileImage(this, 60);
+        LinearLayout.LayoutParams paramsImagen = new LinearLayout.LayoutParams(dpToPx(60), dpToPx(60));
         paramsImagen.setMarginEnd(dpToPx(12));
         imagenPerfil.setLayoutParams(paramsImagen);
-        imagenPerfil.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap bitmapFoto = decodeDataUrl(fotoPerfilDataUrl);
+        Bitmap bitmapFoto = ThematicListUiHelper.decodeDataUrl(fotoPerfilDataUrl);
         if (bitmapFoto != null) {
             imagenPerfil.setImageBitmap(bitmapFoto);
-        } else {
-            imagenPerfil.setImageResource(R.drawable.default_profile_picture);
         }
         imagenPerfil.setClickable(puedeAbrirPerfil);
         if (puedeAbrirPerfil) {
             imagenPerfil.setOnClickListener(v -> openUserProfile(uidPerfil));
         }
-        tarjeta.addView(imagenPerfil);
+        fila.addView(imagenPerfil);
 
         LinearLayout columnaTextos = new LinearLayout(this);
         columnaTextos.setOrientation(LinearLayout.VERTICAL);
@@ -365,12 +387,12 @@ public class FriendsActivity extends BaseDrawerActivity {
         ));
 
         TextView textoNick = new TextView(this);
-        textoNick.setTextSize(15f);
+        textoNick.setTextSize(18f);
         textoNick.setTypeface(null, android.graphics.Typeface.BOLD);
         textoNick.setText(TextUtils.isEmpty(nick)
                 ? getString(R.string.amigos_nick_desconocido)
                 : nick);
-        textoNick.setTextColor(getResources().getColor(android.R.color.holo_blue_dark, getTheme()));
+        textoNick.setTextColor(getColor(R.color.carousel_subtitle));
         textoNick.setClickable(puedeAbrirPerfil);
         if (puedeAbrirPerfil) {
             textoNick.setOnClickListener(v -> openUserProfile(uidPerfil));
@@ -381,7 +403,8 @@ public class FriendsActivity extends BaseDrawerActivity {
 
         if (mostrarNombre && !TextUtils.isEmpty(nombre)) {
             TextView textoNombre = new TextView(this);
-            textoNombre.setTextSize(13f);
+            textoNombre.setTextSize(15f);
+            textoNombre.setTextColor(getColor(R.color.carousel_subtitle));
             textoNombre.setText(nombre);
             columnaTextos.addView(textoNombre);
         }
@@ -395,47 +418,66 @@ public class FriendsActivity extends BaseDrawerActivity {
             } else {
                 textoNoDisponible.setText(getString(R.string.perfil_no_disponible));
             }
-            textoNoDisponible.setTextSize(12f);
+            textoNoDisponible.setTextSize(13f);
+            textoNoDisponible.setTextColor(getColor(R.color.carousel_subtitle));
             columnaTextos.addView(textoNoDisponible);
         }
 
-        tarjeta.addView(columnaTextos);
-        return tarjeta;
+        fila.addView(columnaTextos);
+        return fila;
     }
 
     // Crea una fila de solicitud con botones aceptar y rechazar.
     private View buildSolicitudRow(FriendRequestData solicitud) {
-        LinearLayout contenedor = new LinearLayout(this);
-        contenedor.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams paramsContenedor = new LinearLayout.LayoutParams(
+        LinearLayout tarjeta = new LinearLayout(this);
+        tarjeta.setOrientation(LinearLayout.VERTICAL);
+        tarjeta.setBackgroundResource(R.drawable.bg_carousel_container);
+        tarjeta.setPadding(dpToPx(14), dpToPx(14), dpToPx(14), dpToPx(14));
+        LinearLayout.LayoutParams paramsTarjeta = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        paramsContenedor.bottomMargin = dpToPx(8);
-        contenedor.setLayoutParams(paramsContenedor);
-        contenedor.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
-        contenedor.setBackgroundResource(android.R.drawable.dialog_holo_light_frame);
+        paramsTarjeta.bottomMargin = dpToPx(10);
+        tarjeta.setLayoutParams(paramsTarjeta);
 
-        contenedor.addView(buildUserInfoRow(
+        boolean bloqueadoPorMi = usuariosBloqueadosPorMi.contains(solicitud.senderUid);
+        boolean meBloquearon = usuariosQueMeBloquearon.contains(solicitud.senderUid);
+        boolean puedeAbrir = !bloqueadoPorMi && !meBloquearon;
+        String tipoBloqueo = null;
+        if (bloqueadoPorMi) {
+            tipoBloqueo = "bloqueado_por_mi";
+        } else if (meBloquearon) {
+            tipoBloqueo = "me_bloqueo";
+        }
+
+        tarjeta.addView(buildUserIdentityRow(
                 solicitud.senderUid,
                 solicitud.nick,
                 "",
                 solicitud.fotoPerfilDataUrl,
                 false,
-                !usuariosBloqueadosPorMi.contains(solicitud.senderUid)
-                        && !usuariosQueMeBloquearon.contains(solicitud.senderUid)
+                puedeAbrir,
+                tipoBloqueo
         ));
 
         LinearLayout filaAcciones = new LinearLayout(this);
         filaAcciones.setOrientation(LinearLayout.HORIZONTAL);
         filaAcciones.setGravity(Gravity.END);
+        LinearLayout.LayoutParams paramsFilaAcciones = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsFilaAcciones.topMargin = dpToPx(10);
+        filaAcciones.setLayoutParams(paramsFilaAcciones);
 
-        Button botonRechazar = new Button(this);
+        ContextThemeWrapper contextoDanger = new ContextThemeWrapper(this, R.style.Theme_Comiku_DangerButton);
+        Button botonRechazar = new Button(contextoDanger, null, 0);
         botonRechazar.setText(getString(R.string.amigos_solicitud_rechazar));
         botonRechazar.setOnClickListener(v -> handleDeclineRequest(solicitud.senderUid));
         filaAcciones.addView(botonRechazar);
 
-        Button botonAceptar = new Button(this);
+        ContextThemeWrapper contextoPrimario = new ContextThemeWrapper(this, R.style.Theme_Comiku_ButtonPrimaryAction);
+        Button botonAceptar = new Button(contextoPrimario, null, 0);
         botonAceptar.setText(getString(R.string.amigos_solicitud_aceptar));
         LinearLayout.LayoutParams paramsAceptar = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -446,8 +488,8 @@ public class FriendsActivity extends BaseDrawerActivity {
         botonAceptar.setOnClickListener(v -> handleAcceptRequest(solicitud.senderUid));
         filaAcciones.addView(botonAceptar);
 
-        contenedor.addView(filaAcciones);
-        return contenedor;
+        tarjeta.addView(filaAcciones);
+        return tarjeta;
     }
 
     // Acepta una solicitud y recarga estado.
@@ -500,7 +542,7 @@ public class FriendsActivity extends BaseDrawerActivity {
         FriendshipRepository.canOpenUserProfile(uidActual, uidPerfil)
                 .addOnSuccessListener(canOpen -> {
                     if (!Boolean.TRUE.equals(canOpen)) {
-                        Toast.makeText(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT);
                         return;
                     }
 
@@ -509,24 +551,8 @@ public class FriendsActivity extends BaseDrawerActivity {
                     startActivity(pantallaPerfil);
                 })
                 .addOnFailureListener(error ->
-                        Toast.makeText(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT).show());
-    }
-
-    // Convierte dataUrl a bitmap para foto de perfil.
-    private Bitmap decodeDataUrl(String dataUrl) {
-        if (TextUtils.isEmpty(dataUrl)) {
-            return null;
-        }
-        int indiceComa = dataUrl.indexOf(',');
-        if (indiceComa < 0 || indiceComa >= dataUrl.length() - 1) {
-            return null;
-        }
-        try {
-            byte[] bytes = Base64.decode(dataUrl.substring(indiceComa + 1), Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        } catch (IllegalArgumentException error) {
-            return null;
-        }
+                        ToastUtils.showTextToast(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT)
+                );
     }
 
     // Convierte dp a pixeles.

@@ -29,7 +29,7 @@ public abstract class BaseUserShelfActivity extends BaseDrawerActivity {
     @Override
     protected void onScreenContentReady() {
         bindViews();
-        textoTituloListaUsuario.setText(getShelfTitle());
+        textoTituloListaUsuario.setText(getShelfTitleText());
         setupShelfControls();
         listaPreparada = true;
     }
@@ -46,6 +46,11 @@ public abstract class BaseUserShelfActivity extends BaseDrawerActivity {
     // Devuelve el titulo visible de la lista.
     @StringRes
     protected abstract int getShelfTitle();
+
+    // Devuelve el titulo visible ya resuelto.
+    protected CharSequence getShelfTitleText() {
+        return getString(getShelfTitle());
+    }
 
     // Devuelve el mensaje mientras se cargan datos.
     @StringRes
@@ -83,6 +88,10 @@ public abstract class BaseUserShelfActivity extends BaseDrawerActivity {
     // Muestra un error en la pantalla.
     protected void showError(String mensaje) {
         textoErrorListaUsuario.setText(mensaje);
+        textoErrorListaUsuario.setTextSize(16f);
+        textoErrorListaUsuario.setTextColor(0xFF232323);
+        textoErrorListaUsuario.setGravity(Gravity.CENTER);
+        textoErrorListaUsuario.setPadding(0, dpToPx(20), 0, 0);
         textoErrorListaUsuario.setVisibility(android.view.View.VISIBLE);
     }
 
@@ -95,6 +104,10 @@ public abstract class BaseUserShelfActivity extends BaseDrawerActivity {
     // Muestra o esconde el estado vacio.
     protected void showEmptyState(String mensaje) {
         textoVacioListaUsuario.setText(mensaje);
+        textoVacioListaUsuario.setTextSize(16f);
+        textoVacioListaUsuario.setTextColor(0xFF232323);
+        textoVacioListaUsuario.setGravity(Gravity.CENTER);
+        textoVacioListaUsuario.setPadding(0, dpToPx(20), 0, 0);
         textoVacioListaUsuario.setVisibility(android.view.View.VISIBLE);
     }
 
@@ -128,7 +141,9 @@ public abstract class BaseUserShelfActivity extends BaseDrawerActivity {
     protected TextView createSectionLabel(String texto) {
         TextView etiqueta = new TextView(this);
         etiqueta.setText(texto);
-        etiqueta.setTextSize(15f);
+        etiqueta.setTextSize(17f);
+        etiqueta.setTypeface(null, android.graphics.Typeface.BOLD);
+        etiqueta.setTextColor(0xFF232323);
         etiqueta.setPadding(0, 0, 0, dpToPx(6));
         return etiqueta;
     }

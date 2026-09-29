@@ -12,27 +12,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="14dp"
         android:gravity="center_vertical"
-        android:background="@color/white"
+        android:background="#12091D"
         android:elevation="2dp">
 
-        <!-- Boton de retroceso -->
-        <ImageButton
-            android:id="@+id/botonRetroceso"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_media_previous"
-            android:contentDescription="@string/atras" />
-
         <!-- Foto del otro usuario -->
-        <ImageView
+        <com.example.comiku.screens.RoundedImageView
             android:id="@+id/fotoOtroUsuario"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:scaleType="centerCrop"
-            android:layout_marginStart="12dp"
             android:contentDescription="@string/app_name"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="4dp" />
@@ -49,9 +39,9 @@
                 android:id="@+id/nombreOtroUsuario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="19sp"
                 android:textStyle="bold"
-                android:textColor="@color/blue"
+                android:textColor="@android:color/white"
                 android:background="?attr/selectableItemBackground"
                 android:padding="8dp"
                 android:layout_marginStart="-8dp"
@@ -61,18 +51,18 @@
                 android:id="@+id/estadoOtroUsuario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textSize="12sp"
-                android:textColor="@color/gray" />
+                android:layout_marginTop="3dp"
+                android:textSize="14sp"
+                android:textColor="#cdbfe3" />
         </LinearLayout>
 
         <!-- Opciones -->
         <ImageButton
             android:id="@+id/botonOpciones"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_manage"
+            android:src="@drawable/ic_chat_options_vertical"
             android:contentDescription="@string/opciones" />
     </LinearLayout>
 
@@ -80,7 +70,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/gray_light" />
+        android:background="#241533" />
 
     <!-- Lista de mensajes con estado de carga y error -->
     <FrameLayout
@@ -121,6 +111,7 @@
 
             <Button
                 android:id="@+id/botonReintentarMensajes"
+                style="@style/Theme.Comiku.ButtonSecondaryAction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/reintentar"

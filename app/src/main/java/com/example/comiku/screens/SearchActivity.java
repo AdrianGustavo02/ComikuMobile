@@ -1,11 +1,14 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -13,9 +16,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ThematicListUiHelper;
 import com.example.comiku.data.model.ComicSearchResult;
 import com.example.comiku.data.repository.ComicSearchRepository;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,7 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends BasePlainScreenActivity {
     private EditText campoBusqueda;
     private ListView listaResultados;
     private TextView textoSinResultados;
@@ -32,8 +34,9 @@ public class SearchActivity extends AppCompatActivity {
     private ImageButton botonCerrar;
     private ImageButton botonEscaner;
 
-    private ArrayAdapter<String> adaptadorResultados;
+    private SearchResultAdapter adaptadorResultados;
     private List<ComicSearchResult> resultadosActuales = new ArrayList<>();
+    private int tokenBusquedaActual;
 
 
     @Override
@@ -45,12 +48,11 @@ public class SearchActivity extends AppCompatActivity {
             return;
         }
 
-        setContentView(R.layout.activity_search);
+        setupPlainScreenShell(R.layout.activity_search);
         bindViews();
         setupListeners();
         setupAdapter();
     }
-
 
     private void bindViews() {
         campoBusqueda = findViewById(R.id.campoBusquedaComics);
@@ -92,40 +94,45 @@ public class SearchActivity extends AppCompatActivity {
 
     // Configura el adaptador para mostrar resultados.
     private void setupAdapter() {
-        adaptadorResultados = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                new ArrayList<>()
-        );
+        adaptadorResultados = new SearchResultAdapter();
         listaResultados.setAdapter(adaptadorResultados);
     }
 
     // Busca comics en tiempo real.
     private void performSearch(String termino) {
+        int tokenBusqueda = ++tokenBusquedaActual;
+        String terminoNormalizado = termino != null ? termino.trim() : "";
+
         textoError.setText("");
         textoSinResultados.setVisibility(View.GONE);
         listaResultados.setVisibility(View.GONE);
 
-        if (TextUtils.isEmpty(termino)) {
-            adaptadorResultados.clear();
-            resultadosActuales.clear();
+        if (TextUtils.isEmpty(terminoNormalizado)) {
+            barraCarga.setVisibility(View.GONE);
+            clearResults();
             return;
         }
 
         barraCarga.setVisibility(View.VISIBLE);
-        ComicSearchRepository.searchComicsByName(termino)
-                .addOnSuccessListener(this::handleSearchResults)
+        ComicSearchRepository.searchComicsByName(terminoNormalizado)
+                .addOnSuccessListener(resultados -> handleSearchResults(tokenBusqueda, resultados))
                 .addOnFailureListener(error -> {
+                    if (tokenBusqueda != tokenBusquedaActual) {
+                        return;
+                    }
                     barraCarga.setVisibility(View.GONE);
+                    clearResults();
                     textoError.setText(getString(R.string.error_busqueda_general));
                 });
     }
 
     // Procesa los resultados de la busqueda.
-    private void handleSearchResults(List<ComicSearchResult> resultados) {
+    private void handleSearchResults(int tokenBusqueda, List<ComicSearchResult> resultados) {
+        if (tokenBusqueda != tokenBusquedaActual) {
+            return;
+        }
         barraCarga.setVisibility(View.GONE);
-        resultadosActuales.clear();
-        adaptadorResultados.clear();
+        clearResults();
 
         if (resultados == null || resultados.isEmpty()) {
             textoSinResultados.setVisibility(View.VISIBLE);
@@ -134,11 +141,15 @@ public class SearchActivity extends AppCompatActivity {
         }
 
         resultadosActuales.addAll(resultados);
-        for (ComicSearchResult resultado : resultados) {
-            adaptadorResultados.add(resultado.getFormattedDisplay());
-        }
+        adaptadorResultados.addAll(resultados);
 
         listaResultados.setVisibility(View.VISIBLE);
+    }
+
+    // Limpia los resultados visibles y el contenido del adaptador.
+    private void clearResults() {
+        resultadosActuales.clear();
+        adaptadorResultados.clear();
     }
 
     // Abre la pantalla de detalles del comic.
@@ -152,5 +163,64 @@ public class SearchActivity extends AppCompatActivity {
     private void openScanner() {
         Intent pantallaEscaner = new Intent(this, BarcodeScannerActivity.class);
         startActivity(pantallaEscaner);
+    }
+
+    // Adapta cada resultado para mostrar portada y textos.
+    private final class SearchResultAdapter extends ArrayAdapter<ComicSearchResult> {
+        private final LayoutInflater inflador;
+
+        // Crea el adaptador de resultados de busqueda.
+        SearchResultAdapter() {
+            super(SearchActivity.this, 0, new ArrayList<>());
+            inflador = LayoutInflater.from(SearchActivity.this);
+        }
+
+        @Override
+        public View getView(int posicion, View vistaReciclada, ViewGroup padre) {
+            SearchResultViewHolder holder;
+            View vista = vistaReciclada;
+
+            if (vista == null) {
+                vista = inflador.inflate(R.layout.item_search_result, padre, false);
+                holder = new SearchResultViewHolder(vista);
+                vista.setTag(holder);
+            } else {
+                holder = (SearchResultViewHolder) vista.getTag();
+            }
+
+            ComicSearchResult resultado = getItem(posicion);
+            if (resultado == null) {
+                holder.textoTitulo.setText("");
+                holder.textoDetalle.setText("");
+                holder.imagenPortada.setImageResource(R.drawable.default_profile_picture);
+                return vista;
+            }
+
+            holder.textoTitulo.setText(resultado.nombre);
+            holder.textoDetalle.setText(resultado.getSecondaryDisplay());
+
+            Bitmap bitmapPortada = ThematicListUiHelper.decodeDataUrl(resultado.portadaDataUrl);
+            if (bitmapPortada != null) {
+                holder.imagenPortada.setImageBitmap(bitmapPortada);
+            } else {
+                holder.imagenPortada.setImageResource(R.drawable.default_profile_picture);
+            }
+
+            return vista;
+        }
+    }
+
+    // Guarda las vistas de cada fila para reutilizarlas.
+    private static final class SearchResultViewHolder {
+        private final RoundedImageView imagenPortada;
+        private final TextView textoTitulo;
+        private final TextView textoDetalle;
+
+
+        SearchResultViewHolder(View vista) {
+            imagenPortada = vista.findViewById(R.id.imagenPortadaResultadoBusqueda);
+            textoTitulo = vista.findViewById(R.id.textoTituloResultadoBusqueda);
+            textoDetalle = vista.findViewById(R.id.textoDetalleResultadoBusqueda);
+        }
     }
 }

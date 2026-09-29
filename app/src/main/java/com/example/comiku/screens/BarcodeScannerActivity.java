@@ -22,6 +22,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.data.model.VolumeDetailData;
 import com.example.comiku.data.repository.ComicDetailRepository;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -50,7 +51,7 @@ public class BarcodeScannerActivity extends androidx.appcompat.app.AppCompatActi
                 if (Boolean.TRUE.equals(concedido)) {
                     iniciarCamara();
                 } else {
-                    Toast.makeText(this, R.string.scanner_permiso_camara, Toast.LENGTH_SHORT).show();
+                    ToastUtils.showTextToast(this, R.string.scanner_permiso_camara, Toast.LENGTH_SHORT);
                     finish();
                 }
             });
@@ -127,7 +128,7 @@ public class BarcodeScannerActivity extends androidx.appcompat.app.AppCompatActi
             CameraSelector selector = CameraSelector.DEFAULT_BACK_CAMERA;
             provider.bindToLifecycle(this, selector, preview, analisis);
         } catch (Exception error) {
-            Toast.makeText(this, R.string.scanner_error_camara, Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, R.string.scanner_error_camara, Toast.LENGTH_SHORT);
             finish();
         }
     }
@@ -181,7 +182,7 @@ public class BarcodeScannerActivity extends androidx.appcompat.app.AppCompatActi
                 .addOnFailureListener(error -> {
                     resultadoProcesado.set(false);
                     textoEstado.setText(R.string.scanner_procesando);
-                    Toast.makeText(this, R.string.error_busqueda_general, Toast.LENGTH_SHORT).show();
+                    ToastUtils.showTextToast(this, R.string.error_busqueda_general, Toast.LENGTH_SHORT);
                 });
     }
 

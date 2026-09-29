@@ -12,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.comiku.R;
+import com.example.comiku.screens.RoundedImageView;
+
 import java.util.List;
 
 public final class ThematicListUiHelper {
@@ -24,7 +27,10 @@ public final class ThematicListUiHelper {
         LinearLayout tarjeta = new LinearLayout(contexto);
         tarjeta.setOrientation(LinearLayout.VERTICAL);
         tarjeta.setPadding(dpToPx(contexto, 12), dpToPx(contexto, 12), dpToPx(contexto, 12), dpToPx(contexto, 12));
-        tarjeta.setBackgroundResource(android.R.drawable.dialog_holo_light_frame);
+        tarjeta.setBackgroundResource(R.drawable.bg_carousel_container);
+        tarjeta.setClipToPadding(true);
+        tarjeta.setClipChildren(true);
+        tarjeta.setClipToOutline(true);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -88,21 +94,92 @@ public final class ThematicListUiHelper {
         return wallpaper;
     }
 
+    // Crea una franja de portadas con tamanos fijos para una card.
+    public static LinearLayout createFixedWallpaperStrip(Context contexto, List<String> fotos, int altoDp, String textoVacio) {
+        LinearLayout wallpaper = new LinearLayout(contexto);
+        wallpaper.setOrientation(LinearLayout.HORIZONTAL);
+        wallpaper.setBackgroundResource(R.drawable.bg_carousel_container);
+        wallpaper.setClipToOutline(true);
+        wallpaper.setClipChildren(true);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dpToPx(contexto, altoDp)
+        );
+        params.bottomMargin = dpToPx(contexto, 10);
+        wallpaper.setLayoutParams(params);
+
+        if (fotos == null || fotos.isEmpty()) {
+            TextView texto = new TextView(contexto);
+            texto.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            ));
+            texto.setGravity(Gravity.CENTER);
+            texto.setText(textoVacio);
+            wallpaper.addView(texto);
+            return wallpaper;
+        }
+
+        int limite = Math.min(3, fotos.size());
+        for (int i = 0; i < limite; i++) {
+            ImageView imagen = new ImageView(contexto);
+            LinearLayout.LayoutParams paramsImagen;
+            if (limite == 3) {
+                paramsImagen = new LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        1f
+                );
+            } else {
+                int anchoPortadaDp = Math.max(96, Math.round(altoDp * 0.84f));
+                paramsImagen = new LinearLayout.LayoutParams(
+                        dpToPx(contexto, anchoPortadaDp),
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                );
+            }
+            paramsImagen.leftMargin = 0;
+            paramsImagen.rightMargin = 0;
+            imagen.setLayoutParams(paramsImagen);
+            imagen.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            Bitmap bitmap = decodeDataUrl(fotos.get(i));
+            if (bitmap != null) {
+                imagen.setImageBitmap(bitmap);
+            }
+            wallpaper.addView(imagen);
+        }
+        return wallpaper;
+    }
+
     // Crea una mini portada para listas de tomos.
     public static ImageView createMiniCover(Context contexto, String dataUrl, int anchoDp, int altoDp) {
-        ImageView imagen = new ImageView(contexto);
+        RoundedImageView imagen = new RoundedImageView(contexto);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 dpToPx(contexto, anchoDp),
                 dpToPx(contexto, altoDp)
         );
         params.rightMargin = dpToPx(contexto, 8);
         imagen.setLayoutParams(params);
+        imagen.setCornerRadius(dpToPx(contexto, 10));
         imagen.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Bitmap bitmap = decodeDataUrl(dataUrl);
         if (bitmap != null) {
             imagen.setImageBitmap(bitmap);
         }
         return imagen;
+    }
+
+    // Crea una imagen de perfil circular para cards y listas.
+    public static RoundedImageView createCircularProfileImage(Context contexto, int tamanoDp) {
+        RoundedImageView imagenPerfil = new RoundedImageView(contexto);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                dpToPx(contexto, tamanoDp),
+                dpToPx(contexto, tamanoDp)
+        );
+        imagenPerfil.setLayoutParams(params);
+        imagenPerfil.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imagenPerfil.setCircular(true);
+        imagenPerfil.setImageResource(R.drawable.default_profile_picture);
+        return imagenPerfil;
     }
 
     // Convierte una cadena dataUrl en un bitmap.

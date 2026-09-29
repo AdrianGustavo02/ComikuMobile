@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,31 +65,24 @@ public class GroupFriendSelectorAdapter extends RecyclerView.Adapter<GroupFriend
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView fotoPerfil;
+        private final RoundedImageView fotoPerfil;
         private final TextView nick;
-        private final TextView nombre;
         private final CheckBox checkSeleccionado;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             fotoPerfil = itemView.findViewById(R.id.fotoPerfil);
             nick = itemView.findViewById(R.id.nick);
-            nombre = itemView.findViewById(R.id.nombre);
             checkSeleccionado = itemView.findViewById(R.id.checkSeleccionado);
+            fotoPerfil.setCircular(true);
         }
 
         // Vincular amigo y estado de seleccion
         public void bind(UserSearchData amigo) {
-            nick.setText(amigo.nick != null && !amigo.nick.isEmpty() ? amigo.nick : "Usuario");
-            if (mostrarNombre && amigo.nombre != null && !amigo.nombre.isEmpty()) {
-                nombre.setVisibility(View.VISIBLE);
-                nombre.setText(amigo.nombre);
-            } else {
-                nombre.setVisibility(View.GONE);
-            }
-            if (!TextUtils.isEmpty(amigo.fotoPerfilDataUrl) && !amigo.fotoPerfilDataUrl.startsWith("data:")) {
-                Glide.with(fotoPerfil.getContext())
-                        .load(amigo.fotoPerfilDataUrl)
+        nick.setText(amigo.nick != null && !amigo.nick.isEmpty() ? amigo.nick : "Usuario");
+        if (!TextUtils.isEmpty(amigo.fotoPerfilDataUrl) && !amigo.fotoPerfilDataUrl.startsWith("data:")) {
+            Glide.with(fotoPerfil.getContext())
+                    .load(amigo.fotoPerfilDataUrl)
                         .placeholder(R.drawable.default_profile_picture)
                         .error(R.drawable.default_profile_picture)
                         .circleCrop()

@@ -49,14 +49,21 @@
     <string name="login_boton_ingresar">Iniciar sesion</string>
     <string name="login_pregunta_registro">¿Todavia no tienes una cuenta?</string>
     <string name="login_ir_registro">¡Registrate!</string>
+    <string name="login_footer_legal">Comiku es una plataforma destinada a la catalogacion y gestion de colecciones de comics y mangas. Las imagenes, nombres, marcas y obras mostradas pertenecen a sus respectivos propietarios. Comiku no reclama la titularidad de dichos contenidos y los utiliza unicamente con fines informativos y de referencia.</string>
     <string name="error_login_campos_obligatorios">Completa correo y contraseña.</string>
     <string name="error_login_credenciales">Correo o contraseña incorrectos.</string>
     <string name="error_login_general">No fue posible iniciar sesion. Revisa los datos e intenta nuevamente.</string>
 
     <!-- MainActivity -->
+    <string name="menu_inicio">Inicio</string>
     <string name="menu_abrir">Abrir menu</string>
     <string name="menu_cerrar">Cerrar menu</string>
     <string name="menu_perfil">Mi perfil</string>
+    <string name="image_picker_select_button">Seleccionar imagen</string>
+    <string name="image_picker_no_file_selected">Sin imagen seleccionada</string>
+    <string name="image_picker_selected_file_format">%1$s (%2$s)</string>
+    <string name="image_picker_file_default_name">imagen</string>
+    <string name="image_picker_file_default_format">IMG</string>
     <string name="menu_cerrar_sesion">Cerrar sesion</string>
     <string name="menu_perfil_default">Mi perfil</string>
     <string name="menu_perfil_contenido">Foto de perfil del menu</string>
@@ -64,6 +71,16 @@
     <!-- MainActivity -->
     <string name="inicio_titulo">Inicio</string>
     <string name="inicio_mensaje">Bienvenido a Comiku.</string>
+    <string name="inicio_presentacion_imagen_contenido">Imagen destacada de presentacion</string>
+    <string name="inicio_presentacion_anterior">Ver slide anterior</string>
+    <string name="inicio_presentacion_siguiente">Ver slide siguiente</string>
+    <string name="inicio_presentacion_slide_uno_titulo">BIENVENIDO A COMIKU</string>
+    <string name="inicio_presentacion_slide_uno_descripcion">Descubre, organiza y comparte comics y tomos</string>
+    <string name="inicio_presentacion_slide_uno_texto_secundario">Comiku es una plataforma pensada para explorar comics, guardar tomos en tu biblioteca, crear listas tematicas y seguir de cerca las novedades de tu coleccion.</string>
+    <string name="inicio_presentacion_slide_dos_titulo">AYUDA A CRECER LA PLATAFORMA</string>
+    <string name="inicio_presentacion_slide_dos_descripcion">Si no encuentras un comic, puedes crearlo</string>
+    <string name="inicio_presentacion_slide_dos_texto_secundario">Cuando un comic o tomo no existe todavia, puedes registrarlo para ayudar a que toda la comunidad complete el catalogo.</string>
+    <string name="inicio_presentacion_boton_crear_comic">Crear comic</string>
     <string name="inicio_boton_creacion_manual">Agregar comic y tomo manualmente</string>
     <string name="inicio_tomos_faltantes_titulo">Tomos que me faltan de mis series</string>
     <string name="inicio_tomos_faltantes_subtitulo">Una guía rápida de los tomos que todavía no están en tu biblioteca.</string>
@@ -112,6 +129,8 @@
     <string name="perfil_boton_enviar_solicitud">Enviar solicitud de amistad</string>
     <string name="perfil_boton_cancelar_solicitud">Cancelar solicitud de amistad</string>
     <string name="perfil_boton_amigos">Amigos ✓</string>
+    <string name="perfil_boton_comics">Comics %1$d</string>
+    <string name="perfil_boton_tomos">Tomos %1$d</string>
     <string name="perfil_boton_bloquear_usuario">Bloquear usuario</string>
     <string name="perfil_boton_reportar_usuario">Reportar usuario</string>
     <string name="perfil_boton_usuarios_bloqueados">Usuarios bloqueados</string>
@@ -122,6 +141,21 @@
     <string name="perfil_no_disponible">El perfil no esta disponible.</string>
     <string name="perfil_bloqueado_por_mi">Tienes bloqueado a este usuario.</string>
     <string name="perfil_me_bloqueo">Este usuario te ha bloqueado.</string>
+    <string name="perfil_nombre_no_definido">No definido</string>
+    <string name="perfil_destacados_titulo">Comics destacados</string>
+    <string name="perfil_destacados_titulo_edicion">Comics destacados</string>
+    <string name="perfil_destacados_ayuda_lectura">Los comics marcados aqui aparecen como destacados en tu perfil.</string>
+    <string name="perfil_destacados_ayuda_edicion">Busca en tu biblioteca y elige hasta 10 comics para destacarlos.</string>
+    <string name="perfil_destacados_busqueda_label">Buscar comics guardados</string>
+    <string name="perfil_destacados_busqueda_hint">Buscar por nombre, creador o genero</string>
+    <string name="perfil_destacados_contador_seleccion">Seleccionados: %1$d/%2$d</string>
+    <string name="perfil_destacados_cargando">Cargando comics destacados…</string>
+    <string name="perfil_destacados_sin_destacados">No hay comics destacados en este perfil.</string>
+    <string name="perfil_destacados_sin_resultados">No se encontraron comics en tu biblioteca.</string>
+    <string name="perfil_destacados_limite">Solo puedes destacar hasta 10 comics.</string>
+    <string name="perfil_destacados_tomos_guardados">%1$d tomos guardados</string>
+    <string name="perfil_destacados_estado_destacado">Destacado</string>
+    <string name="perfil_destacados_estado_disponible">Disponible</string>
     <string name="bloqueados_titulo">Usuarios bloqueados</string>
     <string name="bloqueados_subtitulo">Aqui puedes ver y desbloquear a los usuarios que bloqueaste.</string>
     <string name="bloqueados_cargando">Cargando usuarios bloqueados...</string>
@@ -144,15 +178,23 @@
     <string name="creacion_manual_comic_subtitulo">Completa los datos del comic para pasar a la creacion de tomos.</string>
     <string name="creacion_manual_seccion_comic">Datos del comic</string>
     <string name="creacion_manual_comic_nombre">Nombre</string>
+    <string name="creacion_manual_comic_hint_nombre">Nombre del comic</string>
     <string name="creacion_manual_comic_autores">Autor</string>
+    <string name="creacion_manual_comic_hint_autor">Nombre del autor</string>
     <string name="creacion_manual_comic_boton_autor">Agregar otro autor</string>
-    <string name="creacion_manual_comic_autor_adicional">Autor adicional</string>
+    <string name="creacion_manual_comic_autor_adicional">Nombre del autor</string>
     <string name="creacion_manual_comic_editorial">Editorial</string>
+    <string name="creacion_manual_comic_hint_editorial">Nombre de la editorial</string>
     <string name="creacion_manual_comic_pais_editorial">Pais de editorial</string>
+    <string name="creacion_manual_comic_estado_titulo">Estado</string>
     <string name="creacion_manual_comic_formato">Formato</string>
+    <string name="creacion_manual_comic_hint_formato">Ejemplo: Tankobon, B6, etc..</string>
     <string name="creacion_manual_comic_generos">Seleccione un genero.</string>
+    <string name="creacion_manual_comic_genero_titulo">Genero</string>
+    <string name="creacion_manual_comic_generos_selector_titulo">Seleccione generos</string>
     <string name="creacion_manual_comic_boton_generos">Elegir generos</string>
     <string name="creacion_manual_comic_descripcion">Descripcion</string>
+    <string name="creacion_manual_comic_hint_descripcion">Habia una vez...</string>
     <string name="creacion_manual_comic_boton_continuar">Continuar a creacion de tomo</string>
 
     <!-- ManualVolumeCreationActivity -->
@@ -169,6 +211,7 @@
     <string name="creacion_manual_tomo_boton_agregar">Agregar tomo al resumen</string>
     <string name="creacion_manual_resumen_vacio">Aun no agregaste tomos.</string>
     <string name="creacion_manual_resumen_titulo">Resumen de tomos creados</string>
+    <string name="creacion_manual_resumen_contador">Tomos cargados: %1$d</string>
     <string name="creacion_manual_resumen_tomo_unico">Tomo unico</string>
     <string name="creacion_manual_resumen_numero">Numero</string>
     <string name="creacion_manual_boton_finalizar">Finalizar creacion</string>
@@ -218,9 +261,12 @@
     <string name="reporte_error_captura_lectura">No se pudo procesar la captura seleccionada.</string>
     <string name="reporte_error_motivo">Debes seleccionar un motivo.</string>
     <string name="reporte_error_descripcion">La descripcion del reporte es obligatoria.</string>
+    <string name="reporte_error_descripcion_minima">La descripcion debe tener al menos 10 caracteres.</string>
     <string name="reporte_error_envio">No fue posible enviar el reporte.</string>
+    <string name="reporte_motivo_comportamiento_inapropiado">Comportamiento inapropiado</string>
     <string name="reporte_motivo_contenido_inapropiado">Contenido inapropiado</string>
     <string name="reporte_motivo_informacion_incorrecta">Informacion incorrecta</string>
+    <string name="reporte_motivo_spam">Spam</string>
 
     <!-- FriendsActivity -->
     <string name="amigos_titulo">Amigos</string>
@@ -260,6 +306,7 @@
     <string name="actividades_like_activo">Ya me gusta ✓</string>
     <string name="actividades_error_like">No fue posible actualizar el like.</string>
     <string name="actividades_comentarios_titulo">Comentarios</string>
+    <string name="actividades_comentarios_titulo_con_total">Comentarios (%1$d)</string>
     <string name="actividades_comentario_hint">Escribe un comentario...</string>
     <string name="actividades_comentario_enviar">Enviar</string>
     <string name="actividades_error_comentario_vacio">El comentario no puede estar vacio.</string>
@@ -307,9 +354,13 @@
     <!-- ComicDetailActivity -->
     <string name="tomos">Tomos</string>
     <string name="error_cargar_comic">No fue posible cargar los datos del comic.</string>
-    <string name="comic_detail_tomos_faltantes">Tomos faltantes</string>
-    <string name="comic_detail_scroll_izquierda">Desplazar tomos faltantes hacia la izquierda</string>
-    <string name="comic_detail_scroll_derecha">Desplazar tomos faltantes hacia la derecha</string>
+    <string name="comic_detail_tomos_faltantes">Tomos que me faltan</string>
+    <string name="comic_detail_tomos_biblioteca">Tomos en biblioteca</string>
+    <string name="comic_detail_scroll_izquierda">Desplazar carrusel de tomos hacia la izquierda</string>
+    <string name="comic_detail_scroll_derecha">Desplazar carrusel de tomos hacia la derecha</string>
+    <string name="comic_detail_tomos_todos_vacio">Todavia no hay tomos cargados para este comic.</string>
+    <string name="comic_detail_tomos_biblioteca_vacio">Todavia no tienes tomos de este comic en tu biblioteca.</string>
+    <string name="comic_detail_tomos_biblioteca_error">No fue posible cargar tus tomos en biblioteca.</string>
     <string name="comic_detail_tomos_faltantes_sin_biblioteca">Agrega tomos de este comic a tu biblioteca para ver faltantes.</string>
     <string name="comic_detail_tomos_faltantes_error">No fue posible cargar los tomos faltantes.</string>
     <string name="tomos_faltantes_coleccion_al_dia">Tienes tu coleccion al dia</string>
@@ -317,10 +368,12 @@
     <string name="reporte_confirmacion_comic">Reporte enviado correctamente. Gracias por ayudarnos a mejorar Comiku.</string>
 
     <!-- ComicDetailActivity - Resenas -->
-    <string name="resenas_titulo">Calificaciones y opiniones</string>
+    <string name="resenas_titulo">Reseñas</string>
+    <string name="resenas_promedio">Promedio: %1$s</string>
     <string name="resenas_tu_calificacion">Tu calificacion</string>
     <string name="resenas_comentario_hint">Escribe una opinion (opcional)...</string>
-    <string name="resenas_boton_guardar">Guardar reseña</string>
+    <string name="resenas_boton_publicar">Publicar reseña</string>
+    <string name="resenas_boton_actualizar">Actualizar reseña</string>
     <string name="resenas_boton_eliminar">Eliminar reseña</string>
     <string name="resenas_boton_cargar_mas">Cargar 10 reseñas mas</string>
     <string name="resenas_sin_resenas">Aun no hay reseñas. Se el primero en opinar.</string>
@@ -341,9 +394,9 @@
 
     <!-- VolumeDetailActivity -->
     <string name="portada_del_tomo">Portada del tomo</string>
-    <string name="agregar_biblioteca">Agregar a biblioteca</string>
+    <string name="agregar_biblioteca">Agregar biblioteca</string>
     <string name="en_biblioteca_agregado">En biblioteca ✓</string>
-    <string name="agregar_deseados">Agregar a deseados</string>
+    <string name="agregar_deseados">Agregar deseados</string>
     <string name="en_deseados_agregado">En deseados ✓</string>
     <string name="agregado_biblioteca">Tomo agregado a tu biblioteca.</string>
     <string name="eliminado_biblioteca">Tomo eliminado de tu biblioteca.</string>
@@ -379,6 +432,7 @@
 
     <!-- LibraryActivity -->
     <string name="biblioteca_titulo">Mi biblioteca</string>
+    <string name="biblioteca_titulo_externo">Biblioteca de %1$s</string>
     <string name="biblioteca_cargando">Cargando biblioteca...</string>
     <string name="biblioteca_vacia">Tu biblioteca esta vacia. Comienza agregando tomos.</string>
     <string name="biblioteca_sin_resultados">No se encontraron comics con los criterios seleccionados.</string>
@@ -418,7 +472,8 @@
     <string name="listas_tematicas_filtro_recientes">Mas recientes</string>
     <string name="listas_tematicas_filtro_guia">Guia de lectura</string>
     <string name="listas_tematicas_filtro_guardadas">Listas guardadas</string>
-    <string name="listas_tematicas_buscar_hint">Buscar por nombre de lista</string>
+    <string name="listas_tematicas_buscar_hint">Escribe parte del nombre de la lista tematica</string>
+    <string name="listas_tematicas_buscar_titulo">Buscar por nombre</string>
     <string name="listas_tematicas_sin_resultados_busqueda">No se encontraron listas con ese nombre.</string>
     <string name="listas_tematicas_sin_listas_guia">No hay listas de guia de lectura.</string>
     <string name="listas_tematicas_sin_listas">No hay listas tematicas disponibles.</string>
@@ -426,7 +481,9 @@
     <string name="listas_tematicas_sin_portadas">Sin portadas</string>
     <string name="listas_tematicas_cargar_mas">Cargar 15 listas mas</string>
     <string name="listas_tematicas_no_mas">No hay mas listas</string>
+    <string name="listas_tematicas_creado_por_formato">Creado por: %1$s</string>
     <string name="listas_tematicas_guia_badge">Guia de lectura</string>
+    <string name="detalle_lista_guia_badge_formato">📚 %1$s</string>
     <string name="listas_tematicas_likes">Likes: %1$d</string>
     <string name="listas_tematicas_comentarios">Comentarios: %1$d</string>
 
@@ -470,7 +527,8 @@
     <string name="detalle_lista_guardar_lista">Guardar lista</string>
     <string name="detalle_lista_sin_tomos">Esta lista no tiene tomos.</string>
     <string name="detalle_lista_editar">Editar lista</string>
-    <string name="detalle_lista_tomos_titulo">Tomos de la lista</string>
+    <string name="detalle_lista_tomos_titulo">TOMOS DE LA LISTA TEMATICA (0)</string>
+    <string name="detalle_lista_tomos_titulo_formato">TOMOS DE LA LISTA TEMATICA (%1$d)</string>
     <string name="detalle_lista_me_gusta_activo">Ya me gusta ✓</string>
     <string name="detalle_lista_guardada_activa">Lista guardada ✓</string>
     <string name="detalle_lista_no_encontrada">Lista no encontrada.</string>
@@ -479,7 +537,9 @@
     <string name="detalle_lista_creador_generico">Usuario</string>
     <string name="detalle_lista_creador_cargando">Creador: ...</string>
     <string name="detalle_lista_creador_formato">Creador: %1$s</string>
-    <string name="detalle_lista_comentarios_titulo">Comentarios</string>
+    <string name="detalle_lista_comentarios_titulo">COMENTARIOS (0)</string>
+    <string name="detalle_lista_comentarios_titulo_formato">COMENTARIOS (%1$d)</string>
+    <string name="detalle_lista_agregar_comentarios_titulo">AGREGAR COMENTARIOS</string>
     <string name="detalle_lista_sin_comentarios">Aun no hay comentarios. Se el primero en comentar.</string>
     <string name="detalle_lista_error_comentarios">No se pudieron cargar los comentarios.</string>
     <string name="detalle_lista_agregar_comentario_label">Agregar comentario</string>
@@ -588,13 +648,13 @@
     <string name="delete_account_warning_2">Confirma que deseas eliminar tu cuenta escribiendo tu NICK exacto.\n\nTu nick es: %1$s\n\nUna vez confirmado, tu cuenta sera eliminada permanentemente.</string>
     <string name="delete_account_input_hint_1">Presiona siguiente para continuar</string>
     <string name="delete_account_input_hint_2">Escribe tu nick exacto para confirmar</string>
-    <string name="delete_account_understand">Entiendo las consecuencias</string>
+    <string name="delete_account_understand">Continuar...</string>
     <string name="delete_account_final_confirm">Eliminar cuenta permanentemente</string>
     <string name="perfil_boton_eliminar_cuenta">Eliminar mi cuenta</string>
     <string name="delete_account_warning_message">ADVERTENCIA: La eliminacion de tu cuenta es PERMANENTE e IRREVERSIBLE.\n\nSe eliminaran:\n- Todos tus datos de perfil\n- Tus amigos y chats\n- Tu biblioteca y listas\n- Tus calificaciones y comentarios\n- Toda tu actividad en la comunidad\n\nEsta accion NO puede deshacerse.</string>
     <string name="delete_account_confirmation_message">Confirma que deseas eliminar tu cuenta escribiendo tu NICK exacto.\n\nEsta es la ultima etapa. Una vez confirmado, tu cuenta sera eliminada permanentemente.</string>
     <string name="delete_account_input_nick_hint">Escribe tu nick exacto para confirmar</string>
-    <string name="delete_account_understand_button">Entiendo las consecuencias</string>
+    <string name="delete_account_understand_button">Continuar...</string>
     <string name="delete_account_confirm_button">Eliminar cuenta permanentemente</string>
     <string name="delete_account_empty_confirmation">Debes escribir tu nick para confirmar.</string>
     <string name="delete_account_nick_mismatch">El nick ingresado no coincide con tu nick. Intenta nuevamente.</string>

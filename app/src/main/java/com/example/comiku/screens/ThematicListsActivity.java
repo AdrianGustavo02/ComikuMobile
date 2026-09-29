@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -81,6 +82,18 @@ public class ThematicListsActivity extends BaseDrawerActivity {
         textoEstado = findViewById(R.id.textoEstadoListasTematicas);
         barraBusqueda = findViewById(R.id.barraBusquedaListasTematicas);
         spinnerFiltro = findViewById(R.id.spinnerFiltroListasTematicas);
+        textoEstado.setTextSize(18f);
+        barraBusqueda.setTextColor(android.graphics.Color.WHITE);
+        barraBusqueda.setHintTextColor(0xFF6B6B6B);
+        barraBusqueda.setTextSize(16f);
+        barraBusqueda.setTypeface(Typeface.DEFAULT_BOLD);
+        barraBusqueda.setBackground(getDrawable(R.drawable.bg_library_search_input));
+        barraBusqueda.setPadding(
+                ThematicListUiHelper.dpToPx(this, 14),
+                ThematicListUiHelper.dpToPx(this, 14),
+                ThematicListUiHelper.dpToPx(this, 14),
+                ThematicListUiHelper.dpToPx(this, 14)
+        );
 
         Button botonCrear = findViewById(R.id.botonCrearListaTematica);
         Button botonMisListas = findViewById(R.id.botonMisListasTematicas);
@@ -114,9 +127,17 @@ public class ThematicListsActivity extends BaseDrawerActivity {
                 getString(R.string.listas_tematicas_filtro_guia),
                 getString(R.string.listas_tematicas_filtro_guardadas)
         };
-        ArrayAdapter<String> adaptador = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opciones);
-        adaptador.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerFiltro.setBackground(getDrawable(R.drawable.bg_library_genre_filter));
+        spinnerFiltro.setPadding(
+                ThematicListUiHelper.dpToPx(this, 12),
+                ThematicListUiHelper.dpToPx(this, 10),
+                ThematicListUiHelper.dpToPx(this, 12),
+                ThematicListUiHelper.dpToPx(this, 10)
+        );
+        ArrayAdapter<String> adaptador = new ArrayAdapter<>(this, R.layout.item_library_genre_selected, opciones);
+        adaptador.setDropDownViewResource(R.layout.item_library_genre_dropdown_item);
         spinnerFiltro.setAdapter(adaptador);
+        spinnerFiltro.setPopupBackgroundDrawable(getDrawable(R.drawable.bg_library_genre_dropdown));
         spinnerListo = true;
 
         spinnerFiltro.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -376,47 +397,95 @@ public class ThematicListsActivity extends BaseDrawerActivity {
         LinearLayout tarjeta = ThematicListUiHelper.createCardContainer(this);
         tarjeta.setClickable(true);
         tarjeta.setOnClickListener(v -> openListDetail(lista.id));
+        tarjeta.setPadding(0, 0, 0, ThematicListUiHelper.dpToPx(this, 12));
 
-        tarjeta.addView(ThematicListUiHelper.createWallpaperStrip(
+        tarjeta.addView(ThematicListUiHelper.createFixedWallpaperStrip(
                 this,
                 lista.fotosDePortadas,
-                120,
+                164,
                 getString(R.string.listas_tematicas_sin_portadas)
         ));
 
-        TextView textoNombre = ThematicListUiHelper.createTitle(this, lista.nombre, 16f);
-        tarjeta.addView(textoNombre);
+        LinearLayout contenido = new LinearLayout(this);
+        contenido.setOrientation(LinearLayout.VERTICAL);
+        contenido.setPadding(
+                ThematicListUiHelper.dpToPx(this, 12),
+                ThematicListUiHelper.dpToPx(this, 12),
+                ThematicListUiHelper.dpToPx(this, 12),
+                0
+        );
+
+        TextView textoNombre = ThematicListUiHelper.createTitle(this, lista.nombre, 18f);
+        textoNombre.setTextColor(android.graphics.Color.WHITE);
+        LinearLayout.LayoutParams paramsTitulo = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        paramsTitulo.bottomMargin = ThematicListUiHelper.dpToPx(this, 4);
+        textoNombre.setLayoutParams(paramsTitulo);
+        contenido.addView(textoNombre);
+
+        TextView textoNick = new TextView(this);
+        textoNick.setText(getString(R.string.detalle_lista_creador_cargando));
+        textoNick.setTextColor(android.graphics.Color.parseColor("#d9cdea"));
+        textoNick.setTextSize(15f);
+        textoNick.setMaxLines(1);
+        textoNick.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams paramsNick = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        paramsNick.bottomMargin = ThematicListUiHelper.dpToPx(this, 6);
+        textoNick.setLayoutParams(paramsNick);
+        contenido.addView(textoNick);
+        if (!TextUtils.isEmpty(lista.userId)) {
+            ThematicListRepository.getCreatorNick(lista.userId)
+                            .addOnSuccessListener(nick -> textoNick.setText(getString(R.string.listas_tematicas_creado_por_formato, nick)));
+        }
 
         if (!TextUtils.isEmpty(lista.descripcion)) {
             TextView textoDescripcion = new TextView(this);
             textoDescripcion.setText(lista.descripcion);
-            textoDescripcion.setMaxLines(2);
+            textoDescripcion.setTextColor(android.graphics.Color.parseColor("#d9cdea"));
+            textoDescripcion.setTextSize(15f);
+            textoDescripcion.setMaxLines(3);
             textoDescripcion.setEllipsize(TextUtils.TruncateAt.END);
-            tarjeta.addView(textoDescripcion);
-        }
-
-        TextView textoNick = new TextView(this);
-        textoNick.setText(getString(R.string.detalle_lista_creador_cargando));
-        tarjeta.addView(textoNick);
-        if (!TextUtils.isEmpty(lista.userId)) {
-            ThematicListRepository.getCreatorNick(lista.userId)
-                    .addOnSuccessListener(nick -> textoNick.setText(getString(R.string.detalle_lista_creador_formato, nick)));
-        }
-
-        if (lista.esGuiaDeLectura) {
-            TextView badge = new TextView(this);
-            badge.setText(getString(R.string.listas_tematicas_guia_badge));
-            badge.setTextColor(0xFF388E3C);
-            tarjeta.addView(badge);
+            LinearLayout.LayoutParams paramsDescripcion = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            paramsDescripcion.bottomMargin = ThematicListUiHelper.dpToPx(this, 8);
+            textoDescripcion.setLayoutParams(paramsDescripcion);
+            contenido.addView(textoDescripcion);
         }
 
         TextView textoMetricas = new TextView(this);
-        textoMetricas.setText(
-                getString(R.string.listas_tematicas_likes, lista.cantidadLikes)
-                        + "  "
-                        + getString(R.string.listas_tematicas_comentarios, lista.cantidadComentarios)
+        textoMetricas.setTextColor(android.graphics.Color.parseColor("#d9cdea"));
+        textoMetricas.setTextSize(14f);
+        textoMetricas.setMaxLines(1);
+        textoMetricas.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams paramsMetricas = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        tarjeta.addView(textoMetricas);
+        textoMetricas.setLayoutParams(paramsMetricas);
+
+        StringBuilder textoFila = new StringBuilder();
+        if (lista.esGuiaDeLectura) {
+            textoFila.append("📚 ");
+            textoFila.append(getString(R.string.listas_tematicas_guia_badge));
+            textoFila.append(" | ");
+        }
+        textoFila.append("Me gusta: ");
+        textoFila.append(lista.cantidadLikes);
+        textoFila.append(" | ");
+        textoFila.append("Comentarios: ");
+        textoFila.append(lista.cantidadComentarios);
+
+        textoMetricas.setText(textoFila.toString());
+        contenido.addView(textoMetricas);
+
+        tarjeta.addView(contenido);
 
         return tarjeta;
     }

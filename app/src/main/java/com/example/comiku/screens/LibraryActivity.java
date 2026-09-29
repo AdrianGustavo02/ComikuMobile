@@ -1,9 +1,11 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -17,6 +19,7 @@ import com.example.comiku.data.constants.GenerosComic;
 import com.example.comiku.data.repository.UserShelfRepository;
 import com.example.comiku.core.validation.InputValidator;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,12 +28,18 @@ import java.util.List;
 import java.util.Locale;
 
 public class LibraryActivity extends BaseUserShelfActivity {
+    public static final String EXTRA_LIBRARY_USER_ID = "extra_library_user_id";
+    public static final String EXTRA_LIBRARY_USER_NICK = "extra_library_user_nick";
+
     private Spinner spinnerGenero;
     private EditText campoBusqueda;
     private final List<UserShelfComicGroupData> itemsBiblioteca = new ArrayList<>();
     private final List<String> generosOrdenados = new ArrayList<>();
     private String generoSeleccionado = "";
     private String busquedaActual = "";
+    private String uidBibliotecaObjetivo = "";
+    private String nickBibliotecaObjetivo = "";
+    private boolean esBibliotecaExterna;
 
 
     @Override
@@ -40,12 +49,27 @@ public class LibraryActivity extends BaseUserShelfActivity {
             openLoginAndClearStack();
             return;
         }
+        uidBibliotecaObjetivo = resolveTargetUserId();
+        nickBibliotecaObjetivo = getIntent().getStringExtra(EXTRA_LIBRARY_USER_NICK);
+        esBibliotecaExterna = isExternalShelf();
         setupDrawerShell(getString(R.string.biblioteca_titulo));
+        if (esBibliotecaExterna && TextUtils.isEmpty(nickBibliotecaObjetivo)) {
+            loadExternalShelfTitle();
+        }
     }
 
     @Override
     protected int getShelfTitle() {
         return R.string.biblioteca_titulo;
+    }
+
+    // Devuelve el titulo segun el usuario de la biblioteca.
+    @Override
+    protected CharSequence getShelfTitleText() {
+        if (esBibliotecaExterna && !TextUtils.isEmpty(nickBibliotecaObjetivo)) {
+            return getString(R.string.biblioteca_titulo_externo, nickBibliotecaObjetivo);
+        }
+        return getString(getShelfTitle());
     }
 
     @Override
@@ -69,15 +93,24 @@ public class LibraryActivity extends BaseUserShelfActivity {
         clearControls();
 
         TextView etiquetaGenero = createSectionLabel(getString(R.string.biblioteca_filtro_genero));
+        etiquetaGenero.setPadding(0, dpToPx(2), 0, dpToPx(10));
         addControlView(etiquetaGenero);
 
-        spinnerGenero = new Spinner(this);
+        spinnerGenero = new LimitedHeightSpinner(this);
+        spinnerGenero.setBackground(getDrawable(R.drawable.bg_library_genre_filter));
+        spinnerGenero.setPadding(dpToPx(12), dpToPx(10), dpToPx(12), dpToPx(10));
+        LinearLayout.LayoutParams paramsSpinner = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsSpinner.bottomMargin = dpToPx(12);
+        spinnerGenero.setLayoutParams(paramsSpinner);
         ArrayAdapter<String> adaptadorGenero = new ArrayAdapter<>(
                 this,
-                android.R.layout.simple_spinner_item,
+                R.layout.item_library_genre_selected,
                 getSortedGenres()
         );
-        adaptadorGenero.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adaptadorGenero.setDropDownViewResource(R.layout.item_library_genre_dropdown_item);
         spinnerGenero.setAdapter(adaptadorGenero);
         spinnerGenero.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
@@ -95,11 +128,23 @@ public class LibraryActivity extends BaseUserShelfActivity {
         addControlView(spinnerGenero);
 
         TextView etiquetaBusqueda = createSectionLabel(getString(R.string.biblioteca_busqueda));
-        etiquetaBusqueda.setPadding(0, dpToPx(10), 0, dpToPx(6));
+        etiquetaBusqueda.setPadding(0, dpToPx(12), 0, dpToPx(10));
         addControlView(etiquetaBusqueda);
 
         campoBusqueda = new EditText(this);
         campoBusqueda.setHint(R.string.biblioteca_busqueda_hint);
+        campoBusqueda.setTextColor(android.graphics.Color.WHITE);
+        campoBusqueda.setHintTextColor(0xFF6B6B6B);
+        campoBusqueda.setTextSize(16f);
+        campoBusqueda.setTypeface(Typeface.DEFAULT_BOLD);
+        campoBusqueda.setBackground(getDrawable(R.drawable.bg_library_search_input));
+        campoBusqueda.setPadding(dpToPx(14), dpToPx(14), dpToPx(14), dpToPx(14));
+        LinearLayout.LayoutParams paramsBusqueda = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsBusqueda.topMargin = dpToPx(2);
+        campoBusqueda.setLayoutParams(paramsBusqueda);
         campoBusqueda.setSingleLine(true);
         campoBusqueda.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(120)});
         campoBusqueda.addTextChangedListener(new android.text.TextWatcher() {
@@ -122,9 +167,7 @@ public class LibraryActivity extends BaseUserShelfActivity {
 
     @Override
     protected void refreshData() {
-        String uidUsuario = FirebaseAuth.getInstance().getCurrentUser() != null
-                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
-                : "";
+        String uidUsuario = uidBibliotecaObjetivo;
 
         if (TextUtils.isEmpty(uidUsuario)) {
             openLoginAndClearStack();
@@ -151,6 +194,53 @@ public class LibraryActivity extends BaseUserShelfActivity {
                             ? error.getMessage()
                             : getString(R.string.biblioteca_error));
                     showEmptyState(getString(R.string.biblioteca_vacia));
+                });
+    }
+
+    // Resuelve el uid que se debe mostrar en la biblioteca.
+    private String resolveTargetUserId() {
+        String uidExtra = getIntent().getStringExtra(EXTRA_LIBRARY_USER_ID);
+        if (!TextUtils.isEmpty(uidExtra)) {
+            return uidExtra;
+        }
+        return FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                : "";
+    }
+
+    // Indica si la biblioteca pertenece a otro usuario.
+    private boolean isExternalShelf() {
+        String uidActual = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                : "";
+        return !TextUtils.isEmpty(uidBibliotecaObjetivo)
+                && !TextUtils.isEmpty(uidActual)
+                && !uidBibliotecaObjetivo.equals(uidActual);
+    }
+
+    // Indica si la biblioteca visible es la del usuario actual.
+    public boolean isShowingCurrentUserLibrary() {
+        return !isExternalShelf();
+    }
+
+    // Carga el nick cuando la biblioteca ajena llega sin nombre.
+    private void loadExternalShelfTitle() {
+        FirebaseFirestore.getInstance()
+                .collection("usuario")
+                .document(uidBibliotecaObjetivo)
+                .get()
+                .addOnSuccessListener(documento -> {
+                    if (documento == null || !documento.exists()) {
+                        return;
+                    }
+                    String nick = documento.getString("Nick");
+                    if (TextUtils.isEmpty(nick)) {
+                        return;
+                    }
+                    nickBibliotecaObjetivo = nick;
+                    if (textoTituloListaUsuario != null) {
+                        textoTituloListaUsuario.setText(getShelfTitleText());
+                    }
                 });
     }
 
@@ -216,7 +306,9 @@ public class LibraryActivity extends BaseUserShelfActivity {
     // Crea una card para mostrar un comic en la biblioteca.
     private View createLibraryCard(UserShelfComicGroupData grupo) {
         LinearLayout tarjeta = createCardContainer();
-        tarjeta.setBackgroundColor(0xFFFFFFFF);
+        tarjeta.setOrientation(LinearLayout.HORIZONTAL);
+        tarjeta.setBackground(getDrawable(R.drawable.bg_library_comic_card));
+        tarjeta.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
         tarjeta.setClickable(true);
         tarjeta.setFocusable(true);
         tarjeta.setOnClickListener(v -> {
@@ -226,7 +318,14 @@ public class LibraryActivity extends BaseUserShelfActivity {
         });
 
         UserShelfVolumeItemData tomoDestacado = grupo.getFeaturedVolume();
-        android.widget.ImageView imagenPortada = createCoverImage();
+        android.widget.ImageView imagenPortada = new android.widget.ImageView(this);
+        LinearLayout.LayoutParams parametrosPortada = new LinearLayout.LayoutParams(dpToPx(116), dpToPx(168));
+        parametrosPortada.setMarginEnd(dpToPx(12));
+        imagenPortada.setLayoutParams(parametrosPortada);
+        imagenPortada.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+        imagenPortada.setBackground(getDrawable(R.drawable.bg_volume_cover_image));
+        imagenPortada.setClipToOutline(true);
+
         android.graphics.Bitmap bitmap = decodeDataUrl(tomoDestacado != null && tomoDestacado.tomo != null
                 ? tomoDestacado.tomo.getPortadaDataUrl()
                 : null);
@@ -237,13 +336,36 @@ public class LibraryActivity extends BaseUserShelfActivity {
         }
         tarjeta.addView(imagenPortada);
 
-        TextView textoNombre = createTextLine(grupo.comic.nombre, true);
-        tarjeta.addView(textoNombre);
-        tarjeta.addView(createTextLine(grupo.comic.editorial, false));
-        tarjeta.addView(createTextLine(grupo.comic.paisEditorial, false));
-        tarjeta.addView(createTextLine("Tomos guardados: " + grupo.tomos.size(), false));
+        LinearLayout contenedorInfo = new LinearLayout(this);
+        contenedorInfo.setOrientation(LinearLayout.VERTICAL);
+        contenedorInfo.setLayoutParams(new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
 
+        TextView textoNombre = new TextView(this);
+        textoNombre.setText(grupo.comic != null ? grupo.comic.nombre : "");
+        textoNombre.setTextSize(22f);
+        textoNombre.setTypeface(null, android.graphics.Typeface.BOLD);
+        textoNombre.setTextColor(getColor(android.R.color.white));
+        contenedorInfo.addView(textoNombre);
+
+        contenedorInfo.addView(createLibraryInfoLine(grupo.comic != null ? grupo.comic.editorial : ""));
+        contenedorInfo.addView(createLibraryInfoLine(grupo.comic != null ? grupo.comic.paisEditorial : ""));
+        contenedorInfo.addView(createLibraryInfoLine("Tomos guardados: " + grupo.tomos.size()));
+
+        tarjeta.addView(contenedorInfo);
         return tarjeta;
+    }
+
+    // Crea una linea de texto secundario para la card de biblioteca.
+    private TextView createLibraryInfoLine(String texto) {
+        TextView linea = new TextView(this);
+        linea.setText(texto);
+        linea.setTextSize(18f);
+        linea.setTextColor(getColor(R.color.carousel_subtitle));
+        return linea;
     }
 
     // Normaliza texto para buscar sin distinguir mayusculas.

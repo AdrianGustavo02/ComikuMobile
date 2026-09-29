@@ -1,6 +1,7 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,8 +13,10 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Base64;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -32,6 +35,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.comiku.R;
+import com.example.comiku.core.image.FileNameResolver;
+import com.example.comiku.core.ui.DeleteConfirmDialogComponent;
+import com.example.comiku.core.ui.ToastUtils;
+import com.example.comiku.core.ui.ImagePickerFieldComponent;
 import com.example.comiku.core.firebase.ChatChannelService;
 import com.example.comiku.core.image.ImageCropperConfig;
 import com.example.comiku.data.model.ChatChannelData;
@@ -51,7 +58,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class GroupMembersActivity extends AppCompatActivity {
+public class GroupMembersActivity extends BasePlainScreenActivity {
     private String channelId;
     private String usuarioActualId;
     private RecyclerView listaMiembrosGrupo;
@@ -62,9 +69,9 @@ public class GroupMembersActivity extends AppCompatActivity {
     private ImageView imagenGrupoCabecera;
     private ImageView imagenGrupoEditorPreview;
     private ImageButton botonMenuGrupoAcciones;
-    private Button botonElegirFotoGrupoEditor;
     private Button botonQuitarFotoGrupoEditor;
     private Button botonGuardarDatosGrupo;
+    private ImagePickerFieldComponent selectorFotoGrupoEditorComponente;
     private LinearLayout contenedorEditarGrupo;
     private EditText campoEditarNombreGrupo;
     private EditText campoEditarDescripcionGrupo;
@@ -78,6 +85,8 @@ public class GroupMembersActivity extends AppCompatActivity {
     private boolean editorVisible = false;
     private boolean usuarioActualEsAdmin = false;
     private String dataUrlFotoGrupoEditada = "";
+    private String nombreFotoGrupoEditada = "";
+    private String tipoFotoGrupoEditada = "";
     private boolean fotoGrupoEditadaPorUsuario = false;
     private static final int MENU_EDITAR_INFO = 1;
     private static final int MENU_AGREGAR_MIEMBROS = 2;
@@ -115,7 +124,7 @@ public class GroupMembersActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_members);
+        setupPlainScreenShell(R.layout.activity_group_members);
 
         inicializarDependencias();
         inicializarVistas();
@@ -142,16 +151,19 @@ public class GroupMembersActivity extends AppCompatActivity {
         imagenGrupoCabecera = findViewById(R.id.imagenGrupoCabecera);
         imagenGrupoEditorPreview = findViewById(R.id.imagenGrupoEditorPreview);
         botonMenuGrupoAcciones = findViewById(R.id.botonMenuGrupoAcciones);
-        botonElegirFotoGrupoEditor = findViewById(R.id.botonElegirFotoGrupoEditor);
         botonQuitarFotoGrupoEditor = findViewById(R.id.botonQuitarFotoGrupoEditor);
         botonGuardarDatosGrupo = findViewById(R.id.botonGuardarDatosGrupo);
         contenedorEditarGrupo = findViewById(R.id.contenedorEditarGrupo);
         campoEditarNombreGrupo = findViewById(R.id.campoEditarNombreGrupo);
         campoEditarDescripcionGrupo = findViewById(R.id.campoEditarDescripcionGrupo);
+        selectorFotoGrupoEditorComponente = new ImagePickerFieldComponent(
+                findViewById(R.id.componenteSelectorFotoGrupoEditor)
+        );
+        selectorFotoGrupoEditorComponente.setButtonText(R.string.grupo_boton_elegir_foto);
 
         botonGuardarDatosGrupo.setOnClickListener(v -> guardarDatosGrupo());
         botonMenuGrupoAcciones.setOnClickListener(v -> mostrarMenuAccionesGrupo());
-        botonElegirFotoGrupoEditor.setOnClickListener(v -> abrirSelectorFotoGrupoEditor());
+        selectorFotoGrupoEditorComponente.setOnSelectClickListener(v -> abrirSelectorFotoGrupoEditor());
         botonQuitarFotoGrupoEditor.setOnClickListener(v -> quitarFotoGrupoEditada());
         campoEditarNombreGrupo.addTextChangedListener(new TextWatcher() {
             @Override
@@ -194,7 +206,7 @@ public class GroupMembersActivity extends AppCompatActivity {
     // Cargar datos del grupo y miembros
     private void cargarGrupo() {
         if (channelId == null || channelId.trim().isEmpty()) {
-            Toast.makeText(this, "Canal no valido", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "Canal no valido", Toast.LENGTH_SHORT);
             finish();
             return;
         }
@@ -230,7 +242,7 @@ public class GroupMembersActivity extends AppCompatActivity {
             @Override
             public void onError(String error) {
                 progresoMiembrosGrupo.setVisibility(android.view.View.GONE);
-                Toast.makeText(GroupMembersActivity.this, error, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, error, Toast.LENGTH_SHORT);
             }
         });
     }
@@ -313,12 +325,12 @@ public class GroupMembersActivity extends AppCompatActivity {
                     }
 
                     if (candidatosIds.isEmpty()) {
-                        Toast.makeText(this, "No hay amigos disponibles para agregar", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(this, "No hay amigos disponibles para agregar", Toast.LENGTH_SHORT);
                         return;
                     }
                     cargarCandidatosParaDialogo(candidatosIds);
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "No se pudo cargar amigos", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> ToastUtils.showTextToast(this, "No se pudo cargar amigos", Toast.LENGTH_SHORT));
     }
 
     // Cargar candidatos para construir dialogo de seleccion multiple
@@ -357,7 +369,7 @@ public class GroupMembersActivity extends AppCompatActivity {
     // Mostrar dialogo y agregar miembros al confirmar
     private void mostrarDialogoSeleccionCandidatos(List<UserSearchData> candidatos) {
         if (candidatos.isEmpty()) {
-            Toast.makeText(this, "No hay amigos disponibles para agregar", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "No hay amigos disponibles para agregar", Toast.LENGTH_SHORT);
             return;
         }
         Set<String> seleccionados = new HashSet<>();
@@ -369,30 +381,52 @@ public class GroupMembersActivity extends AppCompatActivity {
         });
         listaCandidatos.setLayoutManager(new LinearLayoutManager(this));
         listaCandidatos.setAdapter(adaptadorCandidatos);
-        new AlertDialog.Builder(this)
+        AlertDialog dialogo = new AlertDialog.Builder(this)
                 .setTitle("Agregar miembros")
                 .setView(vistaDialogo)
                 .setPositiveButton("Agregar", (dialog, which) -> {
                     List<String> nuevos = new ArrayList<>(seleccionados);
                     if (nuevos.isEmpty()) {
-                        Toast.makeText(this, "No seleccionaste miembros", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(this, "No seleccionaste miembros", Toast.LENGTH_SHORT);
                         return;
                     }
                     channelService.agregarMiembrosGrupo(channelId, nuevos, new ChatChannelService.OperationCallback() {
                         @Override
                         public void onExito() {
-                            Toast.makeText(GroupMembersActivity.this, "Miembros agregados", Toast.LENGTH_SHORT).show();
+                            ToastUtils.showTextToast(GroupMembersActivity.this, "Miembros agregados", Toast.LENGTH_SHORT);
                             cargarGrupo();
                         }
 
                         @Override
                         public void onError(String error) {
-                            Toast.makeText(GroupMembersActivity.this, error, Toast.LENGTH_SHORT).show();
+                            ToastUtils.showTextToast(GroupMembersActivity.this, error, Toast.LENGTH_SHORT);
                         }
                     });
                 })
                 .setNegativeButton("Cancelar", null)
-                .show();
+                .create();
+
+        dialogo.setOnShowListener(dialogInterface -> {
+            Button botonCancelar = dialogo.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button botonAgregar = dialogo.getButton(AlertDialog.BUTTON_POSITIVE);
+
+            styleDialogButton(
+                    botonCancelar,
+                    R.drawable.bg_button_danger,
+                    getColorStateList(R.color.button_danger_text)
+            );
+            styleDialogButton(
+                    botonAgregar,
+                    R.drawable.bg_button_primary_action,
+                    getColorStateList(R.color.button_primary_action_text)
+            );
+            spaceDialogButtons(botonCancelar, botonAgregar);
+        });
+
+        dialogo.show();
+        if (dialogo.getWindow() != null) {
+            dialogo.getWindow().setBackgroundDrawableResource(R.drawable.bg_report_dialog_rounded);
+        }
     }
 
     // Promover miembro a admin
@@ -400,13 +434,13 @@ public class GroupMembersActivity extends AppCompatActivity {
         channelService.convertirMiembroEnAdmin(channelId, miembro.getUid(), new ChatChannelService.OperationCallback() {
             @Override
             public void onExito() {
-                Toast.makeText(GroupMembersActivity.this, "Ahora es administrador", Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, "Ahora es administrador", Toast.LENGTH_SHORT);
                 cargarGrupo();
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(GroupMembersActivity.this, obtenerMensajeErrorAbandono(error), Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, obtenerMensajeErrorAbandono(error), Toast.LENGTH_SHORT);
             }
         });
     }
@@ -428,13 +462,13 @@ public class GroupMembersActivity extends AppCompatActivity {
         channelService.eliminarMiembroGrupo(channelId, miembro.getUid(), new ChatChannelService.OperationCallback() {
             @Override
             public void onExito() {
-                Toast.makeText(GroupMembersActivity.this, "Miembro eliminado", Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, "Miembro eliminado", Toast.LENGTH_SHORT);
                 cargarGrupo();
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(GroupMembersActivity.this, error, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, error, Toast.LENGTH_SHORT);
             }
         });
     }
@@ -447,12 +481,14 @@ public class GroupMembersActivity extends AppCompatActivity {
         String nickMiembro = miembro.getNick() == null || miembro.getNick().trim().isEmpty()
                 ? "este miembro"
                 : miembro.getNick();
-        new AlertDialog.Builder(this)
-                .setTitle("Eliminar del grupo")
-                .setMessage("Se eliminara a " + nickMiembro + " del grupo. Deseas continuar?")
-                .setPositiveButton("Eliminar", (dialog, which) -> quitarMiembro(miembro))
-                .setNegativeButton("Cancelar", null)
-                .show();
+        new DeleteConfirmDialogComponent(
+                this,
+                "Eliminar del grupo",
+                "Se eliminara a " + nickMiembro + " del grupo. Deseas continuar?",
+                "Cancelar",
+                "Eliminar",
+                () -> quitarMiembro(miembro)
+        ).show();
     }
 
     // Abre el perfil de un miembro
@@ -463,7 +499,7 @@ public class GroupMembersActivity extends AppCompatActivity {
         FriendshipRepository.canOpenUserProfile(usuarioActualId, miembro.getUid())
                 .addOnSuccessListener(canOpen -> {
                     if (!Boolean.TRUE.equals(canOpen)) {
-                        Toast.makeText(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT);
                         return;
                     }
                     Intent intent = new Intent(this, ProfileActivity.class);
@@ -471,7 +507,8 @@ public class GroupMembersActivity extends AppCompatActivity {
                     startActivity(intent);
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT).show());
+                        ToastUtils.showTextToast(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT)
+                );
     }
 
     // Extrae la foto
@@ -643,13 +680,14 @@ public class GroupMembersActivity extends AppCompatActivity {
         }
         String tipoContenido = getContentResolver().getType(uriSeleccionada);
         if (!esTipoImagenPermitido(tipoContenido)) {
-            Toast.makeText(this, R.string.grupo_error_tipo_foto_no_valido, Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, R.string.grupo_error_tipo_foto_no_valido, Toast.LENGTH_SHORT);
             return;
         }
+        nombreFotoGrupoEditada = FileNameResolver.resolveFileName(this, uriSeleccionada, "foto-grupo-editada.jpg");
         Intent recorte = ImageCropperConfig.createIntent(
                 this,
                 uriSeleccionada,
-                "foto-grupo-editada.jpg",
+                buildCropOutputFileName(nombreFotoGrupoEditada, "foto-grupo-editada"),
                 getString(R.string.recorte_titulo_foto_grupo),
                 1,
                 1
@@ -669,22 +707,31 @@ public class GroupMembersActivity extends AppCompatActivity {
             }
             byte[] bytesImagen = leerBytesDesdeUri(uriRecortada);
             if (bytesImagen.length > TAMANO_MAXIMO_FOTO_BYTES) {
-                Toast.makeText(this, R.string.grupo_error_tamano_foto_no_valido, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(this, R.string.grupo_error_tamano_foto_no_valido, Toast.LENGTH_SHORT);
                 return;
             }
             dataUrlFotoGrupoEditada = construirDataUrlFoto(bytesImagen, tipoContenido);
+            if (TextUtils.isEmpty(nombreFotoGrupoEditada)) {
+                nombreFotoGrupoEditada = "foto-grupo-editada.jpg";
+            }
+            tipoFotoGrupoEditada = tipoContenido;
             fotoGrupoEditadaPorUsuario = true;
+            imagenGrupoEditorPreview.setImageURI(null);
             imagenGrupoEditorPreview.setImageURI(uriRecortada);
+            selectorFotoGrupoEditorComponente.showSelectedFile(nombreFotoGrupoEditada, tipoFotoGrupoEditada);
             actualizarEstadoFotoGrupoEditor();
         } catch (IOException error) {
-            Toast.makeText(this, R.string.grupo_error_lectura_foto, Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, R.string.grupo_error_lectura_foto, Toast.LENGTH_SHORT);
         }
     }
 
     // Quita la foto para volver al estado sin imagen.
     private void quitarFotoGrupoEditada() {
         dataUrlFotoGrupoEditada = "";
+        nombreFotoGrupoEditada = "";
+        tipoFotoGrupoEditada = "";
         fotoGrupoEditadaPorUsuario = true;
+        selectorFotoGrupoEditorComponente.clearSelection();
         actualizarEstadoFotoGrupoEditor();
     }
 
@@ -692,9 +739,12 @@ public class GroupMembersActivity extends AppCompatActivity {
     private void actualizarEstadoFotoGrupoEditor() {
         boolean tieneFoto = !TextUtils.isEmpty(dataUrlFotoGrupoEditada);
         if (tieneFoto) {
-            botonElegirFotoGrupoEditor.setText(R.string.grupo_boton_cambiar_foto);
+            selectorFotoGrupoEditorComponente.setButtonText(R.string.grupo_boton_cambiar_foto);
             botonQuitarFotoGrupoEditor.setVisibility(android.view.View.VISIBLE);
             imagenGrupoEditorPreview.setVisibility(android.view.View.VISIBLE);
+            if (fotoGrupoEditadaPorUsuario) {
+                selectorFotoGrupoEditorComponente.showSelectedFile(nombreFotoGrupoEditada, tipoFotoGrupoEditada);
+            }
             if (dataUrlFotoGrupoEditada.startsWith("data:")) {
                 Bitmap bitmap = decodeDataUrl(dataUrlFotoGrupoEditada);
                 if (bitmap != null) {
@@ -712,7 +762,8 @@ public class GroupMembersActivity extends AppCompatActivity {
             return;
         }
 
-        botonElegirFotoGrupoEditor.setText(R.string.grupo_boton_elegir_foto);
+        selectorFotoGrupoEditorComponente.setButtonText(R.string.grupo_boton_elegir_foto);
+        selectorFotoGrupoEditorComponente.clearSelection();
         botonQuitarFotoGrupoEditor.setVisibility(android.view.View.GONE);
         String nombreGrupo = campoEditarNombreGrupo.getText() == null
                 ? ""
@@ -745,6 +796,61 @@ public class GroupMembersActivity extends AppCompatActivity {
         }
         String base64 = Base64.encodeToString(bytesFoto, Base64.NO_WRAP);
         return "data:" + tipoFoto + ";base64," + base64;
+    }
+
+    // Crea un nombre de salida unico para que el recorte no recicle la misma uri.
+    private String buildCropOutputFileName(String nombreOriginal, String baseDefault) {
+        String nombreBase = TextUtils.isEmpty(nombreOriginal) ? baseDefault : nombreOriginal;
+        int indicePunto = nombreBase.lastIndexOf('.');
+        String extension = "jpg";
+        if (indicePunto > 0 && indicePunto < nombreBase.length() - 1) {
+            extension = nombreBase.substring(indicePunto + 1).toLowerCase();
+        }
+        String nombreSinExtension = indicePunto > 0 ? nombreBase.substring(0, indicePunto) : nombreBase;
+        String nombreLimpio = nombreSinExtension.replaceAll("[^a-zA-Z0-9._-]", "_");
+        return nombreLimpio + "-" + System.currentTimeMillis() + "." + extension;
+    }
+
+    // Aplica el estilo de los botones del dialogo.
+    private void styleDialogButton(Button boton, int fondoResId, ColorStateList colorTexto) {
+        if (boton == null) {
+            return;
+        }
+        boton.setAllCaps(false);
+        boton.setBackgroundResource(fondoResId);
+        boton.setBackgroundTintList(null);
+        boton.setTextColor(colorTexto);
+        boton.setTypeface(null, Typeface.BOLD);
+        boton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        boton.setPadding(dpToPx(16), dpToPx(11), dpToPx(16), dpToPx(11));
+        boton.setMinHeight(0);
+    }
+
+    // Separa visualmente los botones del dialogo.
+    private void spaceDialogButtons(Button botonIzquierdo, Button botonDerecho) {
+        applyDialogButtonMargin(botonIzquierdo, 0, 8);
+        applyDialogButtonMargin(botonDerecho, 8, 0);
+    }
+
+    // Ajusta el margen lateral si el contenedor lo permite.
+    private void applyDialogButtonMargin(Button boton, int margenInicioDp, int margenFinDp) {
+        if (boton == null) {
+            return;
+        }
+        ViewGroup.LayoutParams params = boton.getLayoutParams();
+        if (!(params instanceof ViewGroup.MarginLayoutParams)) {
+            return;
+        }
+        ViewGroup.MarginLayoutParams paramsMargen = (ViewGroup.MarginLayoutParams) params;
+        paramsMargen.setMarginStart(dpToPx(margenInicioDp));
+        paramsMargen.setMarginEnd(dpToPx(margenFinDp));
+        boton.setLayoutParams(paramsMargen);
+    }
+
+    // Convierte dp a pixeles para mantener medidas consistentes.
+    private int dpToPx(int valorDp) {
+        float densidad = getResources().getDisplayMetrics().density;
+        return Math.round(valorDp * densidad);
     }
 
     // Lee bytes desde un archivo elegido por el usuario.
@@ -782,14 +888,14 @@ public class GroupMembersActivity extends AppCompatActivity {
         channelService.actualizarDatosGrupo(channelId, nombre, descripcion, imagen, new ChatChannelService.OperationCallback() {
             @Override
             public void onExito() {
-                Toast.makeText(GroupMembersActivity.this, "Datos del grupo actualizados", Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, "Datos del grupo actualizados", Toast.LENGTH_SHORT);
                 editorVisible = false;
                 cargarGrupo();
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(GroupMembersActivity.this, error, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, error, Toast.LENGTH_SHORT);
             }
         });
     }
@@ -799,25 +905,27 @@ public class GroupMembersActivity extends AppCompatActivity {
         channelService.abandonarGrupo(channelId, new ChatChannelService.OperationCallback() {
             @Override
             public void onExito() {
-                Toast.makeText(GroupMembersActivity.this, "Abandonaste el grupo", Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, "Abandonaste el grupo", Toast.LENGTH_SHORT);
                 abrirPantallaChatsPrincipal();
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(GroupMembersActivity.this, error, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, error, Toast.LENGTH_SHORT);
             }
         });
     }
 
     // Pide confirmacion antes de abandonar el grupo.
     private void confirmarAbandonoGrupo() {
-        new AlertDialog.Builder(this)
-                .setTitle("Abandonar grupo")
-                .setMessage("Esta accion te sacara del grupo. ¿Deseas continuar?")
-                .setPositiveButton("Abandonar", (dialog, which) -> abandonarGrupo())
-                .setNegativeButton("Cancelar", null)
-                .show();
+        new DeleteConfirmDialogComponent(
+                this,
+                "Abandonar grupo",
+                "Esta accion te sacara del grupo. ¿Deseas continuar?",
+                "Cancelar",
+                "Abandonar",
+                this::abandonarGrupo
+        ).show();
     }
 
     // Borrar grupo con permisos de admin
@@ -825,25 +933,27 @@ public class GroupMembersActivity extends AppCompatActivity {
         channelService.borrarGrupo(channelId, new ChatChannelService.OperationCallback() {
             @Override
             public void onExito() {
-                Toast.makeText(GroupMembersActivity.this, "Grupo eliminado", Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, "Grupo eliminado", Toast.LENGTH_SHORT);
                 abrirPantallaChatsPrincipal();
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(GroupMembersActivity.this, error, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(GroupMembersActivity.this, error, Toast.LENGTH_SHORT);
             }
         });
     }
 
     // Pide confirmacion antes de borrar el grupo.
     private void confirmarBorradoGrupo() {
-        new AlertDialog.Builder(this)
-                .setTitle("Borrar grupo")
-                .setMessage("Esta accion eliminara el grupo. ¿Deseas continuar?")
-                .setPositiveButton("Borrar", (dialog, which) -> borrarGrupo())
-                .setNegativeButton("Cancelar", null)
-                .show();
+        new DeleteConfirmDialogComponent(
+                this,
+                "Borrar grupo",
+                "Esta accion eliminara el grupo. ¿Deseas continuar?",
+                "Cancelar",
+                "Borrar",
+                this::borrarGrupo
+        ).show();
     }
 
     // Abre la pantalla principal de chats y limpia la navegacion anterior.
@@ -857,7 +967,7 @@ public class GroupMembersActivity extends AppCompatActivity {
     // Mostrar dialogo para reportar el grupo
     private void mostrarDialogoReportarGrupo() {
         if (canalActual == null) {
-            Toast.makeText(this, "No se pudo obtener informacion del grupo", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "No se pudo obtener informacion del grupo", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -868,12 +978,12 @@ public class GroupMembersActivity extends AppCompatActivity {
             new ReportGroupDialog.OnReportCompleted() {
                 @Override
                 public void onSuccess() {
-                    Toast.makeText(GroupMembersActivity.this, "Gracias por ayudar a mantener la comunidad segura", Toast.LENGTH_SHORT).show();
+                    ToastUtils.showTextToast(GroupMembersActivity.this, "Gracias por ayudar a mantener la comunidad segura", Toast.LENGTH_SHORT);
                 }
 
                 @Override
                 public void onError(String mensaje) {
-                    Toast.makeText(GroupMembersActivity.this, "Error: " + mensaje, Toast.LENGTH_SHORT).show();
+                    ToastUtils.showTextToast(GroupMembersActivity.this, "Error: " + mensaje, Toast.LENGTH_SHORT);
                 }
             },
             selectorImagenReporte

@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/actividades_titulo"
-            android:textSize="20sp"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
@@ -24,7 +24,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="12dp"
             android:text="@string/actividades_lead"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <ProgressBar
             android:id="@+id/barraCargaActividades"
@@ -38,7 +38,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/actividades_cargando" />
+            android:gravity="center"
+            android:text="@string/actividades_cargando"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/contenedorActividades"
@@ -49,11 +52,12 @@
 
         <Button
             android:id="@+id/botonCargarMasActividades"
-            android:layout_width="match_parent"
+            style="@style/Theme.Comiku.ButtonSecondaryAction"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="12dp"
             android:text="@string/actividades_cargar_mas"
             android:visibility="gone" />
     </LinearLayout>
 </ScrollView>
-

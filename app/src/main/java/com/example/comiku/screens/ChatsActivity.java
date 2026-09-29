@@ -7,7 +7,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+import com.example.comiku.core.ui.StatusBarUtils;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.comiku.R;
@@ -31,7 +32,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
 // Pantalla principal de chats que muestra todos los canales
-public class ChatsActivity extends AppCompatActivity {
+public class ChatsActivity extends BaseDrawerActivity {
     private RecyclerView listaCanales;
     private ProgressBar indicadorCarga;
     private LinearLayout estadoVacio;
@@ -51,7 +52,9 @@ public class ChatsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chats);
+        StatusBarUtils.applyDarkStatusBar(this);
+        setupDrawerShell(getString(R.string.chats_titulo));
+        ocultarBotonRetroceso();
 
         inicializarVistas();
         inicializarFirebase();
@@ -59,6 +62,16 @@ public class ChatsActivity extends AppCompatActivity {
         authService = StreamChatAuthService.obtenerInstancia(this);
         configurarAdaptador();
         autenticarConStreamChat();
+    }
+
+    @Override
+    protected int getScreenLayoutId() {
+        return R.layout.activity_chats;
+    }
+
+    @Override
+    protected void onScreenContentReady() {
+        inicializarVistas();
     }
 
     @Override
@@ -83,6 +96,16 @@ public class ChatsActivity extends AppCompatActivity {
         botonReintentar.setOnClickListener(v -> cargarCanales());
         botonIniciarConversacion.setOnClickListener(v -> iniciarConversacion());
         botonCrearGrupo.setOnClickListener(v -> crearGrupo());
+    }
+
+    // Oculta el boton de navegacion en la barra superior de chats.
+    private void ocultarBotonRetroceso() {
+        Toolbar barraSuperior = findViewById(R.id.barraSuperiorPrincipal);
+        if (barraSuperior == null) {
+            return;
+        }
+        barraSuperior.setNavigationIcon(null);
+        barraSuperior.setNavigationOnClickListener(null);
     }
 
     // Inicializar Firebase

@@ -1,130 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layoutCreacionManualTomo"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingStart="14dp"
+    android:paddingTop="20dp"
+    android:paddingEnd="14dp"
+    android:paddingBottom="20dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tituloCreacionManualTomo"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/creacion_manual_tomo_titulo"
-            android:textSize="24sp"
+            app:cardBackgroundColor="@color/contenedor_login_registro"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:cardPreventCornerOverlap="false"
+            app:cardUseCompatPadding="false">
+
+            <LinearLayout
+                android:id="@+id/contenedorFormularioGenerico"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/textoTituloResumenTomosManual"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/creacion_manual_resumen_titulo"
+            android:textColor="@android:color/white"
+            android:textSize="30sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/subtituloCreacionManualTomo"
+            android:id="@+id/textoContadorTomosManual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/creacion_manual_tomo_subtitulo" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/creacion_manual_seccion_tomo"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/grupoModoTomoManual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radioModoNumeroTomoManual"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/creacion_manual_tomo_modo_numero" />
-
-            <RadioButton
-                android:id="@+id/radioModoUnicoTomoManual"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="@string/creacion_manual_tomo_modo_unico" />
-        </RadioGroup>
-
-        <EditText
-            android:id="@+id/campoNumeroTomoManual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/creacion_manual_tomo_numero"
-            android:inputType="number"
-            android:maxLength="4" />
-
-        <EditText
-            android:id="@+id/campoIsbnTomoManual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/creacion_manual_tomo_isbn"
-            android:inputType="number"
-            android:maxLength="13" />
-
-        <EditText
-            android:id="@+id/campoFechaPublicacionTomoManual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:focusable="false"
-            android:hint="@string/creacion_manual_tomo_fecha_publicacion"
-            android:inputType="none" />
-
-        <ImageView
-            android:id="@+id/imagenPortadaTomoManual"
-            android:layout_width="140dp"
-            android:layout_height="180dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:contentDescription="@string/creacion_manual_tomo_portada_contenido"
-            android:scaleType="centerCrop"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_carousel_container"
+            android:paddingStart="14dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="10dp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:visibility="gone" />
-
-        <Button
-            android:id="@+id/botonElegirPortadaTomoManual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/creacion_manual_tomo_boton_portada" />
-
-        <Button
-            android:id="@+id/botonAgregarTomoResumenManual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/creacion_manual_tomo_boton_agregar" />
 
         <TextView
             android:id="@+id/textoResumenTomosManual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/creacion_manual_resumen_vacio" />
+            android:layout_marginBottom="8dp"
+            android:gravity="center_horizontal"
+            android:text="@string/creacion_manual_resumen_vacio"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/contenedorResumenTomosManual"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/botonFinalizarCreacionManualTomo"
+            style="@style/Theme.Comiku.ButtonPrimaryAction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/creacion_manual_boton_finalizar" />
 
         <TextView
             android:id="@+id/textoErrorCreacionManualTomo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:textColor="@android:color/holo_red_dark" />
+            android:layout_marginTop="8dp"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/textoConfirmacionCreacionManualTomo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@android:color/holo_green_dark" />
+            android:layout_marginTop="6dp"
+            android:textColor="@android:color/holo_green_dark"
+            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/barraCargaCreacionManualTomo"
@@ -133,13 +105,6 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
             android:visibility="gone" />
-
-        <Button
-            android:id="@+id/botonFinalizarCreacionManualTomo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/creacion_manual_boton_finalizar" />
 
     </LinearLayout>
 </ScrollView>

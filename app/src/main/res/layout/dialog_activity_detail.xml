@@ -13,6 +13,8 @@
             android:id="@+id/textoTituloActividadDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -20,72 +22,94 @@
             android:id="@+id/textoFechaActividadDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:textColor="#FFFFFF"
             android:textSize="13sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="12dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/botonLikeActividadDialog"
+                style="@style/Theme.Comiku.ButtonPrimaryAction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/actividades_like" />
+                android:minHeight="48dp"
+                android:text="0" />
 
             <TextView
                 android:id="@+id/textoLikesActividadDialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="8dp"
+                android:textColor="#FFFFFF" />
 
             <TextView
                 android:id="@+id/textoComentariosActividadDialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp" />
+                android:layout_marginStart="12dp"
+                android:textColor="#FFFFFF"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/contenedorDetalleActividadDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp"
             android:orientation="vertical" />
 
         <TextView
             android:id="@+id/textoTituloComentariosActividadDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="10dp"
             android:text="@string/actividades_comentarios_titulo"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/campoComentarioActividadDialog"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:hint="@string/actividades_comentario_hint"
-            android:inputType="textMultiLine"
-            android:maxLength="300"
-            android:minLines="2" />
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/botonEnviarComentarioActividadDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/actividades_comentario_enviar" />
+            <EditText
+                android:id="@+id/campoComentarioActividadDialog"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:gravity="center_vertical"
+                android:hint="@string/actividades_comentario_hint"
+                android:inputType="textMultiLine"
+                android:maxLength="300"
+                android:minLines="1"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/botonEnviarComentarioActividadDialog"
+                style="@style/Theme.Comiku.ButtonPrimaryAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/actividades_comentario_enviar" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textoEstadoComentariosActividadDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="10dp"
+            android:alpha="0.7"
+            android:textColor="#cfc7d8"
             android:textSize="13sp"
             android:visibility="gone" />
 
@@ -93,16 +117,17 @@
             android:id="@+id/contenedorComentariosActividadDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp"
             android:orientation="vertical" />
 
         <Button
             android:id="@+id/botonCargarMasComentariosActividadDialog"
-            android:layout_width="match_parent"
+            style="@style/Theme.Comiku.ButtonSecondaryAction"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
             android:text="@string/actividades_comentarios_cargar_mas"
             android:visibility="gone" />
     </LinearLayout>
 </ScrollView>
-

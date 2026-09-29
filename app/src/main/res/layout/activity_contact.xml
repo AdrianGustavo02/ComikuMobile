@@ -1,85 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@android:color/white">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textoTituloContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/contacto_titulo"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textoLeadContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp"
-            android:text="@string/contacto_lead"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/textoTipoMensajeContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/contacto_tipo_label"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/selectorTipoMensajeContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp" />
-
-        <TextView
-            android:id="@+id/textoMensajeContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="@string/contacto_mensaje_label"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/campoMensajeContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:gravity="top|start"
-            android:hint="@string/contacto_mensaje_hint"
-            android:inputType="textMultiLine"
-            android:maxLength="300"
-            android:minLines="5" />
-
-        <ProgressBar
-            android:id="@+id/barraCargaContacto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/textoEstadoContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textColor="@android:color/holo_red_dark"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/botonEnviarContacto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="@string/contacto_boton_enviar" />
-    </LinearLayout>
-</ScrollView>
-
+    <include layout="@layout/view_generic_form_container" />
+</FrameLayout>

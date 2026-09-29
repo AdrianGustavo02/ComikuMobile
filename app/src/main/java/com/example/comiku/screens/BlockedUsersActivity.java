@@ -2,20 +2,21 @@ package com.example.comiku.screens;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Base64;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ThematicListUiHelper;
 import com.example.comiku.data.model.BlockedUserData;
 import com.example.comiku.data.repository.FriendshipRepository;
 import com.google.firebase.auth.FirebaseAuth;
@@ -74,6 +75,7 @@ public class BlockedUsersActivity extends BaseDrawerActivity {
     // Carga los usuarios bloqueados desde Firestore.
     private void loadBlockedUsers() {
         barraCarga.setVisibility(View.VISIBLE);
+        aplicarEstiloEstadoError();
         textoEstado.setVisibility(View.GONE);
         contenedorBloqueados.removeAllViews();
 
@@ -91,6 +93,7 @@ public class BlockedUsersActivity extends BaseDrawerActivity {
     private void renderBlockedUsers(List<BlockedUserData> bloqueados) {
         contenedorBloqueados.removeAllViews();
         if (bloqueados == null || bloqueados.isEmpty()) {
+            aplicarEstiloEstadoVacio();
             textoEstado.setText(getString(R.string.bloqueados_vacio));
             textoEstado.setVisibility(View.VISIBLE);
             return;
@@ -105,29 +108,33 @@ public class BlockedUsersActivity extends BaseDrawerActivity {
     // Crea la fila visual de un usuario bloqueado.
     private View buildBlockedUserRow(BlockedUserData bloqueado) {
         LinearLayout tarjeta = new LinearLayout(this);
-        tarjeta.setOrientation(LinearLayout.HORIZONTAL);
-        tarjeta.setGravity(Gravity.CENTER_VERTICAL);
-        tarjeta.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
+        tarjeta.setOrientation(LinearLayout.VERTICAL);
+        tarjeta.setBackgroundResource(R.drawable.bg_carousel_container);
+        tarjeta.setPadding(dpToPx(14), dpToPx(14), dpToPx(14), dpToPx(14));
         LinearLayout.LayoutParams paramsTarjeta = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        paramsTarjeta.bottomMargin = dpToPx(8);
+        paramsTarjeta.bottomMargin = dpToPx(10);
         tarjeta.setLayoutParams(paramsTarjeta);
-        tarjeta.setBackgroundResource(android.R.drawable.dialog_holo_light_frame);
 
-        ImageView fotoPerfil = new ImageView(this);
-        LinearLayout.LayoutParams paramsFoto = new LinearLayout.LayoutParams(dpToPx(48), dpToPx(48));
+        LinearLayout filaIdentidad = new LinearLayout(this);
+        filaIdentidad.setOrientation(LinearLayout.HORIZONTAL);
+        filaIdentidad.setGravity(Gravity.CENTER_VERTICAL);
+        filaIdentidad.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        RoundedImageView fotoPerfil = ThematicListUiHelper.createCircularProfileImage(this, 60);
+        LinearLayout.LayoutParams paramsFoto = new LinearLayout.LayoutParams(dpToPx(60), dpToPx(60));
         paramsFoto.setMarginEnd(dpToPx(12));
         fotoPerfil.setLayoutParams(paramsFoto);
-        fotoPerfil.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap bitmapFoto = decodeDataUrl(bloqueado.fotoPerfilDataUrl);
+        Bitmap bitmapFoto = ThematicListUiHelper.decodeDataUrl(bloqueado.fotoPerfilDataUrl);
         if (bitmapFoto != null) {
             fotoPerfil.setImageBitmap(bitmapFoto);
-        } else {
-            fotoPerfil.setImageResource(R.drawable.default_profile_picture);
         }
-        tarjeta.addView(fotoPerfil);
+        filaIdentidad.addView(fotoPerfil);
 
         LinearLayout columna = new LinearLayout(this);
         columna.setOrientation(LinearLayout.VERTICAL);
@@ -137,21 +144,37 @@ public class BlockedUsersActivity extends BaseDrawerActivity {
         textoNick.setText(TextUtils.isEmpty(bloqueado.nick)
                 ? getString(R.string.amigos_nick_desconocido)
                 : bloqueado.nick);
-        textoNick.setTextSize(15f);
+        textoNick.setTextSize(18f);
         textoNick.setTypeface(null, android.graphics.Typeface.BOLD);
+        textoNick.setTextColor(getColor(R.color.carousel_subtitle));
         columna.addView(textoNick);
 
         TextView textoFecha = new TextView(this);
         textoFecha.setText(formatBlockedDate(bloqueado.fechaBloqueo));
-        textoFecha.setTextSize(12f);
+        textoFecha.setTextSize(13f);
+        textoFecha.setTextColor(getColor(R.color.carousel_subtitle));
         columna.addView(textoFecha);
 
-        tarjeta.addView(columna);
+        filaIdentidad.addView(columna);
+        tarjeta.addView(filaIdentidad);
 
-        Button botonDesbloquear = new Button(this);
+        LinearLayout filaAcciones = new LinearLayout(this);
+        filaAcciones.setOrientation(LinearLayout.HORIZONTAL);
+        filaAcciones.setGravity(Gravity.END);
+        LinearLayout.LayoutParams paramsFilaAcciones = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsFilaAcciones.topMargin = dpToPx(10);
+        filaAcciones.setLayoutParams(paramsFilaAcciones);
+
+        ContextThemeWrapper contextoPrimario = new ContextThemeWrapper(this, R.style.Theme_Comiku_ButtonPrimaryAction);
+        Button botonDesbloquear = new Button(contextoPrimario, null, 0);
         botonDesbloquear.setText(getString(R.string.bloqueados_desbloquear));
         botonDesbloquear.setOnClickListener(v -> unblockUser(bloqueado.uid));
-        tarjeta.addView(botonDesbloquear);
+        filaAcciones.addView(botonDesbloquear);
+
+        tarjeta.addView(filaAcciones);
 
         return tarjeta;
     }
@@ -181,25 +204,26 @@ public class BlockedUsersActivity extends BaseDrawerActivity {
         );
     }
 
-    // Decodifica una imagen guardada como dataUrl.
-    private Bitmap decodeDataUrl(String dataUrl) {
-        if (TextUtils.isEmpty(dataUrl)) {
-            return null;
-        }
-        int indiceComa = dataUrl.indexOf(',');
-        if (indiceComa < 0 || indiceComa >= dataUrl.length() - 1) {
-            return null;
-        }
-        try {
-            byte[] bytes = Base64.decode(dataUrl.substring(indiceComa + 1), Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        } catch (IllegalArgumentException error) {
-            return null;
-        }
-    }
-
     // Convierte dp a pixeles.
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
+
+    // Aplica estilo del estado vacio para centrarlo y destacarlo.
+    private void aplicarEstiloEstadoVacio() {
+        textoEstado.setTextColor(getColor(android.R.color.black));
+        textoEstado.setTypeface(null, Typeface.BOLD);
+        textoEstado.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        textoEstado.setGravity(Gravity.CENTER);
+        textoEstado.setMinHeight(getResources().getDisplayMetrics().heightPixels / 2);
+    }
+
+    // Aplica estilo base para mensajes de error.
+    private void aplicarEstiloEstadoError() {
+        textoEstado.setTextColor(getColor(android.R.color.holo_red_dark));
+        textoEstado.setTypeface(null, Typeface.NORMAL);
+        textoEstado.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        textoEstado.setGravity(Gravity.START);
+        textoEstado.setMinHeight(0);
     }
 }

@@ -4,15 +4,20 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,6 +32,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.comiku.R;
+import com.example.comiku.core.ui.DeleteConfirmDialogComponent;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.firebase.ChatChannelService;
 import com.example.comiku.core.firebase.PrivacyService;
 import com.example.comiku.core.firebase.StreamChatAuthService;
@@ -71,10 +78,10 @@ import io.getstream.chat.android.ui.viewmodel.messages.MessageListViewModelBindi
 import io.getstream.chat.android.ui.viewmodel.messages.MessageListViewModelFactory;
 
 // Activity que muestra la conversacion usando los componentes nativos de Stream Chat
-public class ChatViewActivity extends AppCompatActivity {
+public class ChatViewActivity extends BasePlainScreenActivity {
 
     // Vistas del encabezado
-    private ImageView fotoOtroUsuario;
+    private RoundedImageView fotoOtroUsuario;
     private TextView nombreOtroUsuario;
     private TextView estadoOtroUsuario;
     private View encabezadoChat;
@@ -124,10 +131,16 @@ public class ChatViewActivity extends AppCompatActivity {
     private boolean bloqueadoPorOtro = false;
     private Boolean ultimoEstadoEnvioBloqueado = null;
 
+    // Oculta el remate superior para alinear el header con la barra de estado.
+    @Override
+    protected boolean shouldShowTopCap() {
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_view);
+        setupPlainScreenShell(R.layout.activity_chat_view);
 
         inicializarFirebase();
         inicializarServicios();
@@ -147,7 +160,9 @@ public class ChatViewActivity extends AppCompatActivity {
     // Vincula las vistas del layout con las variables de la clase
     private void inicializarVistas() {
         fotoOtroUsuario = findViewById(R.id.fotoOtroUsuario);
+        fotoOtroUsuario.setCircular(true);
         nombreOtroUsuario = findViewById(R.id.nombreOtroUsuario);
+        nombreOtroUsuario.setTextColor(Color.WHITE);
         estadoOtroUsuario = findViewById(R.id.estadoOtroUsuario);
         encabezadoChat = findViewById(R.id.encabezadoChat);
         botonOpciones = findViewById(R.id.botonOpciones);
@@ -155,6 +170,8 @@ public class ChatViewActivity extends AppCompatActivity {
         messageComposerView = findViewById(R.id.messageComposerView);
         indicadorCargaMensajes = findViewById(R.id.indicadorCargaMensajes);
         estadoError = findViewById(R.id.estadoError);
+        aplicarColorBotonEnviar();
+        aplicarEstiloInputMensaje();
 
         if (messageListView != null) {
             messageListView.setMessageOptionItemsFactory(new MessageOptionItemsFactory() {
@@ -172,6 +189,7 @@ public class ChatViewActivity extends AppCompatActivity {
                         if (opcion == null) {
                             continue;
                         }
+
                         Object accion = opcion.getMessageAction();
                         if (accion instanceof MarkAsUnread
                                 || accion instanceof Reply
@@ -192,6 +210,84 @@ public class ChatViewActivity extends AppCompatActivity {
         if (botonReintentar != null) {
             botonReintentar.setOnClickListener(v -> iniciarChat());
         }
+    }
+
+    // Aplica el color naranja del boton primario al boton enviar de Stream.
+    private void aplicarColorBotonEnviar() {
+        if (messageComposerView == null) {
+            return;
+        }
+        View botonEnviar = messageComposerView.findViewById(io.getstream.chat.android.ui.R.id.sendMessageButton);
+        if (botonEnviar == null) {
+            return;
+        }
+        int colorNaranja = ContextCompat.getColor(this, R.color.primary_button_orange_flat);
+        botonEnviar.setBackgroundTintList(ColorStateList.valueOf(colorNaranja));
+        if (botonEnviar instanceof ImageView) {
+            ((ImageView) botonEnviar).setImageTintList(ColorStateList.valueOf(Color.WHITE));
+        }
+    }
+
+    // Pone en blanco el icono del microfono del composer.
+    private void aplicarColorBotonMicrofono() {
+        if (messageComposerView == null) {
+            return;
+        }
+        View botonMicrofono = messageComposerView.findViewById(io.getstream.chat.android.ui.R.id.recordAudioButton);
+        if (!(botonMicrofono instanceof ImageView)) {
+            return;
+        }
+        ((ImageView) botonMicrofono).setImageTintList(ColorStateList.valueOf(Color.WHITE));
+    }
+
+    // Pone en blanco el icono del clip del composer.
+    private void aplicarColorBotonAdjuntos() {
+        if (messageComposerView == null) {
+            return;
+        }
+        View botonAdjuntos = messageComposerView.findViewById(io.getstream.chat.android.ui.R.id.attachmentsButton);
+        if (!(botonAdjuntos instanceof ImageView)) {
+            return;
+        }
+        ((ImageView) botonAdjuntos).setImageTintList(ColorStateList.valueOf(Color.WHITE));
+    }
+
+    // Aplica estilo visual al input del chat.
+    private void aplicarEstiloInputMensaje() {
+        if (messageComposerView == null) {
+            return;
+        }
+        int colorNavbar = Color.parseColor("#12091D");
+        int colorHint = Color.parseColor("#cdbfe3");
+        messageComposerView.setBackgroundColor(colorNavbar);
+        EditText campoMensaje = findEditTextInView(messageComposerView);
+        if (campoMensaje == null) {
+            return;
+        }
+        campoMensaje.setBackgroundTintList(ColorStateList.valueOf(colorNavbar));
+        campoMensaje.setTextColor(Color.WHITE);
+        campoMensaje.setHintTextColor(colorHint);
+    }
+
+    // Busca el EditText del composer dentro del arbol de vistas.
+    private EditText findEditTextInView(View vistaRaiz) {
+        if (vistaRaiz == null) {
+            return null;
+        }
+        if (vistaRaiz instanceof EditText) {
+            return (EditText) vistaRaiz;
+        }
+        if (!(vistaRaiz instanceof ViewGroup)) {
+            return null;
+        }
+        ViewGroup grupo = (ViewGroup) vistaRaiz;
+        for (int indice = 0; indice < grupo.getChildCount(); indice++) {
+            EditText campoEncontrado = findEditTextInView(grupo.getChildAt(indice));
+            if (campoEncontrado != null) {
+                return campoEncontrado;
+            }
+        }
+        return null;
     }
 
     // Inicializa las instancias de Firebase
@@ -227,9 +323,6 @@ public class ChatViewActivity extends AppCompatActivity {
 
     // Configura los clics del encabezado que no dependen del canal cargado
     private void configurarHeaderBotones() {
-        ImageButton botonRetroceso = findViewById(R.id.botonRetroceso);
-
-        if (botonRetroceso != null) botonRetroceso.setOnClickListener(v -> finish());
         if (botonOpciones != null) botonOpciones.setOnClickListener(v -> abrirOpcionesCanal());
 
         if (encabezadoChat != null) {
@@ -342,6 +435,9 @@ public class ChatViewActivity extends AppCompatActivity {
             // Vincula cada ViewModel a su vista nativa de Stream
             MessageListViewModelBinding.bind(listViewModel, messageListView, this);
             MessageComposerViewModelBinding.bind(composerViewModel, messageComposerView, this);
+            aplicarEstiloInputMensaje();
+            aplicarColorBotonMicrofono();
+            aplicarColorBotonAdjuntos();
             messageListView.setMessageEditHandler(mensaje -> composerViewModel.performMessageAction(
                     new Edit(mensaje)
             ));
@@ -451,7 +547,7 @@ public class ChatViewActivity extends AppCompatActivity {
     private void abrirVistaPreviaImagen(Attachment attachment) {
         String urlImagen = obtenerUrlImagenAdjunta(attachment);
         if (TextUtils.isEmpty(urlImagen)) {
-            Toast.makeText(this, "No se pudo abrir la imagen", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "No se pudo abrir la imagen", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -527,7 +623,7 @@ public class ChatViewActivity extends AppCompatActivity {
     private void abrirReproductorAudio(Attachment attachment) {
         String urlAudio = obtenerUrlAudioAdjunto(attachment);
         if (TextUtils.isEmpty(urlAudio)) {
-            Toast.makeText(this, "No se pudo abrir el audio", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "No se pudo abrir el audio", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -761,7 +857,7 @@ public class ChatViewActivity extends AppCompatActivity {
 
             @Override
             public void onError(String error) {
-                Toast.makeText(ChatViewActivity.this, error, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(ChatViewActivity.this, error, Toast.LENGTH_SHORT);
             }
         });
     }
@@ -907,7 +1003,7 @@ public class ChatViewActivity extends AppCompatActivity {
         FriendshipRepository.canOpenUserProfile(usuarioActualId, otherUserId)
                 .addOnSuccessListener(canOpen -> {
                     if (!Boolean.TRUE.equals(canOpen)) {
-                        Toast.makeText(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT);
                         return;
                     }
                     Intent intent = new Intent(this, ProfileActivity.class);
@@ -915,7 +1011,8 @@ public class ChatViewActivity extends AppCompatActivity {
                     startActivity(intent);
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT).show());
+                        ToastUtils.showTextToast(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT)
+                );
     }
 
     // Inicia escucha de bloqueos para desactivar envio en tiempo real.
@@ -988,16 +1085,16 @@ public class ChatViewActivity extends AppCompatActivity {
         }
         ultimoEstadoEnvioBloqueado = envioBloqueado;
         if (envioBloqueado) {
-            Toast.makeText(this, "No puedes enviar mensajes por bloqueo entre usuarios", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "No puedes enviar mensajes por bloqueo entre usuarios", Toast.LENGTH_SHORT);
         } else {
-            Toast.makeText(this, "Ya puedes enviar mensajes en este chat", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "Ya puedes enviar mensajes en este chat", Toast.LENGTH_SHORT);
         }
     }
 
     // Muestra el menu de opciones del canal segun si es grupo o chat privado
     private void abrirOpcionesCanal() {
         if (!isGroupChat || canalActual == null) {
-            Toast.makeText(this, "Opciones disponibles solo para grupos", Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, "Opciones disponibles solo para grupos", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -1006,12 +1103,69 @@ public class ChatViewActivity extends AppCompatActivity {
         opciones.add(OPCION_INFO_MIEMBROS);
         if (esAdmin) opciones.add(OPCION_BORRAR_GRUPO);
         opciones.add(OPCION_ABANDONAR_GRUPO);
+        mostrarDialogoOpcionesGrupo(opciones, esAdmin);
+    }
 
-        new AlertDialog.Builder(this)
-                .setTitle("Opciones de grupo")
-                .setItems(opciones.toArray(new CharSequence[0]),
-                        (dialog, which) -> ejecutarOpcionGrupo(opciones.get(which), esAdmin))
-                .show();
+    // Muestra la modal de opciones del grupo con un estilo propio.
+    private void mostrarDialogoOpcionesGrupo(List<String> opciones, boolean esAdmin) {
+        View vistaDialogo = getLayoutInflater().inflate(R.layout.dialog_group_options, null);
+        TextView textoTitulo = vistaDialogo.findViewById(R.id.textoTituloOpcionesGrupo);
+        LinearLayout contenedorOpciones = vistaDialogo.findViewById(R.id.contenedorOpcionesGrupo);
+        AlertDialog dialogo = new AlertDialog.Builder(this)
+                .setView(vistaDialogo)
+                .create();
+
+        textoTitulo.setText("Opciones de grupo");
+
+        for (int indice = 0; indice < opciones.size(); indice++) {
+            String opcion = opciones.get(indice);
+            agregarFilaOpcionGrupo(contenedorOpciones, opcion, () -> ejecutarOpcionGrupo(opcion, esAdmin), dialogo);
+            if (indice < opciones.size() - 1) {
+                View divisor = new View(this);
+                LinearLayout.LayoutParams paramsDivisor = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        dpToPx(1)
+                );
+                paramsDivisor.topMargin = dpToPx(10);
+                paramsDivisor.bottomMargin = dpToPx(10);
+                divisor.setLayoutParams(paramsDivisor);
+                divisor.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_light));
+                contenedorOpciones.addView(divisor);
+            }
+        }
+
+        dialogo.show();
+        if (dialogo.getWindow() != null) {
+            dialogo.getWindow().setBackgroundDrawableResource(R.drawable.bg_report_dialog_rounded);
+        }
+    }
+
+    // Agrega una fila clickeable para cada opcion del grupo.
+    private void agregarFilaOpcionGrupo(LinearLayout contenedor, String textoOpcion, Runnable accion, AlertDialog dialogo) {
+        TextView filaOpcion = new TextView(this);
+        LinearLayout.LayoutParams paramsFila = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        filaOpcion.setLayoutParams(paramsFila);
+        filaOpcion.setText(textoOpcion);
+        filaOpcion.setTextColor(ContextCompat.getColor(this, R.color.gray_dark));
+        filaOpcion.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        filaOpcion.setTypeface(null, Typeface.NORMAL);
+        filaOpcion.setPadding(0, dpToPx(4), 0, dpToPx(4));
+        filaOpcion.setClickable(true);
+        filaOpcion.setFocusable(true);
+        filaOpcion.setOnClickListener(v -> {
+            dialogo.dismiss();
+            accion.run();
+        });
+        contenedor.addView(filaOpcion);
+    }
+
+    // Convierte dp a pixeles para mantener medidas consistentes.
+    private int dpToPx(int valorDp) {
+        float densidad = getResources().getDisplayMetrics().density;
+        return Math.round(valorDp * densidad);
     }
 
     // Ejecuta la accion de grupo seleccionada por el usuario
@@ -1031,46 +1185,48 @@ public class ChatViewActivity extends AppCompatActivity {
 
     // Pide confirmacion antes de abandonar el grupo.
     private void confirmarAbandonoGrupo() {
-        new AlertDialog.Builder(this)
-                .setTitle("Abandonar grupo")
-                .setMessage("Esta accion te sacara del grupo. Deseas continuar?")
-                .setPositiveButton("Abandonar", (dialog, which) -> channelService.abandonarGrupo(channelId, new ChatChannelService.OperationCallback() {
+        new DeleteConfirmDialogComponent(
+                this,
+                "Abandonar grupo",
+                "Esta accion te sacara del grupo. Deseas continuar?",
+                "Cancelar",
+                "Abandonar",
+                () -> channelService.abandonarGrupo(channelId, new ChatChannelService.OperationCallback() {
                     @Override
                     public void onExito() {
-                        Toast.makeText(ChatViewActivity.this, "Saliste del grupo", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(ChatViewActivity.this, "Saliste del grupo", Toast.LENGTH_SHORT);
                         abrirPantallaChatsPrincipal();
                     }
 
                     @Override
                     public void onError(String error) {
-                        Toast.makeText(ChatViewActivity.this, obtenerMensajeErrorAbandono(error), Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(ChatViewActivity.this, obtenerMensajeErrorAbandono(error), Toast.LENGTH_SHORT);
                     }
-                }))
-                .setNegativeButton("Cancelar", null)
-                .show();
+                })
+        ).show();
     }
 
     // Pide confirmacion antes de borrar el grupo.
     private void confirmarBorradoGrupo() {
-        new AlertDialog.Builder(this)
-                .setTitle("Borrar grupo")
-                .setMessage("Esta accion eliminara el grupo para todos los miembros. Deseas continuar?")
-                .setPositiveButton("Borrar", (dialog, which) -> {
-                    channelService.borrarGrupo(channelId, new ChatChannelService.OperationCallback() {
-                        @Override
-                        public void onExito() {
-                            Toast.makeText(ChatViewActivity.this, "Grupo eliminado", Toast.LENGTH_SHORT).show();
-                            abrirPantallaChatsPrincipal();
-                        }
+        new DeleteConfirmDialogComponent(
+                this,
+                "Borrar grupo",
+                "Esta accion eliminara el grupo para todos los miembros. Deseas continuar?",
+                "Cancelar",
+                "Borrar",
+                () -> channelService.borrarGrupo(channelId, new ChatChannelService.OperationCallback() {
+                    @Override
+                    public void onExito() {
+                        ToastUtils.showTextToast(ChatViewActivity.this, "Grupo eliminado", Toast.LENGTH_SHORT);
+                        abrirPantallaChatsPrincipal();
+                    }
 
-                        @Override
-                        public void onError(String error) {
-                            Toast.makeText(ChatViewActivity.this, error, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    @Override
+                    public void onError(String error) {
+                        ToastUtils.showTextToast(ChatViewActivity.this, error, Toast.LENGTH_SHORT);
+                    }
                 })
-                .setNegativeButton("Cancelar", null)
-                .show();
+        ).show();
     }
 
     // Abre la pantalla de informacion y miembros del grupo.
@@ -1109,6 +1265,6 @@ public class ChatViewActivity extends AppCompatActivity {
         messageListView.setVisibility(View.GONE);
         messageComposerView.setVisibility(View.GONE);
         estadoError.setVisibility(View.VISIBLE);
-        Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();
+        ToastUtils.showTextToast(this, mensaje, Toast.LENGTH_SHORT);
     }
 }

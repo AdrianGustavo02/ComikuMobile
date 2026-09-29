@@ -3,16 +3,23 @@ package com.example.comiku.screens;
 import android.os.Bundle;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.comiku.core.ui.StatusBarUtils;
 import com.bumptech.glide.Glide;
 import com.example.comiku.R;
 
 // Muestra una imagen del chat en pantalla completa.
-public class ImagePreviewActivity extends AppCompatActivity {
+public class ImagePreviewActivity extends BasePlainScreenActivity {
+
+    // Oculta el borde superior para que la imagen ocupe toda la pantalla.
+    @Override
+    protected boolean shouldShowTopCap() {
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_preview);
+        setupPlainScreenShell(R.layout.activity_image_preview);
         ImageView imagenVistaPrevia = findViewById(R.id.imagenVistaPrevia);
         ImageView botonCerrarVistaPrevia = findViewById(R.id.botonCerrarVistaPrevia);
 

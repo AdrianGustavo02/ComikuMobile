@@ -47,7 +47,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@string/amigos_busqueda_vacia" />
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/contenedorResultadosBusquedaAmigos"
@@ -70,7 +74,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/amigos_solicitudes_cargando" />
+            android:gravity="center"
+            android:text="@string/amigos_solicitudes_cargando"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/contenedorSolicitudesAmigos"
@@ -93,7 +101,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/amigos_cargando" />
+            android:gravity="center"
+            android:text="@string/amigos_cargando"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/contenedorMisAmigos"

@@ -1,6 +1,7 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.view.ContextThemeWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -16,11 +17,10 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.DeleteConfirmDialogComponent;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.ui.ThematicListUiHelper;
 import com.example.comiku.data.model.ComicDetailData;
 import com.example.comiku.data.model.ThematicListCommentData;
@@ -42,21 +42,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ThematicListDetailActivity extends AppCompatActivity {
+public class ThematicListDetailActivity extends BasePlainScreenActivity {
 
     public static final String EXTRA_LIST_ID = "extra_list_id";
 
-    private LinearLayout contenedorWallpaper;
     private LinearLayout contenedorCreador;
     private TextView textoNombre;
     private TextView textoDescripcion;
     private TextView textoNickCreador;
+    private ImageView iconoFlechaCreador;
     private TextView textoGuiaBadge;
     private Button botonMeGusta;
-    private TextView textoLikes;
+    private TextView textoComentariosCantidad;
     private Button botonGuardarLista;
     private Button botonEditarLista;
     private android.widget.ProgressBar barraCarga;
+    private TextView textoTituloTomos;
+    private TextView textoTituloComentarios;
     private LinearLayout contenedorTomos;
     private TextView textoEstado;
     private LinearLayout contenedorComentarios;
@@ -85,7 +87,6 @@ public class ThematicListDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_thematic_list_detail);
 
         listId = getIntent().getStringExtra(EXTRA_LIST_ID);
         if (TextUtils.isEmpty(listId)) {
@@ -99,24 +100,28 @@ public class ThematicListDetailActivity extends AppCompatActivity {
             return;
         }
         uidActual = usuario.getUid();
+        setupPlainScreenShell(R.layout.activity_thematic_list_detail);
         bindViews();
-        setupToolbar();
         loadListDetail();
     }
 
 
     private void bindViews() {
-        contenedorWallpaper = findViewById(R.id.contenedorWallpaperDetalle);
         contenedorCreador = findViewById(R.id.contenedorCreadorDetalle);
         textoNombre = findViewById(R.id.textoNombreListaDetalle);
         textoDescripcion = findViewById(R.id.textoDescripcionListaDetalle);
         textoNickCreador = findViewById(R.id.textoNickCreadorDetalle);
+        iconoFlechaCreador = findViewById(R.id.iconoFlechaCreadorDetalle);
         textoGuiaBadge = findViewById(R.id.textoGuiaBadgeDetalle);
         botonMeGusta = findViewById(R.id.botonMeGustaDetalle);
-        textoLikes = findViewById(R.id.textoLikesDetalle);
+        textoComentariosCantidad = findViewById(R.id.textoComentariosCantidadDetalle);
+        botonMeGusta.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_like_outline, 0, 0, 0);
+        botonMeGusta.setCompoundDrawablePadding(dpToPx(6));
         botonGuardarLista = findViewById(R.id.botonGuardarListaDetalle);
         botonEditarLista = findViewById(R.id.botonEditarListaDetalle);
         barraCarga = findViewById(R.id.barraCargaDetalle);
+        textoTituloTomos = findViewById(R.id.textoTituloTomosDetalle);
+        textoTituloComentarios = findViewById(R.id.textoTituloComentariosDetalle);
         contenedorTomos = findViewById(R.id.contenedorTomosDetalle);
         textoEstado = findViewById(R.id.textoEstadoDetalle);
         contenedorComentarios = findViewById(R.id.contenedorComentarios);
@@ -127,20 +132,10 @@ public class ThematicListDetailActivity extends AppCompatActivity {
     }
 
 
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbarDetalleListaTematica);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(getString(R.string.listas_tematicas_titulo));
-        }
-    }
-
     // Carga el detalle de la lista tematica desde Firestore.
     private void loadListDetail() {
         barraCarga.setVisibility(View.VISIBLE);
         textoEstado.setVisibility(View.GONE);
-        contenedorWallpaper.removeAllViews();
         contenedorTomos.removeAllViews();
         contenedorComentarios.removeAllViews();
 
@@ -188,28 +183,33 @@ public class ThematicListDetailActivity extends AppCompatActivity {
 
     // Muestra los datos principales de la lista.
     private void renderListDetail(ThematicListData lista) {
-        contenedorWallpaper.addView(ThematicListUiHelper.createWallpaperStrip(
-                this,
-                lista.fotosDePortadas,
-                200,
-                getString(R.string.listas_tematicas_sin_portadas)
-        ));
         textoNombre.setText(lista.nombre);
         textoDescripcion.setText(lista.descripcion);
-        textoLikes.setText(getString(R.string.listas_tematicas_likes, lista.cantidadLikes));
+        botonMeGusta.setText(String.valueOf(lista.cantidadLikes));
+        textoComentariosCantidad.setText(String.valueOf(lista.cantidadComentarios));
+        updateCommentsTitle(lista.cantidadComentarios);
+        textoGuiaBadge.setText(getString(
+                R.string.detalle_lista_guia_badge_formato,
+                getString(R.string.listas_tematicas_guia_badge)
+        ));
         textoGuiaBadge.setVisibility(lista.esGuiaDeLectura ? View.VISIBLE : View.GONE);
 
         if (!TextUtils.isEmpty(lista.userId)) {
             ThematicListRepository.getCreatorNick(lista.userId)
                     .addOnSuccessListener(nick -> {
                         textoNickCreador.setText(nick);
+                        iconoFlechaCreador.setVisibility(View.VISIBLE);
                         // Nick del creador es clickeable y lleva a su perfil.
                         textoNickCreador.setOnClickListener(v -> openUserProfile(lista.userId));
                         contenedorCreador.setOnClickListener(v -> openUserProfile(lista.userId));
                     })
-                    .addOnFailureListener(error -> textoNickCreador.setText(getString(R.string.detalle_lista_creador_generico)));
+                    .addOnFailureListener(error -> {
+                        textoNickCreador.setText(getString(R.string.detalle_lista_creador_generico));
+                        iconoFlechaCreador.setVisibility(View.GONE);
+                    });
         } else {
             textoNickCreador.setText(getString(R.string.detalle_lista_creador_generico));
+            iconoFlechaCreador.setVisibility(View.GONE);
         }
 
         FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
@@ -265,7 +265,7 @@ public class ThematicListDetailActivity extends AppCompatActivity {
                             listaActual.cantidadComentarios, listaActual.fechaCreacion,
                             listaActual.esGuiaDeLectura, listaActual.fotosDePortadas
                     );
-                    textoLikes.setText(getString(R.string.listas_tematicas_likes, listaActual.cantidadLikes));
+                    botonMeGusta.setText(String.valueOf(listaActual.cantidadLikes));
                     updateLikeButton();
                     botonMeGusta.setEnabled(true);
                 })
@@ -289,9 +289,7 @@ public class ThematicListDetailActivity extends AppCompatActivity {
 
     // Actualiza el texto del boton de like.
     private void updateLikeButton() {
-        botonMeGusta.setText(likeActivo
-                ? getString(R.string.detalle_lista_me_gusta_activo)
-                : getString(R.string.detalle_lista_me_gusta));
+        botonMeGusta.setActivated(likeActivo);
     }
 
     // Actualiza el texto del boton de guardado.
@@ -305,6 +303,8 @@ public class ThematicListDetailActivity extends AppCompatActivity {
     private void loadVolumes() {
         ThematicListRepository.getListVolumes(listId)
                 .addOnSuccessListener(tomos -> {
+                    int cantidadTomos = tomos != null ? tomos.size() : 0;
+                    textoTituloTomos.setText(getString(R.string.detalle_lista_tomos_titulo_formato, cantidadTomos));
                     if (tomos == null || tomos.isEmpty()) {
                         barraCarga.setVisibility(View.GONE);
                         textoEstado.setText(getString(R.string.detalle_lista_sin_tomos));
@@ -322,15 +322,59 @@ public class ThematicListDetailActivity extends AppCompatActivity {
 
     // Carga la informacion de cada tomo.
     private void renderVolumes(List<ThematicListVolumeData> tomos) {
-        List<Task<?>> tareas = new ArrayList<>();
+        List<Task<VolumeListItemData>> tareas = new ArrayList<>();
         for (ThematicListVolumeData tomoLista : tomos) {
-            Task<VolumeListItemData> tarea = buildVolumeItemData(tomoLista)
-                    .addOnSuccessListener(item -> {
-                        if (item != null) contenedorTomos.addView(buildVolumeCard(item));
-                    });
+            Task<VolumeListItemData> tarea = buildVolumeItemData(tomoLista);
             tareas.add(tarea);
         }
-        Tasks.whenAll(tareas).addOnCompleteListener(task -> barraCarga.setVisibility(View.GONE));
+        Tasks.whenAllSuccess(tareas)
+                .addOnSuccessListener(items -> {
+                    List<VolumeListItemData> itemsValidos = new ArrayList<>();
+                    for (Object item : items) {
+                        if (item instanceof VolumeListItemData) {
+                            itemsValidos.add((VolumeListItemData) item);
+                        }
+                    }
+                    renderVolumeRows(itemsValidos);
+                    barraCarga.setVisibility(View.GONE);
+                })
+                .addOnFailureListener(error -> {
+                    barraCarga.setVisibility(View.GONE);
+                    textoEstado.setText(getString(R.string.detalle_lista_error_tomos));
+                    textoEstado.setVisibility(View.VISIBLE);
+                });
+    }
+
+    // Dibuja los tomos en filas de dos cards.
+    private void renderVolumeRows(List<VolumeListItemData> items) {
+        int indice = 0;
+        while (indice < items.size()) {
+            LinearLayout fila = new LinearLayout(this);
+            fila.setOrientation(LinearLayout.HORIZONTAL);
+            fila.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+            fila.setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(8));
+
+            int columnas = Math.min(2, items.size() - indice);
+            for (int columna = 0; columna < columnas; columna++) {
+                View tarjeta = buildVolumeCard(items.get(indice + columna));
+                LinearLayout.LayoutParams paramsTarjeta = new LinearLayout.LayoutParams(
+                        columnas == 1 ? dpToPx(160) : 0,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        columnas == 1 ? 0f : 1f
+                );
+                paramsTarjeta.leftMargin = columna == 0 ? 0 : dpToPx(8);
+                paramsTarjeta.rightMargin = columna == 0 ? dpToPx(8) : 0;
+                tarjeta.setLayoutParams(paramsTarjeta);
+                tarjeta.setMinimumHeight(dpToPx(260));
+                fila.addView(tarjeta);
+            }
+
+            contenedorTomos.addView(fila);
+            indice += columnas;
+        }
     }
 
     // Construye los datos de una card de tomo.
@@ -352,21 +396,73 @@ public class ThematicListDetailActivity extends AppCompatActivity {
     // Crea la card de un tomo.
     private View buildVolumeCard(VolumeListItemData item) {
         LinearLayout card = ThematicListUiHelper.createCardContainer(this);
-        LinearLayout fila = new LinearLayout(this);
-        fila.setOrientation(LinearLayout.HORIZONTAL);
-        fila.addView(ThematicListUiHelper.createMiniCover(this, item.tomo.getPortadaDataUrl(), 60, 90));
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackground(getDrawable(R.drawable.bg_wishlist_volume_card));
+        card.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
+        card.setClickable(true);
+        card.setFocusable(true);
 
-        LinearLayout info = new LinearLayout(this);
-        info.setOrientation(LinearLayout.VERTICAL);
-        info.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        info.addView(ThematicListUiHelper.createTitle(this, item.getComicNombre(), 15f));
+        android.widget.FrameLayout contenedorPortada = new android.widget.FrameLayout(this);
+        LinearLayout.LayoutParams paramsContenedor = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dpToPx(220)
+        );
+        paramsContenedor.bottomMargin = dpToPx(10);
+        contenedorPortada.setLayoutParams(paramsContenedor);
+        contenedorPortada.setClipToOutline(true);
+        contenedorPortada.setClipChildren(true);
+        android.graphics.drawable.GradientDrawable fondoPortada = new android.graphics.drawable.GradientDrawable();
+        fondoPortada.setColor(android.graphics.Color.TRANSPARENT);
+        fondoPortada.setCornerRadius(dpToPx(12));
+        contenedorPortada.setBackground(fondoPortada);
 
-        TextView textoNumero = new TextView(this);
-        textoNumero.setText(item.tomo.getNumeroFormateado());
-        info.addView(textoNumero);
+        RoundedImageView imagenPortada = new RoundedImageView(this);
+        android.widget.FrameLayout.LayoutParams paramsImagen = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        );
+        imagenPortada.setLayoutParams(paramsImagen);
+        imagenPortada.setCornerRadius(dpToPx(12));
+        imagenPortada.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+        imagenPortada.setAdjustViewBounds(true);
+        Bitmap bitmap = decodeDataUrl(item.tomo != null ? item.tomo.getPortadaDataUrl() : null);
+        if (bitmap != null) {
+            imagenPortada.setImageBitmap(bitmap);
+        } else {
+            imagenPortada.setImageResource(R.drawable.default_profile_picture);
+        }
+        contenedorPortada.addView(imagenPortada);
+        card.addView(contenedorPortada);
 
-        card.addView(fila);
-        fila.addView(info);
+        TextView textoComic = new TextView(this);
+        textoComic.setText(item.getComicNombre());
+        textoComic.setTextSize(15f);
+        textoComic.setTypeface(null, android.graphics.Typeface.BOLD);
+        textoComic.setMaxLines(3);
+        textoComic.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        textoComic.setTextColor(getColor(android.R.color.white));
+        card.addView(textoComic);
+
+        TextView textoTomo = new TextView(this);
+        textoTomo.setText(item.tomo != null ? item.tomo.getNumeroFormateado() : "");
+        textoTomo.setTextSize(12f);
+        textoTomo.setMaxLines(2);
+        textoTomo.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        textoTomo.setTextColor(getColor(R.color.carousel_subtitle));
+        textoTomo.setPadding(0, dpToPx(4), 0, 0);
+        card.addView(textoTomo);
+
+        TextView textoIsbn = new TextView(this);
+        textoIsbn.setText("ISBN: " + (item.tomo != null && item.tomo.isbn != null
+                ? item.tomo.isbn
+                : "No definido"));
+        textoIsbn.setTextSize(12f);
+        textoIsbn.setMaxLines(2);
+        textoIsbn.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        textoIsbn.setTextColor(getColor(R.color.carousel_subtitle));
+        textoIsbn.setPadding(0, dpToPx(2), 0, 0);
+        card.addView(textoIsbn);
+
         card.setOnClickListener(v -> openVolumeDetail(item.comicId, item.tomoId));
         return card;
     }
@@ -375,6 +471,17 @@ public class ThematicListDetailActivity extends AppCompatActivity {
     private void loadComments() {
         ThematicListRepository.getComments(listId)
                 .addOnSuccessListener(comentarios -> {
+                    int cantidadComentarios = comentarios != null ? comentarios.size() : 0;
+                    textoComentariosCantidad.setText(String.valueOf(cantidadComentarios));
+                    updateCommentsTitle(cantidadComentarios);
+                    if (listaActual != null) {
+                        listaActual = new ThematicListData(
+                                listaActual.id, listaActual.userId, listaActual.nombre,
+                                listaActual.descripcion, listaActual.cantidadLikes,
+                                cantidadComentarios, listaActual.fechaCreacion,
+                                listaActual.esGuiaDeLectura, listaActual.fotosDePortadas
+                        );
+                    }
                     contenedorComentarios.removeAllViews();
                     if (comentarios == null || comentarios.isEmpty()) {
                         textoEstadoComentarios.setText(getString(R.string.detalle_lista_sin_comentarios));
@@ -392,6 +499,13 @@ public class ThematicListDetailActivity extends AppCompatActivity {
                 });
     }
 
+    // Actualiza el titulo de comentarios con el total actual
+    private void updateCommentsTitle(long cantidadComentarios) {
+        textoTituloComentarios.setText(
+                getString(R.string.detalle_lista_comentarios_titulo_formato, cantidadComentarios)
+        );
+    }
+
     // Crea la card de un comentario con foto, nick y texto.
     private View buildCommentCard(ThematicListCommentData comentario) {
         LinearLayout card = new LinearLayout(this);
@@ -400,21 +514,19 @@ public class ThematicListDetailActivity extends AppCompatActivity {
         cardParams.bottomMargin = dpToPx(12);
         card.setLayoutParams(cardParams);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
-        card.setBackgroundResource(android.R.drawable.dialog_holo_light_frame);
+        card.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
+        card.setBackgroundResource(R.drawable.bg_card_generic_premium);
 
-        // foto de perfil y nick
+        // Foto de perfil y nick
         LinearLayout filaAutor = new LinearLayout(this);
         filaAutor.setOrientation(LinearLayout.HORIZONTAL);
         filaAutor.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        ImageView fotoPerfil = new ImageView(this);
-        LinearLayout.LayoutParams fotoParams = new LinearLayout.LayoutParams(dpToPx(36), dpToPx(36));
+        RoundedImageView fotoPerfil = ThematicListUiHelper.createCircularProfileImage(this, 44);
+        LinearLayout.LayoutParams fotoParams = new LinearLayout.LayoutParams(dpToPx(44), dpToPx(44));
         fotoParams.setMarginEnd(dpToPx(8));
         fotoPerfil.setLayoutParams(fotoParams);
-        fotoPerfil.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        fotoPerfil.setImageResource(R.drawable.default_profile_picture);
         filaAutor.addView(fotoPerfil);
 
         LinearLayout columnaAutor = new LinearLayout(this);
@@ -424,21 +536,37 @@ public class ThematicListDetailActivity extends AppCompatActivity {
         // Nick del comentador como elemento interactivo.
         TextView textoNick = new TextView(this);
         textoNick.setText(getString(R.string.detalle_lista_creador_generico));
-        textoNick.setTextSize(13f);
+        textoNick.setTextSize(15f);
         textoNick.setTypeface(null, android.graphics.Typeface.BOLD);
-        textoNick.setTextColor(getResources().getColor(android.R.color.holo_blue_dark, getTheme()));
+        textoNick.setTextColor(getColor(R.color.primary_button_orange_flat));
+        textoNick.setPaintFlags(textoNick.getPaintFlags() & (~android.graphics.Paint.UNDERLINE_TEXT_FLAG));
         columnaAutor.addView(textoNick);
 
         // Fecha del comentario.
         if (comentario.fechaComentario != null) {
             TextView textoFecha = new TextView(this);
             textoFecha.setText(formatCommentDate(comentario.fechaComentario));
-            textoFecha.setTextSize(11f);
-            textoFecha.setTextColor(getResources().getColor(android.R.color.darker_gray, getTheme()));
+            textoFecha.setTextSize(12f);
+            textoFecha.setTextColor(getColor(R.color.carousel_subtitle));
             columnaAutor.addView(textoFecha);
         }
 
         filaAutor.addView(columnaAutor);
+
+        // Boton eliminar solo visible para el comentador
+        FirebaseUser usuarioActual = FirebaseAuth.getInstance().getCurrentUser();
+        if (usuarioActual != null && usuarioActual.getUid().equals(comentario.userId)) {
+            ContextThemeWrapper contextoDanger = new ContextThemeWrapper(this, R.style.Theme_Comiku_DangerButton);
+            Button botonEliminar = new Button(contextoDanger, null, 0);
+            LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            btnParams.setMarginStart(dpToPx(8));
+            botonEliminar.setLayoutParams(btnParams);
+            botonEliminar.setText(getString(R.string.detalle_lista_boton_eliminar_comentario));
+            botonEliminar.setOnClickListener(v -> confirmDeleteComment(comentario.id, usuarioActual.getUid()));
+            filaAutor.addView(botonEliminar);
+        }
+
         card.addView(filaAutor);
 
         // Texto del comentario.
@@ -447,8 +575,10 @@ public class ThematicListDetailActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         textoParams.topMargin = dpToPx(6);
         textoComentario.setLayoutParams(textoParams);
+        textoComentario.setPadding(dpToPx(2), dpToPx(6), dpToPx(2), dpToPx(2));
         textoComentario.setText(comentario.comentario);
-        textoComentario.setTextSize(14f);
+        textoComentario.setTextSize(16f);
+        textoComentario.setTextColor(getColor(R.color.carousel_subtitle));
         card.addView(textoComentario);
 
         // Carga nick y foto del autor del comentario
@@ -457,19 +587,6 @@ public class ThematicListDetailActivity extends AppCompatActivity {
             // Click en nick lleva al perfil del comentador.
             textoNick.setOnClickListener(v -> openUserProfile(comentario.userId));
             fotoPerfil.setOnClickListener(v -> openUserProfile(comentario.userId));
-        }
-
-        // Boton eliminar solo visible para el dueño del comentario.
-        FirebaseUser usuarioActual = FirebaseAuth.getInstance().getCurrentUser();
-        if (usuarioActual != null && usuarioActual.getUid().equals(comentario.userId)) {
-            Button botonEliminar = new Button(this);
-            LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            btnParams.topMargin = dpToPx(4);
-            botonEliminar.setLayoutParams(btnParams);
-            botonEliminar.setText(getString(R.string.detalle_lista_boton_eliminar_comentario));
-            botonEliminar.setOnClickListener(v -> confirmDeleteComment(comentario.id, usuarioActual.getUid()));
-            card.addView(botonEliminar);
         }
 
         return card;
@@ -497,12 +614,13 @@ public class ThematicListDetailActivity extends AppCompatActivity {
 
     // Muestra un dialogo de confirmacion antes de eliminar el comentario.
     private void confirmDeleteComment(String commentId, String uid) {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.detalle_lista_confirmar_borrar_comentario_titulo))
-                .setMessage(getString(R.string.detalle_lista_confirmar_borrar_comentario_mensaje))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteComment(commentId, uid))
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        DeleteConfirmDialogComponent dialogoConfirmacion = new DeleteConfirmDialogComponent(
+                this,
+                getString(R.string.detalle_lista_confirmar_borrar_comentario_titulo),
+                getString(R.string.detalle_lista_confirmar_borrar_comentario_mensaje),
+                () -> deleteComment(commentId, uid)
+        );
+        dialogoConfirmacion.show();
     }
 
     // Elimina un comentario y recarga la lista.
@@ -553,7 +671,7 @@ public class ThematicListDetailActivity extends AppCompatActivity {
         FriendshipRepository.canOpenUserProfile(uidActual, uid)
                 .addOnSuccessListener(canOpen -> {
                     if (!Boolean.TRUE.equals(canOpen)) {
-                        Toast.makeText(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT);
                         return;
                     }
                     Intent intento = new Intent(this, ProfileActivity.class);
@@ -561,7 +679,8 @@ public class ThematicListDetailActivity extends AppCompatActivity {
                     startActivity(intento);
                 })
                 .addOnFailureListener(error ->
-                        Toast.makeText(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT).show());
+                        ToastUtils.showTextToast(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT)
+                );
     }
 
     // Abre la pantalla de edicion de la lista.

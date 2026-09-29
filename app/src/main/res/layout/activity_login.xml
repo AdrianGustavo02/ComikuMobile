@@ -1,80 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layoutLogin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="@color/fondo_login_registro"
+    android:paddingStart="16dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="24dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="72dp"
+        app:cardBackgroundColor="@color/contenedor_login_registro"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="10dp"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/imagenLogoLogin"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:contentDescription="@string/app_name"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/tituloLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="Bienvenido a Comiku"
+            android:textColor="@android:color/white"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/subtituloLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Descubre historias, crea tu biblioteca, comparte tu pasion por los comics."
+            android:textColor="#D8D8D8"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/campoCorreoLogin"
+            style="@style/Theme.Comiku.GenericTextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/login_correo_obligatorio"
+            android:inputType="textEmailAddress"
+            android:maxLines="1" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:hintEnabled="false"
+            app:boxBackgroundMode="none"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@android:color/white">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/campoContrasenaLogin"
+                style="@style/Theme.Comiku.GenericTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/login_contrasena_obligatoria"
+                android:inputType="textPassword"
+                android:textSize="16sp"
+                android:textColorHint="#B8AFC6"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/textoErrorLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="15sp" />
+
+        <ProgressBar
+            android:id="@+id/barraCargaLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/botonIngresar"
+            style="@style/Theme.Comiku.ButtonPrimaryAction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/login_boton_ingresar"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/textoPreguntaRegistro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/login_pregunta_registro"
+            android:textColor="#D8D8D8"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textoIrRegistro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/login_ir_registro"
+            android:textColor="@color/primary_button_orange_flat"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
-        android:id="@+id/tituloLogin"
+        android:id="@+id/textoFooterLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/login_titulo"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center"
+        android:text="@string/login_footer_legal"
+        android:textColor="@android:color/white"
+        android:textSize="12sp" />
 
-    <TextView
-        android:id="@+id/subtituloLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/login_subtitulo" />
-
-    <EditText
-        android:id="@+id/campoCorreoLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="@string/login_correo_obligatorio"
-        android:inputType="textEmailAddress"
-        android:maxLines="1" />
-
-    <EditText
-        android:id="@+id/campoContrasenaLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:hint="@string/login_contrasena_obligatoria"
-        android:inputType="textPassword"
-        android:maxLines="1" />
-
-    <TextView
-        android:id="@+id/textoErrorLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textColor="@android:color/holo_red_dark" />
-
-    <ProgressBar
-        android:id="@+id/barraCargaLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/botonIngresar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/login_boton_ingresar" />
-
-    <TextView
-        android:id="@+id/textoPreguntaRegistro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/login_pregunta_registro" />
-
-    <TextView
-        android:id="@+id/textoIrRegistro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="@string/login_ir_registro"
-        android:textColor="@android:color/holo_blue_dark"
-        android:textStyle="bold" />
-
-</LinearLayout>
+</FrameLayout>

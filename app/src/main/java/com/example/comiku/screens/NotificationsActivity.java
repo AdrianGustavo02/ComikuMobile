@@ -2,10 +2,11 @@ package com.example.comiku.screens;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Base64;
+import android.text.style.StyleSpan;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ThematicListUiHelper;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.data.model.AppNotificationData;
 import com.example.comiku.data.model.NotificationPageData;
 import com.example.comiku.data.model.NotificationType;
@@ -31,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import android.graphics.Typeface;
 
 public class NotificationsActivity extends BaseDrawerActivity {
     private static final int TAMANO_PAGINA = 15;
@@ -178,8 +182,9 @@ public class NotificationsActivity extends BaseDrawerActivity {
         }
 
         textoEstado.setVisibility(View.GONE);
-        for (AppNotificationData notificacion : notificaciones) {
-            contenedorNotificaciones.addView(buildNotificationCard(notificacion));
+        for (int i = 0; i < notificaciones.size(); i++) {
+            AppNotificationData notificacion = notificaciones.get(i);
+            contenedorNotificaciones.addView(buildNotificationCard(notificacion, i < notificaciones.size() - 1));
         }
         botonCargarMas.setVisibility(hayMas ? View.VISIBLE : View.GONE);
     }
@@ -209,11 +214,11 @@ public class NotificationsActivity extends BaseDrawerActivity {
                     renderNotifications();
                     refreshUnreadCountLabel();
                 })
-                .addOnFailureListener(error -> Toast.makeText(
+                .addOnFailureListener(error -> ToastUtils.showTextToast(
                         this,
                         getString(R.string.notificaciones_error_marcar_todas),
                         Toast.LENGTH_SHORT
-                ).show())
+                ))
                 .addOnCompleteListener(unused -> botonMarcarTodas.setEnabled(true));
     }
 
@@ -235,30 +240,33 @@ public class NotificationsActivity extends BaseDrawerActivity {
     }
 
     // Crea una card de notificacion.
-    private View buildNotificationCard(AppNotificationData notificacion) {
-        LinearLayout tarjeta = new LinearLayout(this);
-        tarjeta.setOrientation(LinearLayout.HORIZONTAL);
-        tarjeta.setGravity(Gravity.CENTER_VERTICAL);
-        tarjeta.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
-        LinearLayout.LayoutParams paramsTarjeta = new LinearLayout.LayoutParams(
+    private View buildNotificationCard(AppNotificationData notificacion, boolean mostrarDivisor) {
+        LinearLayout contenedorItem = new LinearLayout(this);
+        contenedorItem.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams paramsContenedor = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        paramsTarjeta.bottomMargin = dpToPx(8);
-        tarjeta.setLayoutParams(paramsTarjeta);
-        tarjeta.setBackgroundResource(notificacion.leida
-                ? android.R.drawable.dialog_holo_light_frame
-                : android.R.drawable.dialog_holo_dark_frame);
+        contenedorItem.setLayoutParams(paramsContenedor);
 
-        ImageView avatar = new ImageView(this);
-        LinearLayout.LayoutParams paramsAvatar = new LinearLayout.LayoutParams(dpToPx(42), dpToPx(42));
+        LinearLayout tarjeta = new LinearLayout(this);
+        tarjeta.setOrientation(LinearLayout.HORIZONTAL);
+        tarjeta.setGravity(Gravity.CENTER_VERTICAL);
+        tarjeta.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(16));
+        tarjeta.setBackgroundResource(notificacion.leida
+                ? R.drawable.bg_notification_item_read
+                : R.drawable.bg_notification_item_unread);
+        tarjeta.setClickable(true);
+        tarjeta.setFocusable(true);
+
+        RoundedImageView avatar = ThematicListUiHelper.createCircularProfileImage(this, 48);
+        LinearLayout.LayoutParams paramsAvatar = new LinearLayout.LayoutParams(dpToPx(48), dpToPx(48));
+        paramsAvatar.setMarginEnd(dpToPx(12));
         avatar.setLayoutParams(paramsAvatar);
-        avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap bitmap = decodeDataUrl(notificacion.actorFotoPerfilDataUrl);
+        avatar.setCircular(true);
+        Bitmap bitmap = ThematicListUiHelper.decodeDataUrl(notificacion.actorFotoPerfilDataUrl);
         if (bitmap != null) {
             avatar.setImageBitmap(bitmap);
-        } else {
-            avatar.setImageResource(R.drawable.default_profile_picture);
         }
         tarjeta.addView(avatar);
 
@@ -269,36 +277,67 @@ public class NotificationsActivity extends BaseDrawerActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 1f
         );
-        paramsColumna.leftMargin = dpToPx(8);
         columna.setLayoutParams(paramsColumna);
 
         TextView textoContenido = new TextView(this);
         textoContenido.setText(buildNotificationText(notificacion));
+        textoContenido.setTextColor(getColor(R.color.carousel_subtitle));
+        textoContenido.setTextSize(16f);
         columna.addView(textoContenido);
 
         TextView textoFecha = new TextView(this);
         textoFecha.setText(formatRelativeDate(notificacion.fechaCreacion));
         textoFecha.setTextSize(12f);
+        textoFecha.setTextColor(getColor(R.color.carousel_subtitle));
         columna.addView(textoFecha);
 
         tarjeta.addView(columna);
+
+        if (!notificacion.leida) {
+            View puntoNoLeida = new View(this);
+            LinearLayout.LayoutParams paramsPunto = new LinearLayout.LayoutParams(
+                    dpToPx(10),
+                    dpToPx(10)
+            );
+            paramsPunto.setMarginStart(dpToPx(10));
+            puntoNoLeida.setLayoutParams(paramsPunto);
+            puntoNoLeida.setBackgroundResource(R.drawable.bg_notification_unread_dot);
+            tarjeta.addView(puntoNoLeida);
+        }
+
         tarjeta.setOnClickListener(v -> handleNotificationClick(notificacion));
-        return tarjeta;
+        contenedorItem.addView(tarjeta);
+
+        if (mostrarDivisor) {
+            View divisor = new View(this);
+            divisor.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    dpToPx(1)
+            ));
+            divisor.setBackgroundColor(android.graphics.Color.parseColor("#14ffffff"));
+            contenedorItem.addView(divisor);
+        }
+
+        return contenedorItem;
     }
 
     // Construye el texto legible segun el tipo de notificacion.
-    private String buildNotificationText(AppNotificationData notificacion) {
+    private CharSequence buildNotificationText(AppNotificationData notificacion) {
         String nick = !TextUtils.isEmpty(notificacion.actorNick)
                 ? notificacion.actorNick
                 : getString(R.string.amigos_nick_desconocido);
+        String mensaje;
         if (notificacion.tipoNotificacion == NotificationType.FRIEND_REQUEST) {
-            return getString(R.string.notificaciones_texto_solicitud_amistad, nick);
+            mensaje = getString(R.string.notificaciones_texto_solicitud_amistad, nick);
+            return buildNotificationTextWithBoldNick(nick, mensaje);
         }
         if (notificacion.tipoNotificacion == NotificationType.THEMATIC_LIST_LIKE) {
-            return getString(R.string.notificaciones_texto_like_lista, nick);
+            mensaje = getString(R.string.notificaciones_texto_like_lista, nick);
+            return buildNotificationTextWithBoldNick(nick, mensaje);
         }
         if (notificacion.tipoNotificacion == NotificationType.THEMATIC_LIST_COMMENT) {
-            return getString(R.string.notificaciones_texto_comentario_lista, nick);
+            mensaje = getString(R.string.notificaciones_texto_comentario_lista, nick);
+            return buildNotificationTextWithBoldNick(nick, mensaje);
         }
         if (notificacion.tipoNotificacion == NotificationType.ACTIVITY_LIKE
                 || notificacion.tipoNotificacion == NotificationType.ACTIVITY_COMMENT) {
@@ -307,17 +346,35 @@ public class NotificationsActivity extends BaseDrawerActivity {
                     : getString(R.string.notificaciones_verbo_comentario);
             String tipoActividad = getMetadataText(notificacion, "activityType");
             if ("library_add".equals(tipoActividad)) {
-                return getString(R.string.notificaciones_texto_actividad_biblioteca, nick, verbo);
+                mensaje = getString(R.string.notificaciones_texto_actividad_biblioteca, nick, verbo);
+                return buildNotificationTextWithBoldNick(nick, mensaje);
             }
             if ("wishlist_add".equals(tipoActividad)) {
-                return getString(R.string.notificaciones_texto_actividad_deseados, nick, verbo);
+                mensaje = getString(R.string.notificaciones_texto_actividad_deseados, nick, verbo);
+                return buildNotificationTextWithBoldNick(nick, mensaje);
             }
             if ("thematic_list_create".equals(tipoActividad)) {
-                return getString(R.string.notificaciones_texto_actividad_lista_creada, nick, verbo);
+                mensaje = getString(R.string.notificaciones_texto_actividad_lista_creada, nick, verbo);
+                return buildNotificationTextWithBoldNick(nick, mensaje);
             }
-            return getString(R.string.notificaciones_texto_actividad_generica, nick, verbo);
+            mensaje = getString(R.string.notificaciones_texto_actividad_generica, nick, verbo);
+            return buildNotificationTextWithBoldNick(nick, mensaje);
         }
         return getString(R.string.notificaciones_texto_generico);
+    }
+
+    // Destaca el nick del usuario al inicio del texto.
+    private CharSequence buildNotificationTextWithBoldNick(String nick, String mensaje) {
+        SpannableStringBuilder texto = new SpannableStringBuilder(mensaje);
+        if (!TextUtils.isEmpty(nick) && mensaje.startsWith(nick)) {
+            texto.setSpan(
+                    new StyleSpan(Typeface.BOLD),
+                    0,
+                    nick.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+        return texto;
     }
 
     // Maneja click de notificacion: marca leida y redirige.
@@ -415,26 +472,8 @@ public class NotificationsActivity extends BaseDrawerActivity {
         return new SimpleDateFormat("dd/MM", Locale.getDefault()).format(fecha);
     }
 
-    // Convierte dataUrl a bitmap para mostrar avatar.
-    private Bitmap decodeDataUrl(String dataUrl) {
-        if (TextUtils.isEmpty(dataUrl)) {
-            return null;
-        }
-        int indiceComa = dataUrl.indexOf(',');
-        if (indiceComa < 0 || indiceComa >= dataUrl.length() - 1) {
-            return null;
-        }
-        try {
-            byte[] bytes = Base64.decode(dataUrl.substring(indiceComa + 1), Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        } catch (IllegalArgumentException error) {
-            return null;
-        }
-    }
-
     // Convierte dp a pixeles para vistas dinamicas.
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 }
-

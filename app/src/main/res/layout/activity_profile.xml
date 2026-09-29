@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutPerfil"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -10,166 +11,374 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tituloPerfil"
+        <LinearLayout
+            android:id="@+id/contenedorCabeceraPerfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/perfil_titulo"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/imagenPerfil"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:contentDescription="@string/perfil_foto_contenido"
-            android:scaleType="centerCrop"
-            android:src="@drawable/default_profile_picture" />
+            android:background="@drawable/bg_group_members_header_card"
+            android:elevation="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <com.example.comiku.screens.RoundedImageView
+                android:id="@+id/imagenPerfil"
+                android:layout_width="112dp"
+                android:layout_height="112dp"
+                android:contentDescription="@string/perfil_foto_contenido"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end">
+
+                    <ImageButton
+                        android:id="@+id/botonMenuPerfil"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Mas opciones"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_chat_options_vertical"
+                        android:tint="@android:color/white"
+                        android:visibility="gone"
+                        tools:ignore="UseAppTint" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoNickCabeceraPerfil"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/botonTotalComicsPerfil"
+                        style="@style/Theme.Comiku.ButtonPrimaryAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:textSize="15sp"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <Button
+                        android:id="@+id/botonTotalTomosPerfil"
+                        style="@style/Theme.Comiku.ButtonPrimaryAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:minWidth="0dp"
+                        android:textSize="15sp"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
 
         <Button
             android:id="@+id/botonCambiarFotoPerfil"
+            style="@style/Theme.Comiku.ButtonSecondaryAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:text="@string/perfil_boton_cambiar_foto" />
 
         <Button
             android:id="@+id/botonAmistadPerfil"
+            style="@style/Theme.Comiku.ButtonPrimaryAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/perfil_boton_enviar_solicitud"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/botonBloquearPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/perfil_boton_bloquear_usuario"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/botonReportarUsuarioPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/perfil_boton_reportar_usuario"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/botonUsuariosBloqueadosPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/perfil_boton_usuarios_bloqueados"
-            android:visibility="gone" />
-
-        <TextView
+        <LinearLayout
+            android:id="@+id/contenedorMetadataPerfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/perfil_campo_nombre" />
+            android:background="@drawable/bg_carousel_container"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <EditText
-            android:id="@+id/campoNombrePerfil"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre y apellido"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoNombreCompletoPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/carousel_subtitle"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/perfil_campo_email"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoEmailPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/carousel_subtitle"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/perfil_campo_fecha_nacimiento"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoFechaNacimientoPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/carousel_subtitle"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/perfil_campo_total_amigos"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoTotalAmigosPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/carousel_subtitle"
+                android:textSize="17sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/contenedorDestacadosPerfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:maxLines="1" />
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_carousel_container"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
+            <TextView
+                android:id="@+id/textoTituloDestacadosPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/perfil_destacados_titulo"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoAyudaDestacadosPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/carousel_subtitle"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:id="@+id/contenedorBusquedaDestacadosPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/perfil_destacados_busqueda_label"
+                    android:textColor="@android:color/white"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/campoBusquedaDestacadosPerfil"
+                    style="@style/Theme.Comiku.GenericTextInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/perfil_destacados_busqueda_hint"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/textoContadorDestacadosPerfil"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textoEstadoDestacadosPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/contenedorCarruselDestacadosPerfil"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/contenedorEdicionPerfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/perfil_campo_apellido" />
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_carousel_container"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
 
-        <EditText
-            android:id="@+id/campoApellidoPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:maxLines="1" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/perfil_campo_nombre"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/perfil_campo_nick" />
+            <EditText
+                android:id="@+id/campoNombrePerfil"
+                style="@style/Theme.Comiku.GenericTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:inputType="textPersonName"
+                android:maxLines="1" />
 
-        <EditText
-            android:id="@+id/campoNickPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:maxLines="1" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/perfil_campo_apellido"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/perfil_campo_email" />
+            <EditText
+                android:id="@+id/campoApellidoPerfil"
+                style="@style/Theme.Comiku.GenericTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:inputType="textPersonName"
+                android:maxLines="1" />
 
-        <TextView
-            android:id="@+id/textoEmailPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp"
-            android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/perfil_campo_nick"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/perfil_campo_fecha_nacimiento" />
+            <EditText
+                android:id="@+id/campoNickPerfil"
+                style="@style/Theme.Comiku.GenericTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:inputType="text"
+                android:maxLines="1" />
 
-        <EditText
-            android:id="@+id/campoFechaNacimientoPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusable="false"
-            android:inputType="none" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/perfil_campo_fecha_nacimiento"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/perfil_campo_total_comics" />
+            <EditText
+                android:id="@+id/campoFechaNacimientoPerfil"
+                style="@style/Theme.Comiku.GenericTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:focusable="false"
+                android:inputType="none"
+                android:clickable="true" />
 
-        <TextView
-            android:id="@+id/textoTotalComicsPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp"
-            android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="end"
+                android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/perfil_campo_total_tomos" />
+                <Button
+                    android:id="@+id/botonCancelarPerfil"
+                    style="@style/Theme.Comiku.DangerButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/perfil_boton_cancelar" />
 
-        <TextView
-            android:id="@+id/textoTotalTomosPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/perfil_campo_total_amigos" />
-
-        <TextView
-            android:id="@+id/textoTotalAmigosPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp"
-            android:textStyle="bold" />
+                <Button
+                    android:id="@+id/botonGuardarPerfil"
+                    style="@style/Theme.Comiku.ButtonPrimaryAction"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/perfil_boton_guardar" />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textoErrorPerfil"
@@ -178,15 +387,6 @@
             android:layout_marginTop="16dp"
             android:textColor="@android:color/holo_red_dark" />
 
-        <Button
-            android:id="@+id/botonEliminarCuentaPerfil"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/perfil_boton_eliminar_cuenta"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/red" />
-
         <ProgressBar
             android:id="@+id/barraCargaPerfil"
             android:layout_width="wrap_content"
@@ -194,27 +394,6 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="12dp"
             android:visibility="gone" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="end"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/botonCancelarPerfil"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/perfil_boton_cancelar" />
-
-            <Button
-                android:id="@+id/botonEditarGuardarPerfil"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/perfil_boton_editar" />
-        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

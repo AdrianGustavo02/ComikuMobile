@@ -1,54 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/menu_perfil"
-        android:icon="@android:drawable/ic_menu_myplaces"
-        android:title="@string/menu_perfil" />
+    <group android:id="@+id/grupo_navegacion_principal">
+        <item
+            android:id="@+id/menu_inicio"
+            android:checkable="true"
+            android:icon="@drawable/ic_inicio"
+            android:title="@string/menu_inicio" />
 
-    <item
-        android:id="@+id/menu_biblioteca"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="@string/menu_biblioteca" />
+        <item
+            android:id="@+id/menu_biblioteca"
+            android:checkable="true"
+            android:icon="@drawable/ic_biblioteca"
+            android:title="@string/menu_biblioteca" />
 
-    <item
-        android:id="@+id/menu_deseados"
-        android:icon="@android:drawable/ic_menu_view"
-        android:title="@string/menu_deseados" />
+        <item
+            android:id="@+id/menu_deseados"
+            android:checkable="true"
+            android:icon="@drawable/ic_deseados"
+            android:title="@string/menu_deseados" />
 
-    <item
-        android:id="@+id/menu_listas_tematicas"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="@string/menu_listas_tematicas" />
+        <item
+            android:id="@+id/menu_listas_tematicas"
+            android:checkable="true"
+            android:icon="@drawable/ic_listas_tematicas"
+            android:title="@string/menu_listas_tematicas" />
 
-    <item
-        android:id="@+id/menu_amigos"
-        android:icon="@android:drawable/ic_menu_myplaces"
-        android:title="@string/menu_amigos" />
+        <item
+            android:id="@+id/menu_amigos"
+            android:checkable="true"
+            android:icon="@drawable/ic_amigos"
+            android:title="@string/menu_amigos" />
 
-    <item
-        android:id="@+id/menu_chats"
-        android:icon="@android:drawable/ic_dialog_email"
-        android:title="@string/menu_chats" />
+        <item
+            android:id="@+id/menu_chats"
+            android:checkable="true"
+            android:icon="@drawable/ic_chats"
+            android:title="@string/menu_chats" />
 
-    <item
-        android:id="@+id/menu_contactanos"
-        android:icon="@android:drawable/ic_menu_send"
-        android:title="@string/menu_contactanos" />
+        <item
+            android:id="@+id/menu_actividades"
+            android:checkable="true"
+            android:icon="@drawable/ic_actividades"
+            android:title="@string/menu_actividades" />
 
-    <item
-        android:id="@+id/menu_actividades"
-        android:icon="@android:drawable/ic_menu_recent_history"
-        android:title="@string/menu_actividades" />
+        <item
+            android:id="@+id/menu_notificaciones"
+            android:checkable="true"
+            android:icon="@drawable/ic_notificaciones"
+            android:title="@string/menu_notificaciones" />
 
-    <item
-        android:id="@+id/menu_notificaciones"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="@string/menu_notificaciones" />
+        <item
+            android:id="@+id/menu_contactanos"
+            android:checkable="true"
+            android:icon="@drawable/ic_contactanos"
+            android:title="@string/menu_contactanos" />
+    </group>
 
-    <item
-        android:id="@+id/menu_cerrar_sesion"
-        android:icon="@android:drawable/ic_lock_power_off"
-        android:title="@string/menu_cerrar_sesion" />
 
 </menu>

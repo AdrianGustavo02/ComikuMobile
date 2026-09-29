@@ -370,6 +370,45 @@ public final class UserShelfRepository {
         });
     }
 
+    // Obtiene los tomos de biblioteca de un comic puntual.
+    public static Task<List<UserShelfVolumeItemData>> getComicLibraryVolumes(String uidUsuario, String comicId) {
+        ensureFirestoreReady();
+        validateComicIds(uidUsuario, comicId);
+
+        return getComicReference(uidUsuario, LIBRARY_COLLECTION, comicId)
+                .collection(VOLUMES_SUBCOLLECTION)
+                .get()
+                .continueWithTask(task -> {
+                    QuerySnapshot tomosBiblioteca = task.getResult();
+                    if (tomosBiblioteca == null || tomosBiblioteca.isEmpty()) {
+                        return Tasks.forResult(new ArrayList<>());
+                    }
+
+                    List<Task<UserShelfVolumeItemData>> tareasTomos = new ArrayList<>();
+                    for (DocumentSnapshot tomoSnapshot : tomosBiblioteca.getDocuments()) {
+                        tareasTomos.add(buildShelfVolumeItem(comicId, tomoSnapshot));
+                    }
+
+                    return Tasks.whenAllSuccess(tareasTomos).continueWith(resultTask -> {
+                        List<UserShelfVolumeItemData> tomos = new ArrayList<>();
+                        List<?> resultados = resultTask.getResult();
+                        if (resultados != null) {
+                            for (Object resultado : resultados) {
+                                if (resultado instanceof UserShelfVolumeItemData) {
+                                    tomos.add((UserShelfVolumeItemData) resultado);
+                                }
+                            }
+                        }
+
+                        tomos.sort((tomoA, tomoB) -> Integer.compare(
+                                getVolumeOrderValue(tomoA != null ? tomoA.tomo : null),
+                                getVolumeOrderValue(tomoB != null ? tomoB.tomo : null)
+                        ));
+                        return tomos;
+                    });
+                });
+    }
+
     // Obtiene hasta un limite de tomos faltantes para mostrar en inicio.
     public static Task<HomeMissingVolumesData> getHomeMissingVolumes(String uidUsuario, int limite) {
         ensureFirestoreReady();

@@ -21,10 +21,17 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.comiku.core.ui.StatusBarUtils;
 import androidx.core.content.ContextCompat;
 
 import com.example.comiku.R;
+import com.example.comiku.core.image.FileNameResolver;
+import com.example.comiku.core.ui.ToastUtils;
+import com.example.comiku.core.ui.ImagePickerFieldComponent;
 import com.example.comiku.core.image.ImageCropperConfig;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,7 +48,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends BasePlainScreenActivity {
     private static final int EDAD_MINIMA_REGISTRO = 18;
     private static final int TAMANO_MAXIMO_FOTO_BYTES = 500 * 1024;
     private static final String COLECCION_USUARIOS = "usuario";
@@ -58,12 +65,19 @@ public class RegisterActivity extends AppCompatActivity {
     private ProgressBar barraCarga;
     private ImageView imagenFotoPerfil;
     private Button botonRegistro;
+    private ImagePickerFieldComponent selectorFotoPerfilComponente;
 
     private byte[] bytesFotoSeleccionada;
     private String nombreFotoSeleccionada;
     private String tipoFotoSeleccionada;
     private long milisegundosCumpleanos = -1L;
     private boolean estaRegistrando = false;
+
+    // Usa el mismo fondo del registro para que el borde superior no se vea blanco.
+    @Override
+    protected int getShellBackgroundColorRes() {
+        return R.color.fondo_login_registro;
+    }
 
     private final ActivityResultLauncher<String> selectorFotoPerfil = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -87,7 +101,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setupPlainScreenShell(R.layout.activity_register);
         bindViews();
         setupListeners();
         updateLoadingState(false);
@@ -106,12 +120,16 @@ public class RegisterActivity extends AppCompatActivity {
         barraCarga = findViewById(R.id.barraCargaRegistro);
         imagenFotoPerfil = findViewById(R.id.imagenFotoPerfil);
         botonRegistro = findViewById(R.id.botonRegistrar);
+        selectorFotoPerfilComponente = new ImagePickerFieldComponent(
+                findViewById(R.id.componenteSelectorFotoRegistro)
+        );
+        selectorFotoPerfilComponente.setButtonText(R.string.registro_boton_elegir_foto);
     }
 
 
     private void setupListeners() {
         campoCumpleanos.setOnClickListener(v -> openBirthdayPicker());
-        findViewById(R.id.botonElegirFoto).setOnClickListener(v -> openPhotoPicker());
+        selectorFotoPerfilComponente.setOnSelectClickListener(v -> openPhotoPicker());
         botonRegistro.setOnClickListener(v -> handleRegister());
     }
 
@@ -160,11 +178,12 @@ public class RegisterActivity extends AppCompatActivity {
             showError(getString(R.string.error_tipo_foto_no_valido));
             return;
         }
+        nombreFotoSeleccionada = FileNameResolver.resolveFileName(this, uriSeleccionada, "foto-perfil.jpg");
 
         Intent recorte = ImageCropperConfig.createIntent(
                 this,
                 uriSeleccionada,
-                "foto-perfil.jpg",
+                buildCropOutputFileName(nombreFotoSeleccionada, "foto-perfil"),
                 getString(R.string.recorte_titulo_foto_perfil),
                 1,
                 1
@@ -188,12 +207,34 @@ public class RegisterActivity extends AppCompatActivity {
 
             bytesFotoSeleccionada = bytesImagen;
             tipoFotoSeleccionada = tipoContenido;
-            nombreFotoSeleccionada = "foto-perfil.jpg";
-            imagenFotoPerfil.setImageURI(uriRecortada);
+            if (TextUtils.isEmpty(nombreFotoSeleccionada)) {
+                nombreFotoSeleccionada = "foto-perfil.jpg";
+            }
+            Glide.with(this)
+                    .load(uriRecortada)
+                    .circleCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .signature(new ObjectKey(String.valueOf(System.currentTimeMillis())))
+                    .into(imagenFotoPerfil);
+            selectorFotoPerfilComponente.showSelectedFile(nombreFotoSeleccionada, tipoFotoSeleccionada);
             textoError.setText("");
         } catch (IOException excepcion) {
             showError(getString(R.string.error_lectura_foto));
         }
+    }
+
+    // Crea un nombre de salida unico para que el recorte no recicle la misma uri.
+    private String buildCropOutputFileName(String nombreOriginal, String baseDefault) {
+        String nombreBase = TextUtils.isEmpty(nombreOriginal) ? baseDefault : nombreOriginal;
+        int indicePunto = nombreBase.lastIndexOf('.');
+        String extension = "jpg";
+        if (indicePunto > 0 && indicePunto < nombreBase.length() - 1) {
+            extension = nombreBase.substring(indicePunto + 1).toLowerCase(Locale.ROOT);
+        }
+        String nombreSinExtension = indicePunto > 0 ? nombreBase.substring(0, indicePunto) : nombreBase;
+        String nombreLimpio = nombreSinExtension.replaceAll("[^a-zA-Z0-9._-]", "_");
+        return nombreLimpio + "-" + System.currentTimeMillis() + "." + extension;
     }
 
     // Inicia el registro cuando el formulario es valido.
@@ -588,7 +629,7 @@ public class RegisterActivity extends AppCompatActivity {
         campoContrasena.setEnabled(!cargando);
         campoConfirmacionContrasena.setEnabled(!cargando);
         botonRegistro.setEnabled(!cargando);
-        findViewById(R.id.botonElegirFoto).setEnabled(!cargando);
+        selectorFotoPerfilComponente.setEnabled(!cargando);
     }
 
     // Muestra el error principal del formulario.
@@ -598,7 +639,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Redirige al home luego de registrarse correctamente.
     private void navigateToHome() {
-        Toast.makeText(this, R.string.registro_exitoso, Toast.LENGTH_SHORT).show();
+        ToastUtils.showTextToast(this, R.string.registro_exitoso, Toast.LENGTH_SHORT);
         Intent pantallaInicio = new Intent(this, MainActivity.class);
         pantallaInicio.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(pantallaInicio);

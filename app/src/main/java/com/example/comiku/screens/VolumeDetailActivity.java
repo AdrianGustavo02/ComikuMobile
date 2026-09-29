@@ -1,13 +1,19 @@
 package com.example.comiku.screens;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.util.Base64;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -22,7 +28,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AlertDialog;
+import com.example.comiku.core.ui.StatusBarUtils;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
@@ -31,6 +37,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.DeleteConfirmDialogComponent;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.ui.ReportFormComponent;
 import com.example.comiku.data.model.LibraryReadingEntryData;
 import com.example.comiku.data.model.LibraryVolumeReadingData;
@@ -57,13 +65,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class VolumeDetailActivity extends AppCompatActivity {
+public class VolumeDetailActivity extends BasePlainScreenActivity {
     public static final String EXTRA_COMIC_ID = "extra_comic_id";
     public static final String EXTRA_VOLUME_ID = "extra_volume_id";
 
     private TextView textoNombreComic;
     private TextView textoNumeroTomo;
+    private LinearLayout contenedorNombreComic;
+    private ImageView iconoFlechaComic;
     private ImageView imagenPortadaTomo;
+    private LinearLayout contenedorMetadata;
     private TextView textoIsbn;
     private TextView textoFechaPublicacion;
     private Button botonAgregarBiblioteca;
@@ -138,16 +149,19 @@ public class VolumeDetailActivity extends AppCompatActivity {
         }
 
         uidUsuario = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        setContentView(R.layout.activity_volume_detail);
+        setupPlainScreenShell(R.layout.activity_volume_detail);
         bindViews();
         loadVolumeDetail();
     }
 
     // Vincula las vistas del layout.
     private void bindViews() {
+        contenedorNombreComic = findViewById(R.id.contenedorNombreComicVolumeDetail);
         textoNombreComic = findViewById(R.id.textoNombreComicVolumeDetail);
         textoNumeroTomo = findViewById(R.id.textoNumeroTomoVolumeDetail);
+        iconoFlechaComic = findViewById(R.id.iconoFlechaComicVolumeDetail);
         imagenPortadaTomo = findViewById(R.id.imagenPortadaVolumeDetail);
+        contenedorMetadata = findViewById(R.id.contenedorMetadataVolumeDetail);
         textoIsbn = findViewById(R.id.textoIsbnVolumeDetail);
         textoFechaPublicacion = findViewById(R.id.textoFechaPublicacionVolumeDetail);
         botonAgregarBiblioteca = findViewById(R.id.botonAgregarBibliotecaVolumeDetail);
@@ -189,6 +203,10 @@ public class VolumeDetailActivity extends AppCompatActivity {
         botonBuscarComerciosCercanos.setOnClickListener(v -> buscarComerciosCercanos());
         botonRadio20km.setOnClickListener(v -> cambiarRadioComerciosCercanos(20_000));
         botonRadio50km.setOnClickListener(v -> cambiarRadioComerciosCercanos(50_000));
+        contenedorNombreComic.setOnClickListener(v -> openComicDetail());
+        textoNombreComic.setOnClickListener(v -> openComicDetail());
+        iconoFlechaComic.setOnClickListener(v -> openComicDetail());
+        applyCommerceRadiusToggleStyle();
     }
 
     // Carga los detalles del tomo desde Firestore.
@@ -267,16 +285,32 @@ public class VolumeDetailActivity extends AppCompatActivity {
         }
 
         if (tomo.isbn != null) {
-            textoIsbn.setText("ISBN: " + String.valueOf(tomo.isbn));
+            textoIsbn.setText(buildMetadataText("ISBN", String.valueOf(tomo.isbn)));
+            textoIsbn.setVisibility(View.VISIBLE);
         } else {
             textoIsbn.setVisibility(View.GONE);
         }
 
         if (!TextUtils.isEmpty(tomo.fechaPublicacion)) {
-            textoFechaPublicacion.setText("Fecha: " + tomo.fechaPublicacion);
+            textoFechaPublicacion.setText(buildMetadataText(
+                    "Publicacion",
+                    formatPublicationDate(tomo.fechaPublicacion)
+            ));
+            textoFechaPublicacion.setVisibility(View.VISIBLE);
         } else {
             textoFechaPublicacion.setVisibility(View.GONE);
         }
+        updateMetadataContainerVisibility();
+    }
+
+    // Abre el detalle del comic asociado al tomo actual.
+    private void openComicDetail() {
+        if (TextUtils.isEmpty(comicId)) {
+            return;
+        }
+        Intent pantallaDetalleComic = new Intent(this, ComicDetailActivity.class);
+        pantallaDetalleComic.putExtra(ComicDetailActivity.EXTRA_COMIC_ID, comicId);
+        startActivity(pantallaDetalleComic);
     }
 
     // Conecta acciones de los botones.
@@ -340,9 +374,9 @@ public class VolumeDetailActivity extends AppCompatActivity {
                     if (enBiblioteca) {
                         registerVolumeActivity(FriendActivityType.LIBRARY_ADD);
                     }
-                    Toast.makeText(this,
+                    ToastUtils.showTextToast(this,
                             enBiblioteca ? R.string.agregado_biblioteca : R.string.eliminado_biblioteca,
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT);
                 })
                 .addOnFailureListener(error -> {
                     setActionButtonsEnabled(true);
@@ -370,9 +404,9 @@ public class VolumeDetailActivity extends AppCompatActivity {
                     if (enDeseados) {
                         registerVolumeActivity(FriendActivityType.WISHLIST_ADD);
                     }
-                    Toast.makeText(this, enDeseados
+                    ToastUtils.showTextToast(this, enDeseados
                             ? R.string.agregado_deseados
-                            : R.string.eliminado_deseados, Toast.LENGTH_SHORT).show();
+                            : R.string.eliminado_deseados, Toast.LENGTH_SHORT);
                 })
                 .addOnFailureListener(error -> {
                     setActionButtonsEnabled(true);
@@ -388,6 +422,19 @@ public class VolumeDetailActivity extends AppCompatActivity {
         botonAgregarDeseados.setText(enDeseados
                 ? R.string.en_deseados_agregado
                 : R.string.agregar_deseados);
+        applyActionButtonStyle(botonAgregarBiblioteca, enBiblioteca);
+        applyActionButtonStyle(botonAgregarDeseados, enDeseados);
+    }
+
+    // Cambia el aspecto del boton segun si la accion esta activa o no.
+    private void applyActionButtonStyle(Button boton, boolean activo) {
+        if (activo) {
+            boton.setBackgroundResource(R.drawable.bg_button_primary_action);
+            boton.setTextColor(getColorStateList(R.color.button_primary_action_text));
+            return;
+        }
+        boton.setBackgroundResource(R.drawable.bg_button_secondary_action);
+        boton.setTextColor(getColor(android.R.color.white));
     }
 
     // Bloquea o habilita las acciones mientras se guarda.
@@ -420,8 +467,9 @@ public class VolumeDetailActivity extends AppCompatActivity {
         String textoLeido = datosLectura.leido
                 ? getString(R.string.lectura_estado_si)
                 : getString(R.string.lectura_estado_no);
-        textoEstadoLectura.setText(getString(R.string.lectura_estado_formato, textoLeido));
+        textoEstadoLectura.setText(buildMetadataText("Leido", textoLeido));
         textoEstadoLectura.setVisibility(enBiblioteca ? View.VISIBLE : View.GONE);
+        updateMetadataContainerVisibility();
         renderReadingHistory();
     }
 
@@ -441,6 +489,15 @@ public class VolumeDetailActivity extends AppCompatActivity {
             diaLecturaSeleccionada = null;
             campoFechaLectura.setText("");
         }
+        updateMetadataContainerVisibility();
+    }
+
+    // Muestra el contenedor violeta solo cuando tiene algun dato visible.
+    private void updateMetadataContainerVisibility() {
+        boolean mostrar = textoIsbn.getVisibility() == View.VISIBLE
+                || textoFechaPublicacion.getVisibility() == View.VISIBLE
+                || textoEstadoLectura.getVisibility() == View.VISIBLE;
+        contenedorMetadata.setVisibility(mostrar ? View.VISIBLE : View.GONE);
     }
 
     // Abre el selector de fecha para registrar una lectura.
@@ -503,7 +560,7 @@ public class VolumeDetailActivity extends AppCompatActivity {
                     mesLecturaSeleccionada = null;
                     diaLecturaSeleccionada = null;
                     campoFechaLectura.setText("");
-                    Toast.makeText(this, R.string.lectura_guardada_ok, Toast.LENGTH_SHORT).show();
+                    ToastUtils.showTextToast(this, R.string.lectura_guardada_ok, Toast.LENGTH_SHORT);
                 })
                 .addOnFailureListener(error -> showError(
                         error instanceof Exception && !TextUtils.isEmpty(error.getMessage())
@@ -520,13 +577,13 @@ public class VolumeDetailActivity extends AppCompatActivity {
         }
 
         String fechaFormateada = formatReadingDate(lectura.fecha);
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.lectura_eliminar_titulo)
-                .setMessage(getString(R.string.lectura_eliminar_mensaje, fechaFormateada))
-                .setNegativeButton(R.string.lectura_cancelar, (dialog, which) -> dialog.dismiss())
-                .setPositiveButton(R.string.lectura_eliminar_accion, (dialog, which) ->
-                        confirmDeleteReading(lectura.storageIndex))
-                .show();
+        DeleteConfirmDialogComponent dialogoConfirmacion = new DeleteConfirmDialogComponent(
+                this,
+                getString(R.string.lectura_eliminar_titulo),
+                getString(R.string.lectura_eliminar_mensaje, fechaFormateada),
+                () -> confirmDeleteReading(lectura.storageIndex)
+        );
+        dialogoConfirmacion.show();
     }
 
     // Elimina una lectura guardada dentro de Firestore.
@@ -540,7 +597,7 @@ public class VolumeDetailActivity extends AppCompatActivity {
         UserShelfRepository.deleteVolumeReading(uidUsuario, comicId, tomoId, storageIndex)
                 .addOnSuccessListener(data -> {
                     applyLibraryData(data);
-                    Toast.makeText(this, R.string.lectura_eliminada_ok, Toast.LENGTH_SHORT).show();
+                    ToastUtils.showTextToast(this, R.string.lectura_eliminada_ok, Toast.LENGTH_SHORT);
                 })
                 .addOnFailureListener(error -> showError(
                         error instanceof Exception && !TextUtils.isEmpty(error.getMessage())
@@ -599,23 +656,36 @@ public class VolumeDetailActivity extends AppCompatActivity {
     private View createReadingRow(LibraryReadingEntryData lectura) {
         LinearLayout fila = new LinearLayout(this);
         fila.setOrientation(LinearLayout.HORIZONTAL);
-        fila.setLayoutParams(new LinearLayout.LayoutParams(
+        fila.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        fila.setBackgroundResource(R.drawable.bg_carousel_container);
+        LinearLayout.LayoutParams parametrosFila = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        fila.setPadding(0, 0, 0, dpToPx(8));
+        );
+        parametrosFila.bottomMargin = dpToPx(8);
+        fila.setLayoutParams(parametrosFila);
+        fila.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(16));
 
         TextView fecha = new TextView(this);
         fecha.setText(formatReadingDate(lectura != null ? lectura.fecha : null));
+        fecha.setTextColor(getColor(R.color.carousel_subtitle));
+        fecha.setTextSize(18f);
         LinearLayout.LayoutParams paramsFecha = new LinearLayout.LayoutParams(
                 0,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 1f
         );
+        paramsFecha.setMarginEnd(dpToPx(12));
         fecha.setLayoutParams(paramsFecha);
         fila.addView(fecha);
 
-        Button botonEliminar = new Button(this);
+        ContextThemeWrapper contextoDanger = new ContextThemeWrapper(this, R.style.Theme_Comiku_DangerButton);
+        Button botonEliminar = new Button(contextoDanger, null, 0);
+        LinearLayout.LayoutParams parametrosBotonEliminar = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        botonEliminar.setLayoutParams(parametrosBotonEliminar);
         botonEliminar.setText(R.string.lectura_eliminar_accion);
         botonEliminar.setEnabled(!guardandoLectura);
         botonEliminar.setOnClickListener(v -> requestDeleteReading(lectura));
@@ -632,6 +702,38 @@ public class VolumeDetailActivity extends AppCompatActivity {
         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         formato.setTimeZone(ZONA_LECTURA);
         return formato.format(fecha);
+    }
+
+    // Arma el texto de metadata con label en negrita y valor normal.
+    private CharSequence buildMetadataText(String label, String valor) {
+        SpannableStringBuilder texto = new SpannableStringBuilder();
+        String prefijo = label + ": ";
+        texto.append(prefijo);
+        texto.setSpan(new StyleSpan(Typeface.BOLD), 0, prefijo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        texto.append(valor);
+        return texto;
+    }
+
+    // Reordena la fecha de publicacion para mostrar primero el mes.
+    private String formatPublicationDate(String fechaPublicacion) {
+        if (TextUtils.isEmpty(fechaPublicacion)) {
+            return "";
+        }
+
+        String valorLimpio = fechaPublicacion.trim();
+        if (valorLimpio.matches("^\\d{4}-\\d{2}$")) {
+            String anio = valorLimpio.substring(0, 4);
+            String mes = valorLimpio.substring(5, 7);
+            return mes + "/" + anio;
+        }
+
+        if (valorLimpio.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+            String anio = valorLimpio.substring(0, 4);
+            String mes = valorLimpio.substring(5, 7);
+            return mes + "/" + anio;
+        }
+
+        return valorLimpio;
     }
 
     // Limpia la hora para comparar solo la fecha.
@@ -799,6 +901,7 @@ public class VolumeDetailActivity extends AppCompatActivity {
         if (radioActual == nuevoRadio) return;
 
         radioActual = nuevoRadio;
+        applyCommerceRadiusToggleStyle();
         cargaComerciosCercanos.setVisibility(View.VISIBLE);
         contenedorListaComerciosCercanos.setVisibility(View.GONE);
         textoComerciosCercanosVacio.setVisibility(View.GONE);
@@ -854,5 +957,28 @@ public class VolumeDetailActivity extends AppCompatActivity {
                 mostrarErrorComerciosCercanos("Permiso de ubicacion denegado");
             }
         }
+    }
+
+    // Actualiza el aspecto del toggle segun el radio activo.
+    private void applyCommerceRadiusToggleStyle() {
+        applyCommerceRadiusButtonStyle(botonRadio20km, radioActual == 20_000, true);
+        applyCommerceRadiusButtonStyle(botonRadio50km, radioActual == 50_000, false);
+    }
+
+    // Aplica el fondo y color correcto a cada boton del toggle.
+    private void applyCommerceRadiusButtonStyle(Button boton, boolean activo, boolean esBotonIzquierdo) {
+        boton.setBackgroundTintList(null);
+        if (activo) {
+            boton.setBackgroundResource(esBotonIzquierdo
+                    ? R.drawable.bg_volume_detail_toggle_left_active
+                    : R.drawable.bg_volume_detail_toggle_right_active);
+            boton.setTextColor(getColor(android.R.color.white));
+            return;
+        }
+
+        boton.setBackgroundResource(esBotonIzquierdo
+                ? R.drawable.bg_volume_detail_toggle_left_inactive
+                : R.drawable.bg_volume_detail_toggle_right_inactive);
+        boton.setTextColor(getColor(android.R.color.black));
     }
 }

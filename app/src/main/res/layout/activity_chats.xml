@@ -9,39 +9,34 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center_vertical">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/chats_titulo"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/botonCrearGrupo"
+            style="@style/Theme.Comiku.ButtonSecondaryAction"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="end"
-            android:orientation="horizontal">
+            android:layout_marginEnd="8dp"
+            android:text="@string/chats_crear_grupo"
+            android:textSize="12sp" />
 
-            <Button
-                android:id="@+id/botonCrearGrupo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/chats_crear_grupo"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/botonIniciarConversacion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/chats_nueva_conversacion"
-                android:textSize="12sp" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/botonIniciarConversacion"
+            style="@style/Theme.Comiku.ButtonSecondaryAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/chats_nueva_conversacion"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <!-- Separador -->

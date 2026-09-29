@@ -23,223 +23,284 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textoTituloInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/inicio_titulo"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textoMensajeInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/inicio_mensaje" />
-
-            <Button
-                android:id="@+id/botonIrCreacionManual"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/inicio_boton_creacion_manual" />
-
-            <TextView
-                android:id="@+id/textoTituloTomosFaltantesInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:text="@string/inicio_tomos_faltantes_titulo"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textoSubtituloTomosFaltantesInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/inicio_tomos_faltantes_subtitulo"
-                android:textSize="14sp" />
+                        <include
+                android:id="@+id/vistaCarruselPresentacionInicio"
+                layout="@layout/view_home_presentation_carousel" />
 
             <LinearLayout
+                android:id="@+id/contenedorIndicadoresPresentacionInicio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="22dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/indicadorPresentacionInicioUno"
+                    android:layout_width="26dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/bg_home_presentation_indicator_active"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <View
+                    android:id="@+id/indicadorPresentacionInicioDos"
+                    android:layout_width="26dp"
+                    android:layout_height="10dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_home_presentation_indicator_inactive"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+<LinearLayout
                 android:id="@+id/contenedorCarruselTomosFaltantesInicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:layout_marginTop="22dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_carousel_container"
+                android:padding="22dp"
                 android:visibility="gone">
 
-                <ImageButton
-                    android:id="@+id/botonIzquierdaTomosFaltantesInicio"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/inicio_tomos_faltantes_izquierda" />
-
-                <HorizontalScrollView
-                    android:id="@+id/scrollTomosFaltantesInicio"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:scrollbars="none"
-                    android:fillViewport="true">
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:id="@+id/contenedorTomosFaltantesInicio"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/textoTituloTomosFaltantesInicio"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal" />
-                </HorizontalScrollView>
+                        android:text="@string/inicio_tomos_faltantes_titulo"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white" />
 
-                <ImageButton
-                    android:id="@+id/botonDerechaTomosFaltantesInicio"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_next"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/inicio_tomos_faltantes_derecha" />
+                    <TextView
+                        android:id="@+id/textoSubtituloTomosFaltantesInicio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/inicio_tomos_faltantes_subtitulo"
+                        android:textSize="15sp"
+                        android:textColor="@color/carousel_subtitle" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageButton
+                        android:id="@+id/botonIzquierdaTomosFaltantesInicio"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_previous"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/inicio_tomos_faltantes_izquierda"
+                        android:visibility="gone" />
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollTomosFaltantesInicio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fillViewport="true">
+
+                        <LinearLayout
+                            android:id="@+id/contenedorTomosFaltantesInicio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <ImageButton
+                        android:id="@+id/botonDerechaTomosFaltantesInicio"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_next"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/inicio_tomos_faltantes_derecha"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoEstadoTomosFaltantesInicio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textSize="14sp" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/textoEstadoTomosFaltantesInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/textoTituloUltimosTomosInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:text="@string/inicio_ultimos_tomos_titulo"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textoSubtituloUltimosTomosInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/inicio_ultimos_tomos_subtitulo"
-                android:textSize="14sp" />
 
             <LinearLayout
                 android:id="@+id/contenedorCarruselUltimosTomosInicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:layout_marginTop="22dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_carousel_container"
+                android:padding="22dp"
                 android:visibility="gone">
 
-                <ImageButton
-                    android:id="@+id/botonIzquierdaUltimosTomosInicio"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/inicio_ultimos_tomos_izquierda" />
-
-                <HorizontalScrollView
-                    android:id="@+id/scrollUltimosTomosInicio"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:scrollbars="none"
-                    android:fillViewport="true">
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:id="@+id/contenedorUltimosTomosInicio"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/textoTituloUltimosTomosInicio"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal" />
-                </HorizontalScrollView>
+                        android:text="@string/inicio_ultimos_tomos_titulo"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white" />
 
-                <ImageButton
-                    android:id="@+id/botonDerechaUltimosTomosInicio"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_next"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/inicio_ultimos_tomos_derecha" />
+                    <TextView
+                        android:id="@+id/textoSubtituloUltimosTomosInicio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/inicio_ultimos_tomos_subtitulo"
+                        android:textSize="15sp"
+                        android:textColor="@color/carousel_subtitle" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageButton
+                        android:id="@+id/botonIzquierdaUltimosTomosInicio"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_previous"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/inicio_ultimos_tomos_izquierda"
+                        android:visibility="gone" />
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollUltimosTomosInicio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fillViewport="true">
+
+                        <LinearLayout
+                            android:id="@+id/contenedorUltimosTomosInicio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <ImageButton
+                        android:id="@+id/botonDerechaUltimosTomosInicio"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_next"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/inicio_ultimos_tomos_derecha"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoEstadoUltimosTomosInicio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/textoEstadoUltimosTomosInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp" />
-
             <!-- Seccion Te puede gustar -->
-            <TextView
-                android:id="@+id/textoTituloRecomendacionesInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:text="@string/inicio_recomendaciones_titulo"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textoSubtituloRecomendacionesInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/inicio_recomendaciones_subtitulo"
-                android:textSize="14sp" />
-
             <LinearLayout
                 android:id="@+id/contenedorCarruselRecomendacionesInicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:layout_marginTop="22dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_carousel_container"
+                android:padding="22dp"
                 android:visibility="gone">
 
-                <ImageButton
-                    android:id="@+id/botonIzquierdaRecomendacionesInicio"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/inicio_recomendaciones_izquierda" />
-
-                <HorizontalScrollView
-                    android:id="@+id/scrollRecomendacionesInicio"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:scrollbars="none"
-                    android:fillViewport="true">
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:id="@+id/contenedorRecomendacionesInicio"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/textoTituloRecomendacionesInicio"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal" />
-                </HorizontalScrollView>
+                        android:text="@string/inicio_recomendaciones_titulo"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white" />
 
-                <ImageButton
-                    android:id="@+id/botonDerechaRecomendacionesInicio"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_next"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/inicio_recomendaciones_derecha" />
+                    <TextView
+                        android:id="@+id/textoSubtituloRecomendacionesInicio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/inicio_recomendaciones_subtitulo"
+                        android:textSize="15sp"
+                        android:textColor="@color/carousel_subtitle" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageButton
+                        android:id="@+id/botonIzquierdaRecomendacionesInicio"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_previous"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/inicio_recomendaciones_izquierda"
+                        android:visibility="gone" />
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollRecomendacionesInicio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fillViewport="true">
+
+                        <LinearLayout
+                            android:id="@+id/contenedorRecomendacionesInicio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <ImageButton
+                        android:id="@+id/botonDerechaRecomendacionesInicio"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_next"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/inicio_recomendaciones_derecha"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoEstadoRecomendacionesInicio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textSize="14sp" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/textoEstadoRecomendacionesInicio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp" />
         </LinearLayout>
     </ScrollView>
 

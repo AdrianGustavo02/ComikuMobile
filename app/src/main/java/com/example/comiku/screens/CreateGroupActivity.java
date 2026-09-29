@@ -14,7 +14,6 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +24,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.comiku.R;
+import com.example.comiku.core.image.FileNameResolver;
+import com.example.comiku.core.ui.ToastUtils;
+import com.example.comiku.core.ui.ImagePickerFieldComponent;
 import com.example.comiku.core.firebase.ChatChannelService;
 import com.example.comiku.core.image.ImageCropperConfig;
 import com.example.comiku.core.validation.GroupValidator;
@@ -43,17 +45,17 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class CreateGroupActivity extends AppCompatActivity {
+public class CreateGroupActivity extends BasePlainScreenActivity {
     private static final int TAMANO_MAXIMO_FOTO_BYTES = 500 * 1024;
     private EditText campoNombreGrupo;
     private EditText campoDescripcionGrupo;
-    private ImageView imagenGrupoPreview;
+    private RoundedImageView imagenGrupoPreview;
     private TextView textoCantidadSeleccion;
     private RecyclerView listaAmigosGrupo;
     private ProgressBar indicadorCargaGrupo;
     private Button botonCrearGrupoConfirmar;
-    private Button botonElegirFotoGrupo;
     private Button botonQuitarFotoGrupo;
+    private ImagePickerFieldComponent selectorFotoGrupoComponente;
     private GroupFriendSelectorAdapter adaptador;
     private final List<UserSearchData> amigos = new ArrayList<>();
     private final List<String> miembrosSeleccionados = new ArrayList<>();
@@ -62,6 +64,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     private ChatChannelService channelService;
     private byte[] bytesFotoGrupoSeleccionada;
     private String tipoFotoGrupoSeleccionada;
+    private String nombreFotoGrupoSeleccionada;
     private String dataUrlFotoGrupo;
 
     private final ActivityResultLauncher<String> selectorFotoGrupo = registerForActivityResult(
@@ -85,7 +88,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_group);
+        setupPlainScreenShell(R.layout.activity_create_group);
 
         inicializarDependencias();
         inicializarVistas();
@@ -106,15 +109,19 @@ public class CreateGroupActivity extends AppCompatActivity {
         campoNombreGrupo = findViewById(R.id.campoNombreGrupo);
         campoDescripcionGrupo = findViewById(R.id.campoDescripcionGrupo);
         imagenGrupoPreview = findViewById(R.id.imagenGrupoPreview);
+        imagenGrupoPreview.setCircular(true);
         textoCantidadSeleccion = findViewById(R.id.textoCantidadSeleccion);
         listaAmigosGrupo = findViewById(R.id.listaAmigosGrupo);
         indicadorCargaGrupo = findViewById(R.id.indicadorCargaGrupo);
         botonCrearGrupoConfirmar = findViewById(R.id.botonCrearGrupoConfirmar);
-        botonElegirFotoGrupo = findViewById(R.id.botonElegirFotoGrupo);
         botonQuitarFotoGrupo = findViewById(R.id.botonQuitarFotoGrupo);
+        selectorFotoGrupoComponente = new ImagePickerFieldComponent(
+                findViewById(R.id.componenteSelectorFotoGrupo)
+        );
+        selectorFotoGrupoComponente.setButtonText(R.string.grupo_boton_elegir_foto);
 
         botonCrearGrupoConfirmar.setOnClickListener(v -> crearGrupo());
-        botonElegirFotoGrupo.setOnClickListener(v -> openPhotoPicker());
+        selectorFotoGrupoComponente.setOnSelectClickListener(v -> openPhotoPicker());
         botonQuitarFotoGrupo.setOnClickListener(v -> clearSelectedPhoto());
         actualizarEstadoFotoGrupo();
         actualizarTextoSeleccion();
@@ -198,7 +205,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     indicadorCargaGrupo.setVisibility(View.GONE);
-                    Toast.makeText(this, R.string.grupo_error_carga_amigos, Toast.LENGTH_SHORT).show();
+                    ToastUtils.showTextToast(this, R.string.grupo_error_carga_amigos, Toast.LENGTH_SHORT);
                 });
     }
 
@@ -319,7 +326,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         GroupValidator.ValidationResult validacion = GroupValidator.validarCreacionGrupo(nombreGrupo, miembrosSeleccionados);
         if (!validacion.valido) {
-            Toast.makeText(this, validacion.error, Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, validacion.error, Toast.LENGTH_SHORT);
             return;
         }
 
@@ -330,7 +337,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             @Override
             public void onExito(ChatChannelData canal) {
                 indicadorCargaGrupo.setVisibility(View.GONE);
-                Toast.makeText(CreateGroupActivity.this, R.string.grupo_creado_ok, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(CreateGroupActivity.this, R.string.grupo_creado_ok, Toast.LENGTH_SHORT);
                 Intent intent = new Intent(CreateGroupActivity.this, ChatViewActivity.class);
                 intent.putExtra("channelId", canal.getId());
                 intent.putExtra("channelType", canal.getType());
@@ -343,7 +350,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             public void onError(String error) {
                 indicadorCargaGrupo.setVisibility(View.GONE);
                 botonCrearGrupoConfirmar.setEnabled(true);
-                Toast.makeText(CreateGroupActivity.this, error, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(CreateGroupActivity.this, error, Toast.LENGTH_SHORT);
             }
         });
     }
@@ -360,14 +367,15 @@ public class CreateGroupActivity extends AppCompatActivity {
         }
         String tipoContenido = getContentResolver().getType(uriSeleccionada);
         if (!isAllowedImageType(tipoContenido)) {
-            Toast.makeText(this, R.string.grupo_error_tipo_foto_no_valido, Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, R.string.grupo_error_tipo_foto_no_valido, Toast.LENGTH_SHORT);
             return;
         }
+        nombreFotoGrupoSeleccionada = FileNameResolver.resolveFileName(this, uriSeleccionada, "foto-grupo.jpg");
 
         Intent recorte = ImageCropperConfig.createIntent(
                 this,
                 uriSeleccionada,
-                "foto-grupo.jpg",
+                buildCropOutputFileName(nombreFotoGrupoSeleccionada, "foto-grupo"),
                 getString(R.string.recorte_titulo_foto_grupo),
                 1,
                 1
@@ -387,17 +395,22 @@ public class CreateGroupActivity extends AppCompatActivity {
             }
             byte[] bytesImagen = readBytesFromUri(uriRecortada);
             if (bytesImagen.length > TAMANO_MAXIMO_FOTO_BYTES) {
-                Toast.makeText(this, R.string.grupo_error_tamano_foto_no_valido, Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(this, R.string.grupo_error_tamano_foto_no_valido, Toast.LENGTH_SHORT);
                 return;
             }
 
             bytesFotoGrupoSeleccionada = bytesImagen;
             tipoFotoGrupoSeleccionada = tipoContenido;
+            if (TextUtils.isEmpty(nombreFotoGrupoSeleccionada)) {
+                nombreFotoGrupoSeleccionada = "foto-grupo.jpg";
+            }
             dataUrlFotoGrupo = buildPhotoDataUrl(bytesFotoGrupoSeleccionada, tipoFotoGrupoSeleccionada);
+            imagenGrupoPreview.setImageURI(null);
             imagenGrupoPreview.setImageURI(uriRecortada);
+            selectorFotoGrupoComponente.showSelectedFile(nombreFotoGrupoSeleccionada, tipoFotoGrupoSeleccionada);
             actualizarEstadoFotoGrupo();
         } catch (IOException error) {
-            Toast.makeText(this, R.string.grupo_error_lectura_foto, Toast.LENGTH_SHORT).show();
+            ToastUtils.showTextToast(this, R.string.grupo_error_lectura_foto, Toast.LENGTH_SHORT);
         }
     }
 
@@ -405,7 +418,9 @@ public class CreateGroupActivity extends AppCompatActivity {
     private void clearSelectedPhoto() {
         bytesFotoGrupoSeleccionada = null;
         tipoFotoGrupoSeleccionada = null;
+        nombreFotoGrupoSeleccionada = null;
         dataUrlFotoGrupo = null;
+        selectorFotoGrupoComponente.clearSelection();
         actualizarEstadoFotoGrupo();
     }
 
@@ -413,11 +428,12 @@ public class CreateGroupActivity extends AppCompatActivity {
     private void actualizarEstadoFotoGrupo() {
         boolean tieneFoto = !TextUtils.isEmpty(dataUrlFotoGrupo);
         if (tieneFoto) {
-            botonElegirFotoGrupo.setText(R.string.grupo_boton_cambiar_foto);
+            selectorFotoGrupoComponente.setButtonText(R.string.grupo_boton_cambiar_foto);
             botonQuitarFotoGrupo.setVisibility(View.VISIBLE);
             imagenGrupoPreview.setVisibility(View.VISIBLE);
         } else {
-            botonElegirFotoGrupo.setText(R.string.grupo_boton_elegir_foto);
+            selectorFotoGrupoComponente.setButtonText(R.string.grupo_boton_elegir_foto);
+            selectorFotoGrupoComponente.clearSelection();
             botonQuitarFotoGrupo.setVisibility(View.GONE);
             String inicial = extractInitialLetter(campoNombreGrupo.getText() == null
                     ? ""
@@ -476,6 +492,19 @@ public class CreateGroupActivity extends AppCompatActivity {
         return "data:" + tipoFoto + ";base64," + base64;
     }
 
+    // Crea un nombre de salida unico para que el recorte no recicle la misma uri.
+    private String buildCropOutputFileName(String nombreOriginal, String baseDefault) {
+        String nombreBase = TextUtils.isEmpty(nombreOriginal) ? baseDefault : nombreOriginal;
+        int indicePunto = nombreBase.lastIndexOf('.');
+        String extension = "jpg";
+        if (indicePunto > 0 && indicePunto < nombreBase.length() - 1) {
+            extension = nombreBase.substring(indicePunto + 1).toLowerCase();
+        }
+        String nombreSinExtension = indicePunto > 0 ? nombreBase.substring(0, indicePunto) : nombreBase;
+        String nombreLimpio = nombreSinExtension.replaceAll("[^a-zA-Z0-9._-]", "_");
+        return nombreLimpio + "-" + System.currentTimeMillis() + "." + extension;
+    }
+
     // Lee bytes de un archivo seleccionado por el usuario.
     private byte[] readBytesFromUri(Uri uriArchivo) throws IOException {
         InputStream flujo = getContentResolver().openInputStream(uriArchivo);
@@ -504,7 +533,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     // Muestra estado de sesion invalida sin cerrar la pantalla de grupo.
     private void mostrarSesionInvalida() {
-        Toast.makeText(this, "Sesion invalida. Vuelve a iniciar sesion.", Toast.LENGTH_SHORT).show();
+        ToastUtils.showTextToast(this, "Sesion invalida. Vuelve a iniciar sesion.", Toast.LENGTH_SHORT);
         amigos.clear();
         miembrosSeleccionados.clear();
         if (adaptador != null) {

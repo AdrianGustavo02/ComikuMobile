@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -31,59 +32,136 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-            <!-- Nombre del comic y numero de tomo -->
-            <TextView
-                android:id="@+id/textoNombreComicVolumeDetail"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/textoNumeroTomoVolumeDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
                 android:layout_marginBottom="16dp"
-                android:gravity="center" />
+                android:gravity="top"
+                android:orientation="horizontal">
 
-            <!-- Portada del tomo -->
-            <ImageView
-                android:id="@+id/imagenPortadaVolumeDetail"
-                android:layout_width="200dp"
-                android:layout_height="280dp"
-                android:scaleType="centerCrop"
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="160dp"
+                    android:layout_height="224dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="10dp"
+                    app:cardPreventCornerOverlap="false"
+                    app:cardUseCompatPadding="false">
+
+                    <com.example.comiku.screens.RoundedImageView
+                        android:id="@+id/imagenPortadaVolumeDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/portada_del_tomo"
+                        android:scaleType="centerCrop" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/contenedorNombreComicVolumeDetail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Nombre del comic -->
+                        <TextView
+                            android:id="@+id/textoNombreComicVolumeDetail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:id="@+id/iconoFlechaComicVolumeDetail"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="6dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_creator_arrow_right" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textoNumeroTomoVolumeDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="21sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Botones de acciones -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:contentDescription="@string/portada_del_tomo" />
+                android:orientation="horizontal">
 
-            <!-- ISBN -->
-            <TextView
-                android:id="@+id/textoIsbnVolumeDetail"
+                <Button
+                    android:id="@+id/botonAgregarBibliotecaVolumeDetail"
+                    style="@style/Theme.Comiku.ButtonSecondaryAction"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/agregar_biblioteca" />
+
+                <Button
+                    android:id="@+id/botonAgregarDeseadosVolumeDetail"
+                    style="@style/Theme.Comiku.ButtonSecondaryAction"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/agregar_deseados" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contenedorMetadataVolumeDetail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_carousel_container"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
 
-            <!-- Fecha de publicacion -->
-            <TextView
-                android:id="@+id/textoFechaPublicacionVolumeDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="24dp" />
+                <TextView
+                    android:id="@+id/textoIsbnVolumeDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp" />
 
-            <TextView
-                android:id="@+id/textoEstadoLecturaVolumeDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp"
-                android:visibility="gone" />
+                <TextView
+                    android:id="@+id/textoFechaPublicacionVolumeDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/textoEstadoLecturaVolumeDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp"
+                    android:visibility="gone" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/contenedorLecturaVolumeDetail"
@@ -96,30 +174,41 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="20sp"
                     android:text="@string/lectura_fecha_label"
                     android:textStyle="bold"
                     android:layout_marginBottom="6dp" />
 
-                <EditText
-                    android:id="@+id/campoFechaLecturaVolumeDetail"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/lectura_fecha_hint"
-                    android:inputType="none"
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/botonIngresarFechaLecturaVolumeDetail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ingresar_fecha_lectura"
-                    android:layout_marginBottom="12dp" />
+                    <EditText
+                        android:id="@+id/campoFechaLecturaVolumeDetail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:hint="@string/lectura_fecha_hint"
+                        android:inputType="none" />
+
+                    <Button
+                        android:id="@+id/botonIngresarFechaLecturaVolumeDetail"
+                        style="@style/Theme.Comiku.ButtonSecondaryAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ingresar_fecha_lectura" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="20sp"
                     android:text="@string/lectura_historial_titulo"
                     android:textStyle="bold"
                     android:layout_marginBottom="6dp" />
@@ -128,9 +217,10 @@
                     android:id="@+id/textoSinLecturasVolumeDetail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="@string/lectura_historial_vacio"
-                    android:visibility="gone"
-                    android:layout_marginBottom="8dp" />
+                    android:textSize="18sp"
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/contenedorHistorialLecturaVolumeDetail"
@@ -143,9 +233,18 @@
                 android:id="@+id/textoAyudaLecturaVolumeDetail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/lectura_necesita_biblioteca"
                 android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:text="@string/lectura_necesita_biblioteca"
+                android:textAlignment="center"
+                android:textStyle="bold"
                 android:visibility="gone" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="16dp"
+                android:background="#33000000" />
 
             <!-- Contenedor de comercios cercanos (despues de textoAyudaLectura, antes de botones) -->
             <LinearLayout
@@ -159,7 +258,9 @@
                     android:id="@+id/tituloComerciosCercanos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="¿Donde comprar este tomo?"
+                    android:textAlignment="center"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
@@ -175,35 +276,56 @@
 
                 <Button
                     android:id="@+id/botonBuscarComerciosCercanos"
-                    android:layout_width="match_parent"
+                    style="@style/Theme.Comiku.VolumeDetailSearchButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:text="Buscar cerca mio"
                     android:layout_marginBottom="12dp" />
 
                 <!-- Control segmentado para radios (oculto hasta primera busqueda) -->
                 <LinearLayout
                     android:id="@+id/controlRadioComerciosCercanos"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:orientation="horizontal"
                     android:visibility="gone"
                     android:layout_marginBottom="12dp">
 
                     <Button
                         android:id="@+id/botonRadio20km"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:background="@drawable/bg_volume_detail_toggle_left_active"
+                        android:backgroundTint="@null"
+                        app:backgroundTint="@null"
+                        android:minWidth="0dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
                         android:text="20 km"
-                        android:layout_marginEnd="4dp" />
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/botonRadio50km"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:background="@drawable/bg_volume_detail_toggle_right_inactive"
+                        android:backgroundTint="@null"
+                        app:backgroundTint="@null"
+                        android:minWidth="0dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
                         android:text="50 km"
-                        android:layout_marginStart="4dp" />
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <!-- Indicador de carga -->
@@ -252,35 +374,13 @@
 
     </ScrollView>
 
-    <!-- Botones de acciones -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/botonAgregarBibliotecaVolumeDetail"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/agregar_biblioteca"
-            android:layout_marginEnd="8dp" />
-
-        <Button
-            android:id="@+id/botonAgregarDeseadosVolumeDetail"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/agregar_deseados"
-            android:layout_marginStart="8dp" />
-
-    </LinearLayout>
-
     <Button
         android:id="@+id/botonReportarVolumeDetail"
-        android:layout_width="match_parent"
+        style="@style/Theme.Comiku.DangerButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
-        android:text="@string/reporte_boton_reportar" />
+        android:text="@string/reporte_titulo_tomo" />
 
 </LinearLayout>

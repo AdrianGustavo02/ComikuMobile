@@ -3,18 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp"
-    android:background="?attr/selectableItemBackground"
+    android:layout_marginStart="10dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginBottom="6dp"
+    android:padding="14dp"
+    android:background="@drawable/bg_activity_card"
     android:gravity="center_vertical">
 
     <!-- Foto del otro usuario -->
-    <ImageView
+    <com.example.comiku.screens.RoundedImageView
         android:id="@+id/fotoPerfil"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:scaleType="centerCrop"
         android:contentDescription="@string/app_name"
-        android:background="@drawable/default_profile_picture" />
+        android:src="@drawable/default_profile_picture" />
 
     <!-- Información del chat -->
     <LinearLayout
@@ -29,9 +33,9 @@
             android:id="@+id/nombreChat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/black" />
+            android:textColor="@android:color/white" />
 
         <!-- Último mensaje -->
         <TextView
@@ -39,10 +43,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textSize="14sp"
-            android:textColor="@color/gray"
+            android:textSize="15sp"
+            android:textColor="#cfc7d8"
             android:maxLines="1"
-            android:ellipsize="end" />
+            android:ellipsize="end"
+            android:visibility="gone" />
 
         <!-- Hora relativa -->
         <TextView
@@ -50,8 +55,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textSize="12sp"
-            android:textColor="@color/gray_light" />
+            android:textSize="13sp"
+            android:textColor="#9f95ab" />
     </LinearLayout>
 
     <!-- Contador de no leídos -->
@@ -62,13 +67,13 @@
 
         <TextView
             android:id="@+id/contadorNoLeidos"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:gravity="center"
-            android:textSize="10sp"
-            android:textColor="@color/black"
+            android:textSize="11sp"
+            android:textColor="@android:color/white"
             android:textStyle="bold"
-            android:background="@drawable/bg_badge_azul_claro"
+            android:background="@drawable/bg_badge_orange_primary"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

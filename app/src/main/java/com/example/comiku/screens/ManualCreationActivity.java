@@ -1,8 +1,12 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.GenericFormContainerComponent;
 import com.example.comiku.core.validation.InputValidator;
 import com.example.comiku.data.constants.GenerosComic;
 import com.example.comiku.data.constants.PaisesEdicion;
@@ -55,6 +60,7 @@ public class ManualCreationActivity extends BaseDrawerActivity {
     private final List<String> generosSeleccionados = new ArrayList<>();
     private List<String> generosOrdenados = new ArrayList<>();
     private final List<EditText> camposAutoresAdicionales = new ArrayList<>();
+    private final List<Button> botonesQuitarAutoresAdicionales = new ArrayList<>();
 
 
     @Override
@@ -78,6 +84,10 @@ public class ManualCreationActivity extends BaseDrawerActivity {
 
     @Override
     protected void onScreenContentReady() {
+        GenericFormContainerComponent.inflateFormContent(
+                findViewById(android.R.id.content),
+                R.layout.view_form_create_comic_content
+        );
         bindViews();
         applyPreselectedIsbn();
         setupEstadoSpinner();
@@ -148,9 +158,6 @@ public class ManualCreationActivity extends BaseDrawerActivity {
         Collections.sort(generosOrdenados, comparador);
 
         generosSeleccionados.clear();
-        if (!generosOrdenados.isEmpty()) {
-            generosSeleccionados.add(generosOrdenados.get(0));
-        }
         renderSelectedGenres();
     }
 
@@ -283,6 +290,12 @@ public class ManualCreationActivity extends BaseDrawerActivity {
         botonAgregarAutorComic.setEnabled(!guardando);
         campoDescripcionComic.setEnabled(!guardando);
         botonContinuar.setEnabled(!guardando);
+        for (EditText campoAutorExtra : camposAutoresAdicionales) {
+            campoAutorExtra.setEnabled(!guardando);
+        }
+        for (Button botonQuitarAutor : botonesQuitarAutoresAdicionales) {
+            botonQuitarAutor.setEnabled(!guardando);
+        }
     }
 
     // Abre un selector multiple para elegir generos.
@@ -297,8 +310,8 @@ public class ManualCreationActivity extends BaseDrawerActivity {
         }
 
         CharSequence[] items = generosOrdenados.toArray(new CharSequence[0]);
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.creacion_manual_comic_generos)
+        AlertDialog dialogoGeneros = new AlertDialog.Builder(this)
+                .setTitle(R.string.creacion_manual_comic_generos_selector_titulo)
                 .setMultiChoiceItems(items, seleccionActual, (dialog, which, isChecked) -> {
                     String genero = generosOrdenados.get(which);
                     if (isChecked) {
@@ -309,9 +322,37 @@ public class ManualCreationActivity extends BaseDrawerActivity {
                         generosSeleccionados.remove(genero);
                     }
                 })
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> renderSelectedGenres())
-                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss())
-                .show();
+                .setPositiveButton(R.string.amigos_solicitud_aceptar, (dialog, which) -> renderSelectedGenres())
+                .setNegativeButton(R.string.reporte_boton_cancelar, (dialog, which) -> dialog.dismiss())
+                .create();
+
+        dialogoGeneros.setOnShowListener(dialogInterface -> {
+            Button botonAceptar = dialogoGeneros.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button botonCancelar = dialogoGeneros.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+            if (botonAceptar != null) {
+                applyDialogButtonStyle(
+                        botonAceptar,
+                        R.drawable.bg_button_primary_action,
+                        getColorStateList(R.color.button_primary_action_text)
+                );
+            }
+
+            if (botonCancelar != null) {
+                applyDialogButtonStyle(
+                        botonCancelar,
+                        R.drawable.bg_button_danger,
+                        getColorStateList(R.color.button_danger_text)
+                );
+            }
+
+            applyDialogButtonsSpacing(botonCancelar, botonAceptar);
+        });
+
+        dialogoGeneros.show();
+        if (dialogoGeneros.getWindow() != null) {
+            dialogoGeneros.getWindow().setBackgroundDrawableResource(R.drawable.bg_report_dialog_rounded);
+        }
     }
 
     // Muestra los generos elegidos en pantalla.
@@ -329,16 +370,32 @@ public class ManualCreationActivity extends BaseDrawerActivity {
             return;
         }
 
-        EditText campoAutorExtra = new EditText(this);
-        campoAutorExtra.setLayoutParams(new LayoutParams(
+        LinearLayout filaAutor = new LinearLayout(this);
+        filaAutor.setOrientation(LinearLayout.HORIZONTAL);
+        LayoutParams paramsFila = new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        campoAutorExtra.setHint(R.string.creacion_manual_comic_autor_adicional);
+        );
+        paramsFila.topMargin = dpToPx(8);
+        filaAutor.setLayoutParams(paramsFila);
+
+        EditText campoAutorExtra = new EditText(this);
+        LayoutParams paramsCampo = new LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsCampo.weight = 1f;
+        paramsCampo.setMarginEnd(dpToPx(8));
+        campoAutorExtra.setLayoutParams(paramsCampo);
+        campoAutorExtra.setHint(R.string.creacion_manual_comic_hint_autor);
         campoAutorExtra.setInputType(InputType.TYPE_CLASS_TEXT);
         campoAutorExtra.setFilters(new InputFilter[]{new InputFilter.LengthFilter(120)});
+        campoAutorExtra.setBackgroundResource(R.drawable.bg_input_text_generic);
+        campoAutorExtra.setBackgroundTintList(null);
         campoAutorExtra.setTextColor(campoAutoresComic.getCurrentTextColor());
-        campoAutorExtra.setTextSize(16f);
+        campoAutorExtra.setHintTextColor(campoAutoresComic.getHintTextColors());
+        campoAutorExtra.setTextSize(TypedValue.COMPLEX_UNIT_PX, campoAutoresComic.getTextSize());
+        campoAutorExtra.setMinHeight(campoAutoresComic.getMinHeight());
         campoAutorExtra.setPadding(
                 campoAutoresComic.getPaddingLeft(),
                 campoAutoresComic.getPaddingTop(),
@@ -346,8 +403,76 @@ public class ManualCreationActivity extends BaseDrawerActivity {
                 campoAutoresComic.getPaddingBottom()
         );
 
-        contenedorAutoresComic.addView(campoAutorExtra);
+        ContextThemeWrapper contextoDanger = new ContextThemeWrapper(this, R.style.Theme_Comiku_DangerButton);
+        Button botonQuitarAutor = new Button(contextoDanger);
+        botonQuitarAutor.setLayoutParams(new LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        botonQuitarAutor.setText(R.string.crear_lista_quitar);
+        botonQuitarAutor.setAllCaps(false);
+        botonQuitarAutor.setBackgroundResource(R.drawable.bg_button_danger);
+        botonQuitarAutor.setBackgroundTintList(null);
+        botonQuitarAutor.setTextColor(getColorStateList(R.color.button_danger_text));
+        botonQuitarAutor.setTypeface(null, Typeface.BOLD);
+        botonQuitarAutor.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        botonQuitarAutor.setPadding(dpToPx(16), dpToPx(11), dpToPx(16), dpToPx(11));
+        botonQuitarAutor.setMinHeight(0);
+        botonQuitarAutor.setOnClickListener(v -> removeAuthorField(filaAutor, campoAutorExtra, botonQuitarAutor));
+
+        filaAutor.addView(campoAutorExtra);
+        filaAutor.addView(botonQuitarAutor);
+        contenedorAutoresComic.addView(filaAutor);
         camposAutoresAdicionales.add(campoAutorExtra);
+        botonesQuitarAutoresAdicionales.add(botonQuitarAutor);
         campoAutorExtra.requestFocus();
+    }
+
+    // Quita un campo adicional de autor y su boton asociado.
+    private void removeAuthorField(LinearLayout filaAutor, EditText campoAutorExtra, Button botonQuitarAutor) {
+        contenedorAutoresComic.removeView(filaAutor);
+        camposAutoresAdicionales.remove(campoAutorExtra);
+        botonesQuitarAutoresAdicionales.remove(botonQuitarAutor);
+    }
+
+    // Aplica el estilo base de botones en el dialogo de generos.
+    private void applyDialogButtonStyle(Button boton, int fondoResId, ColorStateList colorTexto) {
+        boton.setAllCaps(false);
+        boton.setBackgroundResource(fondoResId);
+        boton.setBackgroundTintList(null);
+        boton.setTextColor(colorTexto);
+        boton.setTypeface(null, Typeface.BOLD);
+        boton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        boton.setPadding(dpToPx(16), dpToPx(11), dpToPx(16), dpToPx(11));
+        boton.setMinHeight(0);
+    }
+
+    // Separa los botones del dialogo para mejorar la lectura visual.
+    private void applyDialogButtonsSpacing(Button botonCancelar, Button botonAceptar) {
+        applyDialogButtonMargin(botonCancelar, 0, 8);
+        applyDialogButtonMargin(botonAceptar, 8, 0);
+    }
+
+    // Agrega margen lateral a cada boton si el contenedor lo permite.
+    private void applyDialogButtonMargin(Button boton, int margenInicioDp, int margenFinDp) {
+        if (boton == null) {
+            return;
+        }
+
+        ViewGroup.LayoutParams params = boton.getLayoutParams();
+        if (!(params instanceof ViewGroup.MarginLayoutParams)) {
+            return;
+        }
+
+        ViewGroup.MarginLayoutParams paramsMargen = (ViewGroup.MarginLayoutParams) params;
+        paramsMargen.setMarginStart(dpToPx(margenInicioDp));
+        paramsMargen.setMarginEnd(dpToPx(margenFinDp));
+        boton.setLayoutParams(paramsMargen);
+    }
+
+    // Convierte dp a pixeles para mantener el espaciado visual.
+    private int dpToPx(int valorDp) {
+        float densidad = getResources().getDisplayMetrics().density;
+        return Math.round(valorDp * densidad);
     }
 }

@@ -9,6 +9,7 @@ public final class ComicSearchResult {
     public final List<String> autores;
     public final String editorial;
     public final String paisEditorial;
+    public final String portadaDataUrl;
 
     // Crea un resultado de busqueda desde un documento de Firestore.
     public ComicSearchResult(
@@ -16,13 +17,15 @@ public final class ComicSearchResult {
             String nombre,
             List<String> autores,
             String editorial,
-            String paisEditorial
+            String paisEditorial,
+            String portadaDataUrl
     ) {
         this.id = id;
         this.nombre = nombre;
         this.autores = autores != null ? autores : new ArrayList<>();
         this.editorial = editorial;
         this.paisEditorial = paisEditorial;
+        this.portadaDataUrl = portadaDataUrl;
     }
 
     // Formatea el resultado para mostrar en lista.
@@ -35,6 +38,27 @@ public final class ComicSearchResult {
         }
 
         if (editorial != null && !editorial.isEmpty()) {
+            sb.append("Editorial: ").append(editorial);
+            if (paisEditorial != null && !paisEditorial.isEmpty()) {
+                sb.append(" (").append(paisEditorial).append(")");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    // Devuelve el texto secundario del resultado para la lista.
+    public String getSecondaryDisplay() {
+        StringBuilder sb = new StringBuilder();
+
+        if (!autores.isEmpty()) {
+            sb.append("Autor: ").append(String.join(", ", autores));
+        }
+
+        if (editorial != null && !editorial.isEmpty()) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
             sb.append("Editorial: ").append(editorial);
             if (paisEditorial != null && !paisEditorial.isEmpty()) {
                 sb.append(" (").append(paisEditorial).append(")");

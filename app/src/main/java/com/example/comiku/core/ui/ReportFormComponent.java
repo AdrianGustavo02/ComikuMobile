@@ -3,15 +3,19 @@ package com.example.comiku.core.ui;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.validation.InputValidator;
 import com.google.android.gms.tasks.Task;
 
@@ -37,16 +42,28 @@ public final class ReportFormComponent {
         Task<String> submit(String motivo, String descripcion, Map<String, Object> capturaPantalla);
     }
 
+    public interface ReportFormValidator {
+        String validate(String motivo, String descripcion);
+    }
+
+    public interface ReportResultListener {
+        void onSuccess(String reporteId);
+        void onError(String mensaje);
+    }
+
     private final Context contexto;
     private final String titulo;
     private final String[] motivos;
     private final String mensajeConfirmacion;
     private final ReportSubmitter submitter;
     private final ActivityResultLauncher<String> selectorImagen;
+    private final ReportFormValidator validadorFormulario;
+    private final ReportResultListener listenerResultado;
 
     private AlertDialog dialogo;
     private Spinner spinnerMotivo;
     private EditText campoDescripcion;
+    private View contenedorCaptura;
     private TextView textoError;
     private ImageView vistaPreviaCaptura;
     private Button botonSeleccionarCaptura;
@@ -65,12 +82,37 @@ public final class ReportFormComponent {
             ReportSubmitter submitter,
             ActivityResultLauncher<String> selectorImagen
     ) {
+        this(
+                contexto,
+                titulo,
+                motivos,
+                mensajeConfirmacion,
+                submitter,
+                selectorImagen,
+                null,
+                null
+        );
+    }
+
+    // Prepara el formulario con validaciones y eventos opcionales.
+    public ReportFormComponent(
+            Context contexto,
+            String titulo,
+            String[] motivos,
+            String mensajeConfirmacion,
+            ReportSubmitter submitter,
+            ActivityResultLauncher<String> selectorImagen,
+            ReportFormValidator validadorFormulario,
+            ReportResultListener listenerResultado
+    ) {
         this.contexto = contexto;
         this.titulo = titulo;
         this.motivos = motivos;
         this.mensajeConfirmacion = mensajeConfirmacion;
         this.submitter = submitter;
         this.selectorImagen = selectorImagen;
+        this.validadorFormulario = validadorFormulario;
+        this.listenerResultado = listenerResultado;
     }
 
     // Muestra el dialogo y reinicia su estado.
@@ -78,6 +120,7 @@ public final class ReportFormComponent {
         View vistaFormulario = LayoutInflater.from(contexto).inflate(R.layout.view_report_form, null, false);
         spinnerMotivo = vistaFormulario.findViewById(R.id.spinnerMotivoReporte);
         campoDescripcion = vistaFormulario.findViewById(R.id.campoDescripcionReporte);
+        contenedorCaptura = vistaFormulario.findViewById(R.id.contenedorCapturaReporte);
         textoError = vistaFormulario.findViewById(R.id.textoErrorReporte);
         vistaPreviaCaptura = vistaFormulario.findViewById(R.id.imagenCapturaReporte);
         botonSeleccionarCaptura = vistaFormulario.findViewById(R.id.botonSeleccionarCapturaReporte);
@@ -100,7 +143,7 @@ public final class ReportFormComponent {
         configurarCaptura();
 
         dialogo = new AlertDialog.Builder(contexto)
-                .setTitle(titulo)
+                .setCustomTitle(createDialogTitleView())
                 .setView(vistaFormulario)
                 .setNegativeButton(R.string.reporte_boton_cancelar, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(R.string.reporte_boton_enviar, null)
@@ -110,10 +153,30 @@ public final class ReportFormComponent {
             Button botonEnviar = dialogo.getButton(AlertDialog.BUTTON_POSITIVE);
             Button botonCancelar = dialogo.getButton(AlertDialog.BUTTON_NEGATIVE);
 
-            botonEnviar.setOnClickListener(v -> enviarReporte(botonEnviar, botonCancelar));
+            if (botonEnviar != null) {
+                applyDialogButtonStyle(
+                        botonEnviar,
+                        R.drawable.bg_button_primary_action,
+                        contexto.getColorStateList(R.color.button_primary_action_text)
+                );
+                botonEnviar.setOnClickListener(v -> enviarReporte(botonEnviar, botonCancelar));
+            }
+
+            if (botonCancelar != null) {
+                applyDialogButtonStyle(
+                        botonCancelar,
+                        R.drawable.bg_button_danger,
+                        ColorStateList.valueOf(contexto.getColor(android.R.color.white))
+                );
+            }
+
+            applyDialogButtonsSpacing(botonCancelar, botonEnviar);
         });
 
         dialogo.show();
+        if (dialogo.getWindow() != null) {
+            dialogo.getWindow().setBackgroundDrawableResource(R.drawable.bg_report_dialog_rounded);
+        }
     }
 
     // Recibe la imagen elegida y la deja lista para enviar.
@@ -143,6 +206,9 @@ public final class ReportFormComponent {
             if (bitmap != null && vistaPreviaCaptura != null) {
                 vistaPreviaCaptura.setImageBitmap(bitmap);
                 vistaPreviaCaptura.setVisibility(View.VISIBLE);
+            }
+            if (contenedorCaptura != null) {
+                contenedorCaptura.setVisibility(View.VISIBLE);
             }
 
             if (botonSeleccionarCaptura != null) {
@@ -178,6 +244,58 @@ public final class ReportFormComponent {
         botonQuitarCaptura.setOnClickListener(v -> limpiarCaptura());
     }
 
+    // Crea el titulo del dialogo con un estilo mas visible.
+    private TextView createDialogTitleView() {
+        TextView textoTitulo = new TextView(contexto);
+        textoTitulo.setText(titulo);
+        textoTitulo.setTextColor(contexto.getColor(android.R.color.black));
+        textoTitulo.setTypeface(null, Typeface.BOLD);
+        textoTitulo.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        textoTitulo.setPadding(dpToPx(24), dpToPx(24), dpToPx(24), dpToPx(8));
+        return textoTitulo;
+    }
+
+    // Aplica el estilo visual del boton dentro del dialogo.
+    private void applyDialogButtonStyle(Button boton, int fondoResId, ColorStateList colorTexto) {
+        boton.setAllCaps(false);
+        boton.setBackgroundResource(fondoResId);
+        boton.setBackgroundTintList(null);
+        boton.setTextColor(colorTexto);
+        boton.setTypeface(null, Typeface.BOLD);
+        boton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        boton.setPadding(dpToPx(16), dpToPx(11), dpToPx(16), dpToPx(11));
+        boton.setMinHeight(0);
+    }
+
+    // Separa los botones del dialogo para que no queden pegados.
+    private void applyDialogButtonsSpacing(Button botonCancelar, Button botonEnviar) {
+        applyDialogButtonMargin(botonCancelar, 0, 8);
+        applyDialogButtonMargin(botonEnviar, 8, 0);
+    }
+
+    // Agrega margen lateral al boton si el contenedor lo permite.
+    private void applyDialogButtonMargin(Button boton, int margenInicioDp, int margenFinDp) {
+        if (boton == null) {
+            return;
+        }
+
+        ViewGroup.LayoutParams layoutParams = boton.getLayoutParams();
+        if (!(layoutParams instanceof ViewGroup.MarginLayoutParams)) {
+            return;
+        }
+
+        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+        marginLayoutParams.setMarginStart(dpToPx(margenInicioDp));
+        marginLayoutParams.setMarginEnd(dpToPx(margenFinDp));
+        boton.setLayoutParams(marginLayoutParams);
+    }
+
+    // Convierte dp a pixeles para mantener medidas consistentes.
+    private int dpToPx(int valorDp) {
+        float densidad = contexto.getResources().getDisplayMetrics().density;
+        return Math.round(valorDp * densidad);
+    }
+
     // Envía el reporte con o sin captura.
     private void enviarReporte(Button botonEnviar, Button botonCancelar) {
         textoError.setVisibility(View.GONE);
@@ -199,6 +317,12 @@ public final class ReportFormComponent {
             return;
         }
 
+        String errorFormulario = validateForm(motivoSeleccionado, descripcion);
+        if (!TextUtils.isEmpty(errorFormulario)) {
+            mostrarError(errorFormulario);
+            return;
+        }
+
         botonEnviar.setEnabled(false);
         botonCancelar.setEnabled(false);
         campoDescripcion.setEnabled(false);
@@ -209,7 +333,12 @@ public final class ReportFormComponent {
 
         submitter.submit(motivoSeleccionado, descripcion, buildScreenshotPayload())
                 .addOnSuccessListener(id -> {
-                    Toast.makeText(contexto, mensajeConfirmacion, Toast.LENGTH_SHORT).show();
+                    if (!TextUtils.isEmpty(mensajeConfirmacion)) {
+                        ToastUtils.showTextToast(contexto, mensajeConfirmacion, Toast.LENGTH_SHORT);
+                    }
+                    if (listenerResultado != null) {
+                        listenerResultado.onSuccess(id);
+                    }
                     dialogo.dismiss();
                 })
                 .addOnFailureListener(error -> {
@@ -224,7 +353,20 @@ public final class ReportFormComponent {
                             ? error.getMessage()
                             : contexto.getString(R.string.reporte_error_envio);
                     mostrarError(mensaje);
+                    if (listenerResultado != null) {
+                        listenerResultado.onError(mensaje);
+                    }
                 });
+    }
+
+    // Ejecuta validaciones extra del formulario si existen.
+    private String validateForm(String motivo, String descripcion) {
+        if (validadorFormulario == null) {
+            return "";
+        }
+
+        String mensaje = validadorFormulario.validate(motivo, descripcion);
+        return mensaje != null ? mensaje : "";
     }
 
     // Construye el objeto de captura para guardarlo en Firestore.
@@ -311,6 +453,9 @@ public final class ReportFormComponent {
 
     // Resetea la vista previa de la captura.
     private void limpiarCapturaVista() {
+        if (contenedorCaptura != null) {
+            contenedorCaptura.setVisibility(View.GONE);
+        }
         if (vistaPreviaCaptura != null) {
             vistaPreviaCaptura.setImageDrawable(null);
             vistaPreviaCaptura.setVisibility(View.GONE);

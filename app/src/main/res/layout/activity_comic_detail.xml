@@ -33,155 +33,316 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Nombre del comic -->
-            <TextView
-                android:id="@+id/textoNombreComicDetail"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"
+                android:gravity="top"
+                android:orientation="horizontal">
 
-            <!-- Autores -->
-            <TextView
-                android:id="@+id/textoAutoresComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
+                <!-- Nombre del comic -->
+                <TextView
+                    android:id="@+id/textoNombreComicDetail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="12dp"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
-            <!-- Editorial -->
-            <TextView
-                android:id="@+id/textoEditorialComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Estado -->
-            <TextView
-                android:id="@+id/textoEstadoComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Formato -->
-            <TextView
-                android:id="@+id/textoFormatoComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Generos -->
-            <TextView
-                android:id="@+id/textoGenerosComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
+                <Button
+                    android:id="@+id/botonReportarComicDetail"
+                    style="@style/Theme.Comiku.DangerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reporte_titulo_comic" />
+            </LinearLayout>
 
             <!-- Descripcion -->
             <TextView
                 android:id="@+id/textoDescripcionComicDetail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Calificacion -->
-            <TextView
-                android:id="@+id/textoCalificacionComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginBottom="16dp" />
-
-            <Button
-                android:id="@+id/botonReportarComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="@string/reporte_boton_reportar" />
-
-            <!-- Titulo de tomos -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/tomos"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Grid de portadas -->
-            <GridView
-                android:id="@+id/gridPortadasTomos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:numColumns="2"
-                android:horizontalSpacing="8dp"
-                android:verticalSpacing="8dp" />
-
-            <TextView
-                android:id="@+id/textoTituloTomosFaltantesComicDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/comic_detail_tomos_faltantes"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
-                android:visibility="gone" />
+                android:textSize="14sp" />
 
             <LinearLayout
-                android:id="@+id/contenedorCarruselTomosFaltantesComicDetail"
+                android:id="@+id/contenedorMetadataComicDetail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:visibility="gone">
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_carousel_container"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <ImageButton
-                    android:id="@+id/botonIzquierdaTomosFaltantesComicDetail"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/comic_detail_scroll_izquierda" />
-
-                <HorizontalScrollView
-                    android:id="@+id/scrollTomosFaltantesComicDetail"
-                    android:layout_width="0dp"
+                <!-- Autores -->
+                <TextView
+                    android:id="@+id/textoAutoresComicDetail"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:scrollbars="none"
-                    android:fillViewport="true">
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp" />
 
-                    <LinearLayout
-                        android:id="@+id/contenedorTomosFaltantesComicDetail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" />
-                </HorizontalScrollView>
+                <!-- Editorial -->
+                <TextView
+                    android:id="@+id/textoEditorialComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp" />
 
-                <ImageButton
-                    android:id="@+id/botonDerechaTomosFaltantesComicDetail"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_media_next"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/comic_detail_scroll_derecha" />
+                <!-- Estado -->
+                <TextView
+                    android:id="@+id/textoEstadoComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp" />
+
+                <!-- Formato -->
+                <TextView
+                    android:id="@+id/textoFormatoComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp" />
+
+                <!-- Generos -->
+                <TextView
+                    android:id="@+id/textoGenerosComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/carousel_subtitle"
+                    android:textSize="17sp" />
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/textoEstadoTomosFaltantesComicDetail"
+            <LinearLayout
+                android:id="@+id/seccionCarruselTomosComicDetail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:textSize="14sp"
-                android:visibility="gone" />
+                android:orientation="vertical"
+                android:background="@drawable/bg_carousel_container"
+                android:padding="22dp"
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textoTituloTomosComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tomos"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/contenedorCarruselTomosComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <ImageButton
+                        android:id="@+id/botonIzquierdaTomosComicDetail"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_previous"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/comic_detail_scroll_izquierda"
+                        android:visibility="gone" />
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollTomosComicDetail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fillViewport="true">
+
+                        <LinearLayout
+                            android:id="@+id/contenedorTomosComicDetail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <ImageButton
+                        android:id="@+id/botonDerechaTomosComicDetail"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_next"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/comic_detail_scroll_derecha"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoEstadoTomosComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/seccionCarruselTomosFaltantesComicDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_carousel_container"
+                android:padding="22dp"
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textoTituloTomosFaltantesComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/comic_detail_tomos_faltantes"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/contenedorCarruselTomosFaltantesComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <ImageButton
+                        android:id="@+id/botonIzquierdaTomosFaltantesComicDetail"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_previous"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/comic_detail_scroll_izquierda"
+                        android:visibility="gone" />
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollTomosFaltantesComicDetail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fillViewport="true">
+
+                        <LinearLayout
+                            android:id="@+id/contenedorTomosFaltantesComicDetail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <ImageButton
+                        android:id="@+id/botonDerechaTomosFaltantesComicDetail"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_next"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/comic_detail_scroll_derecha"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoEstadoTomosFaltantesComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/seccionCarruselTomosBibliotecaComicDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_carousel_container"
+                android:padding="22dp"
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textoTituloTomosBibliotecaComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/comic_detail_tomos_biblioteca"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/contenedorCarruselTomosBibliotecaComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <ImageButton
+                        android:id="@+id/botonIzquierdaTomosBibliotecaComicDetail"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_previous"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/comic_detail_scroll_izquierda"
+                        android:visibility="gone" />
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollTomosBibliotecaComicDetail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fillViewport="true">
+
+                        <LinearLayout
+                            android:id="@+id/contenedorTomosBibliotecaComicDetail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <ImageButton
+                        android:id="@+id/botonDerechaTomosBibliotecaComicDetail"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_media_next"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/comic_detail_scroll_derecha"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoEstadoTomosBibliotecaComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:visibility="gone" />
+            </LinearLayout>
 
             <!-- Seccion de resenas -->
             <TextView
@@ -190,8 +351,30 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/resenas_titulo"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.example.comiku.screens.ReviewStarView
+                    android:id="@+id/iconoPromedioComicDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/textoPromedioComicDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- Formulario de resena del usuario -->
             <LinearLayout
@@ -204,9 +387,10 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:layout_marginBottom="6dp"
                     android:text="@string/resenas_tu_calificacion"
-                    android:textSize="14sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <!-- Selector de estrellas -->
@@ -239,23 +423,43 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="14dp"
+                    android:layout_marginBottom="12dp"
                     android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/botonGuardarResena"
+                        style="@style/Theme.Comiku.ButtonPrimaryAction"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
-                        android:text="@string/resenas_boton_guardar" />
+                        android:text="@string/resenas_boton_publicar" />
 
                     <Button
                         android:id="@+id/botonEliminarResena"
+                        style="@style/Theme.Comiku.DangerButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/resenas_boton_eliminar"
                         android:visibility="gone" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/contenedorMiResenaComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+
+                <View
+                    android:id="@+id/divisorMiResenaComicDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="#33000000"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Mensaje cuando no puede resenar -->
@@ -264,7 +468,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:gravity="center"
                 android:textSize="13sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
                 android:visibility="gone" />
 
             <!-- Lista de resenas de otros usuarios -->
@@ -276,9 +483,11 @@
 
             <Button
                 android:id="@+id/botonCargarMasResenas"
+                style="@style/Theme.Comiku.ButtonSecondaryAction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
                 android:text="@string/resenas_boton_cargar_mas"
                 android:visibility="gone" />
 
@@ -287,7 +496,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:textSize="13sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
                 android:visibility="gone" />
         </LinearLayout>
 

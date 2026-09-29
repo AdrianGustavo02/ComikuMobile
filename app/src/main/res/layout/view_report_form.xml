@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
     android:paddingTop="8dp">
 
     <TextView
@@ -10,13 +13,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/reporte_label_motivo"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <Spinner
         android:id="@+id/spinnerMotivoReporte"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp" />
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_report_spinner"
+        android:dropDownWidth="wrap_content"
+        android:minWidth="220dp"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="42dp"
+        android:paddingBottom="12dp"
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/textoLabelDescripcionReporte"
@@ -24,6 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="@string/reporte_label_descripcion"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <EditText
@@ -35,7 +48,8 @@
         android:inputType="textMultiLine"
         android:maxLength="800"
         android:minLines="3"
-        android:maxLines="6" />
+        android:maxLines="6"
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/textoLabelCapturaReporte"
@@ -43,31 +57,55 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="@string/reporte_label_captura_pantalla"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <Button
         android:id="@+id/botonSeleccionarCapturaReporte"
+        style="@style/Theme.Comiku.ButtonSecondaryAction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="@string/reporte_boton_captura_agregar" />
+        android:text="@string/reporte_boton_captura_agregar"
+        android:textSize="15sp" />
 
-    <ImageView
-        android:id="@+id/imagenCapturaReporte"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:contentDescription="@string/reporte_captura_preview"
-        android:scaleType="fitCenter"
-        android:visibility="gone" />
+        android:gravity="top"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/botonQuitarCapturaReporte"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="@string/reporte_boton_captura_quitar"
-        android:visibility="gone" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/contenedorCapturaReporte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#23232324"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/imagenCapturaReporte"
+                android:layout_width="wrap_content"
+                android:layout_height="220dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/reporte_captura_preview"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/botonQuitarCapturaReporte"
+            style="@style/Theme.Comiku.DangerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/reporte_boton_captura_quitar"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textoErrorReporte"

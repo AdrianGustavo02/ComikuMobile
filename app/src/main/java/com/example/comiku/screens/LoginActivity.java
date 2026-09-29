@@ -17,12 +17,18 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Locale;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BasePlainScreenActivity {
     private EditText campoCorreo;
     private EditText campoContrasena;
     private TextView textoError;
     private ProgressBar barraCarga;
     private boolean estaIngresando = false;
+
+    // Usa el mismo fondo del login para que el borde superior no se vea blanco.
+    @Override
+    protected int getShellBackgroundColorRes() {
+        return R.color.fondo_login_registro;
+    }
 
 
     @Override
@@ -34,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        setContentView(R.layout.activity_login);
+        setupPlainScreenShell(R.layout.activity_login);
         bindViews();
         setupListeners();
         updateLoadingState(false);

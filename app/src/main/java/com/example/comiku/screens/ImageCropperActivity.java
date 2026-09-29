@@ -18,6 +18,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.comiku.core.ui.StatusBarUtils;
 
 import com.example.comiku.R;
 import com.example.comiku.core.image.ImageCropperConfig;
@@ -27,7 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ImageCropperActivity extends AppCompatActivity {
+public class ImageCropperActivity extends BasePlainScreenActivity {
     private static final int MAX_BITMAP_SIZE = 2048;
     private static final int DEFAULT_MARGIN_DP = 24;
     private static final float MIN_SCALE = 1f;
@@ -93,7 +94,7 @@ public class ImageCropperActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         readExtras();
-        setContentView(R.layout.activity_image_cropper);
+        setupPlainScreenShell(R.layout.activity_image_cropper);
         bindViews();
         setupListeners();
         loadBitmap();

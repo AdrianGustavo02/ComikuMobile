@@ -3,10 +3,10 @@ package com.example.comiku.screens;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.comiku.core.ui.StatusBarUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.comiku.R;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SelectFriendForChatActivity extends AppCompatActivity {
+public class SelectFriendForChatActivity extends BasePlainScreenActivity {
     private RecyclerView listaAmigos;
     private ProgressBar indicadorCarga;
     private LinearLayout estadoVacio;
@@ -30,7 +30,7 @@ public class SelectFriendForChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_friend_for_chat);
+        setupPlainScreenShell(R.layout.activity_select_friend_for_chat);
 
         inicializarVistas();
         inicializarFirebase();
@@ -43,8 +43,6 @@ public class SelectFriendForChatActivity extends AppCompatActivity {
         listaAmigos = findViewById(R.id.listaAmigos);
         indicadorCarga = findViewById(R.id.indicadorCarga);
         estadoVacio = findViewById(R.id.estadoVacio);
-        Button botonRetroceso = findViewById(R.id.botonRetroceso);
-        botonRetroceso.setOnClickListener(v -> finish());
     }
 
     // Inicia Firebase

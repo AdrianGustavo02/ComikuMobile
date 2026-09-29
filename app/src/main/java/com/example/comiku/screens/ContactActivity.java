@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.GenericFormContainerComponent;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.validation.InputValidator;
 import com.example.comiku.data.repository.ContactMessageRepository;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,6 +51,10 @@ public class ContactActivity extends BaseDrawerActivity {
     // Prepara vistas, selector y acciones.
     @Override
     protected void onScreenContentReady() {
+        GenericFormContainerComponent.inflateFormContent(
+                findViewById(android.R.id.content),
+                R.layout.view_form_contact_content
+        );
         bindViews();
         setupTypeSelector();
         setupSendButton();
@@ -99,11 +105,11 @@ public class ContactActivity extends BaseDrawerActivity {
                     setLoadingState(false);
                     campoMensaje.setText("");
                     selectorTipoMensaje.setSelection(0);
-                    Toast.makeText(
+                    ToastUtils.showTextToast(
                             this,
                             getString(R.string.contacto_confirmacion),
                             Toast.LENGTH_LONG
-                    ).show();
+                    );
                 })
                 .addOnFailureListener(error -> {
                     setLoadingState(false);
@@ -124,4 +130,3 @@ public class ContactActivity extends BaseDrawerActivity {
         campoMensaje.setEnabled(!cargando);
     }
 }
-

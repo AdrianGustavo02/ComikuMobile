@@ -20,29 +20,32 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="12dp"
+            android:paddingTop="4dp">
 
             <TextView
                 android:id="@+id/textoTituloListasTematicas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="8dp"
                 android:text="@string/listas_tematicas_titulo"
-                android:textSize="22sp"
+                android:textColor="#232323"
+                android:textSize="24sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textoLeadListasTematicas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="16dp"
                 android:text="@string/listas_tematicas_lead"
                 android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="16dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -51,6 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
+                    style="@style/Theme.Comiku.ButtonPrimaryAction"
                     android:text="@string/listas_tematicas_crear" />
 
                 <Button
@@ -59,35 +63,64 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
+                    style="@style/Theme.Comiku.ButtonSecondaryAction"
                     android:text="@string/listas_tematicas_mis_listas" />
             </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/listas_tematicas_buscar_titulo"
+                android:textColor="#232323"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/barraBusquedaListasTematicas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
                 android:hint="@string/listas_tematicas_buscar_hint"
                 android:inputType="text" />
 
-            <Spinner
-                android:id="@+id/spinnerFiltroListasTematicas"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/deseados_orden"
+                    android:textColor="#232323"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spinnerFiltroListasTematicas"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/contenedorListasTematicas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:orientation="vertical" />
 
             <Button
                 android:id="@+id/botonCargarMasListasTematicas"
+                style="@style/Theme.Comiku.ButtonSecondaryAction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:text="@string/listas_tematicas_cargar_mas"
                 android:visibility="gone" />
 
@@ -95,7 +128,7 @@
                 android:id="@+id/textoNoMasListasTematicas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:gravity="center"
                 android:text="@string/listas_tematicas_no_mas"
                 android:visibility="gone" />
@@ -104,7 +137,7 @@
                 android:id="@+id/textoEstadoListasTematicas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center" />
         </LinearLayout>
     </ScrollView>

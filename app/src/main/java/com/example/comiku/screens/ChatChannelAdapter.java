@@ -68,7 +68,7 @@ public class ChatChannelAdapter extends RecyclerView.Adapter<ChatChannelAdapter.
 
     // ViewHolder para cada elemento de la lista
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView fotoPerfil;
+        private final RoundedImageView fotoPerfil;
         private final TextView nombreChat;
         private final TextView ultimoMensaje;
         private final TextView horaRelativa;
@@ -81,6 +81,7 @@ public class ChatChannelAdapter extends RecyclerView.Adapter<ChatChannelAdapter.
             ultimoMensaje = itemView.findViewById(R.id.ultimoMensaje);
             horaRelativa = itemView.findViewById(R.id.horaRelativa);
             contadorNoLeidos = itemView.findViewById(R.id.contadorNoLeidos);
+            fotoPerfil.setCircular(true);
         }
 
         public void bind(ChatChannelData canal, String usuarioActualId, OnChannelClickListener listener) {
@@ -97,13 +98,8 @@ public class ChatChannelAdapter extends RecyclerView.Adapter<ChatChannelAdapter.
                 nombreChat.setText(nombreVisible);
             }
 
-            // Configurar último mensaje
-            if (canal.getLastMessage() != null) {
-                ultimoMensaje.setText(canal.getLastMessage());
-                ultimoMensaje.setVisibility(View.VISIBLE);
-            } else {
-                ultimoMensaje.setVisibility(View.GONE);
-            }
+            // El preview de ultimo mensaje se oculto por requerimiento de pantalla.
+            ultimoMensaje.setVisibility(View.GONE);
 
             // Configurar hora relativa
             if (canal.getLastMessageAt() > 0) {

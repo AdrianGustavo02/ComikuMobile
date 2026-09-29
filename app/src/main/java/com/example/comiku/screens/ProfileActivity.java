@@ -2,16 +2,26 @@ package com.example.comiku.screens;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.TextWatcher;
 import android.util.Base64;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,7 +31,11 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.example.comiku.R;
 import com.example.comiku.core.image.ImageCropperConfig;
+import com.example.comiku.core.ui.ProfileFeaturedComicCarouselComponent;
 import com.example.comiku.data.repository.FriendshipRepository;
+import com.example.comiku.data.repository.UserShelfRepository;
+import com.example.comiku.data.model.UserShelfComicGroupData;
+import com.example.comiku.screens.ComicDetailActivity;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,11 +48,17 @@ import com.google.firebase.firestore.SetOptions;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProfileActivity extends BaseDrawerActivity {
     private static final int EDAD_MINIMA_REGISTRO = 18;
@@ -48,25 +68,36 @@ public class ProfileActivity extends BaseDrawerActivity {
     private EditText campoApellido;
     private EditText campoNick;
     private EditText campoFechaNacimiento;
+    private View contenedorMetadataPerfil;
+    private View contenedorEdicionPerfil;
+    private TextView textoNickCabecera;
+    private TextView textoNombreCompletoPerfil;
+    private TextView textoFechaNacimientoPerfil;
     private TextView textoEmail;
-    private TextView textoTotalComics;
-    private TextView textoTotalTomos;
     private TextView textoTotalAmigos;
     private TextView textoError;
     private ProgressBar barraCarga;
-    private ImageView imagenPerfil;
+    private RoundedImageView imagenPerfil;
+    private ImageButton botonMenuPerfil;
+    private Button botonTotalComics;
+    private Button botonTotalTomos;
     private Button botonCambiarFoto;
     private Button botonCancelar;
-    private Button botonEditarGuardar;
+    private Button botonGuardarPerfil;
     private Button botonAmistad;
-    private Button botonBloquearUsuario;
-    private Button botonReportarUsuario;
-    private Button botonUsuariosBloqueados;
-    private Button botonEliminarCuenta;
+    private TextView textoTituloDestacadosPerfil;
+    private TextView textoAyudaDestacadosPerfil;
+    private TextView textoContadorDestacadosPerfil;
+    private TextView textoEstadoDestacadosPerfil;
+    private EditText campoBusquedaDestacadosPerfil;
+    private LinearLayout contenedorBusquedaDestacadosPerfil;
+    private LinearLayout contenedorCarruselDestacadosPerfil;
 
     private ListenerRegistration escuchadorPerfil;
     private boolean estaEditando = false;
     private boolean estaGuardando = false;
+    private boolean perfilListo = false;
+    private boolean bibliotecaListo = false;
     private long milisegundosCumpleanos = -1L;
     private byte[] bytesFotoSeleccionada;
     private String tipoFotoSeleccionada;
@@ -81,6 +112,12 @@ public class ProfileActivity extends BaseDrawerActivity {
     private int totalTomosOriginal = 0;
     private int totalAmigosOriginal = 0;
     private String dataUrlFotoOriginal = "";
+    private final List<String> featuredComicIdsOriginal = new ArrayList<>();
+    private final List<String> editFeaturedComicIds = new ArrayList<>();
+    private final List<UserShelfComicGroupData> bibliotecaUsuario = new ArrayList<>();
+    private String busquedaDestacados = "";
+    private ProfileFeaturedComicCarouselComponent componenteDestacadosPerfil;
+    private static final int MAX_COMICS_DESTACADOS = 10;
     private static final int ESTADO_AMISTAD_NINGUNA = 0;
     private static final int ESTADO_AMISTAD_SOLICITUD_ENVIADA = 1;
     private static final int ESTADO_AMISTAD_CONFIRMADA = 2;
@@ -139,6 +176,7 @@ public class ProfileActivity extends BaseDrawerActivity {
 
     @Override
     protected void onScreenContentReady() {
+        componenteDestacadosPerfil = new ProfileFeaturedComicCarouselComponent(this);
         bindViews();
         FirebaseUser usuarioActual = FirebaseAuth.getInstance().getCurrentUser();
         uidUsuarioActual = usuarioActual != null ? usuarioActual.getUid() : "";
@@ -146,33 +184,28 @@ public class ProfileActivity extends BaseDrawerActivity {
         boolean esPerfilvPropio = TextUtils.isEmpty(uidPerfilExterno)
                 || (!TextUtils.isEmpty(uidUsuarioActual) && uidPerfilExterno.equals(uidUsuarioActual));
 
+        setupLibraryButtons();
+        botonMenuPerfil.setOnClickListener(v -> showProfileOverflowMenu());
+        botonMenuPerfil.setVisibility(View.VISIBLE);
+
         if (esPerfilvPropio) {
             uidPerfilExterno = uidUsuarioActual;
             setupListeners();
             setEditingMode(false);
             botonAmistad.setVisibility(View.GONE);
-            botonBloquearUsuario.setVisibility(View.GONE);
-            botonReportarUsuario.setVisibility(View.GONE);
-            botonUsuariosBloqueados.setVisibility(View.VISIBLE);
-            botonEliminarCuenta.setVisibility(View.VISIBLE);
             listenUserProfile();
+            loadFeaturedLibraryItems(uidPerfilExterno);
         } else {
             // Modo solo lectura para ver el perfil de otro usuario.
+            setEditingMode(false);
             botonCambiarFoto.setVisibility(View.GONE);
             botonCancelar.setVisibility(View.GONE);
-            botonEditarGuardar.setVisibility(View.GONE);
             botonAmistad.setVisibility(View.VISIBLE);
-            botonBloquearUsuario.setVisibility(View.VISIBLE);
-            botonReportarUsuario.setVisibility(View.VISIBLE);
-            botonUsuariosBloqueados.setVisibility(View.GONE);
-            botonEliminarCuenta.setVisibility(View.GONE);
             campoNombre.setEnabled(false);
             campoApellido.setEnabled(false);
             campoNick.setEnabled(false);
             campoFechaNacimiento.setEnabled(false);
             setupFriendshipButton();
-            setupBlockButton();
-            setupReportButton();
             loadExternalProfile(uidPerfilExterno);
             refreshFriendshipState();
         }
@@ -192,7 +225,10 @@ public class ProfileActivity extends BaseDrawerActivity {
                             .collection("usuario")
                             .document(uidExterno)
                             .get()
-                            .addOnSuccessListener(this::applyProfileSnapshot)
+                            .addOnSuccessListener(documento -> {
+                                applyProfileSnapshot(documento);
+                                loadFeaturedLibraryItems(uidExterno);
+                            })
                             .addOnFailureListener(error -> showError(getString(R.string.error_perfil_carga)));
                 })
                 .addOnFailureListener(error -> showError(getString(R.string.error_perfil_carga)));
@@ -204,21 +240,46 @@ public class ProfileActivity extends BaseDrawerActivity {
         campoApellido = findViewById(R.id.campoApellidoPerfil);
         campoNick = findViewById(R.id.campoNickPerfil);
         campoFechaNacimiento = findViewById(R.id.campoFechaNacimientoPerfil);
+        contenedorMetadataPerfil = findViewById(R.id.contenedorMetadataPerfil);
+        contenedorEdicionPerfil = findViewById(R.id.contenedorEdicionPerfil);
+        textoNickCabecera = findViewById(R.id.textoNickCabeceraPerfil);
+        textoNombreCompletoPerfil = findViewById(R.id.textoNombreCompletoPerfil);
+        textoFechaNacimientoPerfil = findViewById(R.id.textoFechaNacimientoPerfil);
         textoEmail = findViewById(R.id.textoEmailPerfil);
-        textoTotalComics = findViewById(R.id.textoTotalComicsPerfil);
-        textoTotalTomos = findViewById(R.id.textoTotalTomosPerfil);
+        botonTotalComics = findViewById(R.id.botonTotalComicsPerfil);
+        botonTotalTomos = findViewById(R.id.botonTotalTomosPerfil);
         textoTotalAmigos = findViewById(R.id.textoTotalAmigosPerfil);
         textoError = findViewById(R.id.textoErrorPerfil);
         barraCarga = findViewById(R.id.barraCargaPerfil);
         imagenPerfil = findViewById(R.id.imagenPerfil);
+        imagenPerfil.setCircular(true);
+        botonMenuPerfil = findViewById(R.id.botonMenuPerfil);
         botonCambiarFoto = findViewById(R.id.botonCambiarFotoPerfil);
         botonCancelar = findViewById(R.id.botonCancelarPerfil);
-        botonEditarGuardar = findViewById(R.id.botonEditarGuardarPerfil);
+        botonGuardarPerfil = findViewById(R.id.botonGuardarPerfil);
         botonAmistad = findViewById(R.id.botonAmistadPerfil);
-        botonBloquearUsuario = findViewById(R.id.botonBloquearPerfil);
-        botonReportarUsuario = findViewById(R.id.botonReportarUsuarioPerfil);
-        botonUsuariosBloqueados = findViewById(R.id.botonUsuariosBloqueadosPerfil);
-        botonEliminarCuenta = findViewById(R.id.botonEliminarCuentaPerfil);
+        textoTituloDestacadosPerfil = findViewById(R.id.textoTituloDestacadosPerfil);
+        textoAyudaDestacadosPerfil = findViewById(R.id.textoAyudaDestacadosPerfil);
+        textoContadorDestacadosPerfil = findViewById(R.id.textoContadorDestacadosPerfil);
+        textoEstadoDestacadosPerfil = findViewById(R.id.textoEstadoDestacadosPerfil);
+        campoBusquedaDestacadosPerfil = findViewById(R.id.campoBusquedaDestacadosPerfil);
+        contenedorBusquedaDestacadosPerfil = findViewById(R.id.contenedorBusquedaDestacadosPerfil);
+        contenedorCarruselDestacadosPerfil = findViewById(R.id.contenedorCarruselDestacadosPerfil);
+        campoBusquedaDestacadosPerfil.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                busquedaDestacados = s == null ? "" : s.toString();
+                refreshFeaturedComicsSection();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
     // Conecta acciones de edicion del perfil.
@@ -226,25 +287,59 @@ public class ProfileActivity extends BaseDrawerActivity {
         botonCambiarFoto.setOnClickListener(v -> openPhotoPicker());
         campoFechaNacimiento.setOnClickListener(v -> openBirthdayPicker());
         botonCancelar.setOnClickListener(v -> handleCancel());
-        botonEditarGuardar.setOnClickListener(v -> handleEditOrSave());
-        botonBloquearUsuario.setOnClickListener(v -> confirmBlockUser());
-        botonUsuariosBloqueados.setOnClickListener(v -> openBlockedUsersScreen());
-        botonEliminarCuenta.setOnClickListener(v -> mostrarDialogoEliminarCuenta());
+        botonGuardarPerfil.setOnClickListener(v -> handleEditOrSave());
+    }
+
+    // Muestra el menu desplegable con acciones del perfil.
+    private void showProfileOverflowMenu() {
+        PopupMenu menuOpciones = new PopupMenu(this, botonMenuPerfil);
+        menuOpciones.getMenuInflater().inflate(R.menu.menu_profile_overflow, menuOpciones.getMenu());
+        boolean esPerfilPropio = isShowingCurrentUserProfile();
+        if (menuOpciones.getMenu().findItem(R.id.menu_perfil_editar_datos) != null) {
+            menuOpciones.getMenu().findItem(R.id.menu_perfil_editar_datos).setVisible(esPerfilPropio && !estaEditando);
+        }
+        if (menuOpciones.getMenu().findItem(R.id.menu_perfil_usuarios_bloqueados) != null) {
+            menuOpciones.getMenu().findItem(R.id.menu_perfil_usuarios_bloqueados).setVisible(esPerfilPropio);
+        }
+        if (menuOpciones.getMenu().findItem(R.id.menu_perfil_eliminar_cuenta) != null) {
+            menuOpciones.getMenu().findItem(R.id.menu_perfil_eliminar_cuenta).setVisible(esPerfilPropio);
+        }
+        if (menuOpciones.getMenu().findItem(R.id.menu_perfil_reportar_usuario) != null) {
+            menuOpciones.getMenu().findItem(R.id.menu_perfil_reportar_usuario).setVisible(!esPerfilPropio);
+        }
+        if (menuOpciones.getMenu().findItem(R.id.menu_perfil_bloquear_usuario) != null) {
+            menuOpciones.getMenu().findItem(R.id.menu_perfil_bloquear_usuario).setVisible(!esPerfilPropio);
+        }
+        menuOpciones.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.menu_perfil_editar_datos) {
+                setEditingMode(true);
+                return true;
+            }
+            if (id == R.id.menu_perfil_usuarios_bloqueados) {
+                openBlockedUsersScreen();
+                return true;
+            }
+            if (id == R.id.menu_perfil_bloquear_usuario) {
+                confirmBlockUser();
+                return true;
+            }
+            if (id == R.id.menu_perfil_reportar_usuario) {
+                showReportDialog();
+                return true;
+            }
+            if (id == R.id.menu_perfil_eliminar_cuenta) {
+                mostrarDialogoEliminarCuenta();
+                return true;
+            }
+            return false;
+        });
+        menuOpciones.show();
     }
 
     // Conecta el boton de amistad en perfil externo.
     private void setupFriendshipButton() {
         botonAmistad.setOnClickListener(v -> handleFriendshipAction());
-    }
-
-    // Conecta el boton de bloqueo en perfil externo.
-    private void setupBlockButton() {
-        botonBloquearUsuario.setOnClickListener(v -> confirmBlockUser());
-    }
-
-    // Conecta el boton de reporte en perfil externo.
-    private void setupReportButton() {
-        botonReportarUsuario.setOnClickListener(v -> showReportDialog());
     }
 
     // Muestra el dialogo para reportar un usuario.
@@ -382,6 +477,48 @@ public class ProfileActivity extends BaseDrawerActivity {
         return getString(resIdDefault);
     }
 
+    // Aplica estilo visual de botones de dialogo.
+    private void styleDialogButton(Button boton, int fondoResId, ColorStateList colorTexto) {
+        if (boton == null || colorTexto == null) {
+            return;
+        }
+        boton.setAllCaps(false);
+        boton.setBackgroundResource(fondoResId);
+        boton.setBackgroundTintList(null);
+        boton.setTextColor(colorTexto);
+        boton.setTypeface(null, Typeface.BOLD);
+        boton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        boton.setPadding(dpToPx(16), dpToPx(11), dpToPx(16), dpToPx(11));
+        boton.setMinHeight(0);
+    }
+
+    // Agrega separacion horizontal entre botones del dialogo.
+    private void spaceDialogButtons(Button botonIzquierdo, Button botonDerecho) {
+        applyDialogButtonMargin(botonIzquierdo, 0, 8);
+        applyDialogButtonMargin(botonDerecho, 8, 0);
+    }
+
+    // Ajusta margenes laterales de un boton cuando el contenedor lo permite.
+    private void applyDialogButtonMargin(Button boton, int margenInicioDp, int margenFinDp) {
+        if (boton == null) {
+            return;
+        }
+        ViewGroup.LayoutParams params = boton.getLayoutParams();
+        if (!(params instanceof ViewGroup.MarginLayoutParams)) {
+            return;
+        }
+        ViewGroup.MarginLayoutParams paramsMargen = (ViewGroup.MarginLayoutParams) params;
+        paramsMargen.setMarginStart(dpToPx(margenInicioDp));
+        paramsMargen.setMarginEnd(dpToPx(margenFinDp));
+        boton.setLayoutParams(paramsMargen);
+    }
+
+    // Convierte dp a pixeles para mantener medidas parejas.
+    private int dpToPx(int valorDp) {
+        float densidad = getResources().getDisplayMetrics().density;
+        return Math.round(valorDp * densidad);
+    }
+
     // Abre la pantalla con la lista de usuarios bloqueados.
     private void openBlockedUsersScreen() {
         Intent intento = new Intent(this, BlockedUsersActivity.class);
@@ -394,12 +531,34 @@ public class ProfileActivity extends BaseDrawerActivity {
             return;
         }
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialogoBloqueo = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.perfil_bloquear_confirmacion_titulo))
                 .setMessage(getString(R.string.perfil_bloquear_confirmacion_mensaje))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> handleBlockUser())
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+
+        dialogoBloqueo.setOnShowListener(dialogInterface -> {
+            Button botonCancelar = dialogoBloqueo.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button botonAceptar = dialogoBloqueo.getButton(AlertDialog.BUTTON_POSITIVE);
+
+            styleDialogButton(
+                    botonCancelar,
+                    R.drawable.bg_button_danger,
+                    getColorStateList(R.color.button_danger_text)
+            );
+            styleDialogButton(
+                    botonAceptar,
+                    R.drawable.bg_button_primary_action,
+                    getColorStateList(R.color.button_primary_action_text)
+            );
+            spaceDialogButtons(botonCancelar, botonAceptar);
+        });
+
+        dialogoBloqueo.show();
+        if (dialogoBloqueo.getWindow() != null) {
+            dialogoBloqueo.getWindow().setBackgroundDrawableResource(R.drawable.bg_report_dialog_rounded);
+        }
     }
 
     // Bloquea al usuario externo y vuelve a la pantalla anterior.
@@ -408,7 +567,6 @@ public class ProfileActivity extends BaseDrawerActivity {
             return;
         }
 
-        botonBloquearUsuario.setEnabled(false);
         FriendshipRepository.blockUser(uidUsuarioActual, uidPerfilExterno)
                 .addOnSuccessListener(unused -> {
                     showError(getString(R.string.perfil_bloquear_exitoso));
@@ -416,7 +574,6 @@ public class ProfileActivity extends BaseDrawerActivity {
                 })
                 .addOnFailureListener(error -> {
                     showError(resolveFriendshipError(error, R.string.perfil_acceso_bloqueado));
-                    botonBloquearUsuario.setEnabled(true);
                 });
     }
 
@@ -453,8 +610,18 @@ public class ProfileActivity extends BaseDrawerActivity {
         milisegundosCumpleanos = readBirthdayMillis(documento);
         cumpleanosOriginal = milisegundosCumpleanos;
         dataUrlFotoOriginal = extractPhotoDataUrl(documento.get("FotoPerfil"));
+        featuredComicIdsOriginal.clear();
+        featuredComicIdsOriginal.addAll(readStringList(documento, "featuredComicIds"));
+        if (!estaEditando) {
+            editFeaturedComicIds.clear();
+            editFeaturedComicIds.addAll(featuredComicIdsOriginal);
+        }
+        perfilListo = true;
+        updateProfileHeader();
+        updateProfileMetadata();
 
         if (estaEditando) {
+            refreshFeaturedComicsSection();
             return;
         }
 
@@ -463,10 +630,9 @@ public class ProfileActivity extends BaseDrawerActivity {
         campoNick.setText(nickOriginal);
         campoFechaNacimiento.setText(formatDate(milisegundosCumpleanos));
         textoEmail.setText(emailOriginal);
-        textoTotalComics.setText(String.valueOf(totalComicsOriginal));
-        textoTotalTomos.setText(String.valueOf(totalTomosOriginal));
         textoTotalAmigos.setText(String.valueOf(totalAmigosOriginal));
         renderProfilePhoto();
+        refreshFeaturedComicsSection();
     }
 
     // Alterna entre edicion y guardado.
@@ -497,6 +663,12 @@ public class ProfileActivity extends BaseDrawerActivity {
         bytesFotoSeleccionada = null;
         tipoFotoSeleccionada = null;
         nombreFotoSeleccionada = null;
+        editFeaturedComicIds.clear();
+        editFeaturedComicIds.addAll(featuredComicIdsOriginal);
+        busquedaDestacados = "";
+        if (campoBusquedaDestacadosPerfil != null) {
+            campoBusquedaDestacadosPerfil.setText("");
+        }
         renderProfilePhoto();
         setEditingMode(false);
         showError("");
@@ -545,11 +717,13 @@ public class ProfileActivity extends BaseDrawerActivity {
 
     // Escribe datos editables y foto en el documento.
     private void writeProfileDocument(String uid, String nombre, String apellido, String nick) {
+        List<String> destacadosParaGuardar = resolveFeaturedComicIdsToSave();
         Map<String, Object> actualizacion = new HashMap<>();
         actualizacion.put("Nombre", nombre);
         actualizacion.put("Apellido", apellido);
         actualizacion.put("Nick", nick);
         actualizacion.put("FechaNacimiento", new Timestamp(new Date(milisegundosCumpleanos)));
+        actualizacion.put("featuredComicIds", new ArrayList<>(destacadosParaGuardar));
 
         Map<String, Object> fotoPerfil = buildPhotoPayloadOrNull();
         if (fotoPerfil != null) {
@@ -563,6 +737,8 @@ public class ProfileActivity extends BaseDrawerActivity {
                 .addOnSuccessListener(unused -> {
                     setSavingState(false);
                     setEditingMode(false);
+                    featuredComicIdsOriginal.clear();
+                    featuredComicIdsOriginal.addAll(destacadosParaGuardar);
                     bytesFotoSeleccionada = null;
                     tipoFotoSeleccionada = null;
                     nombreFotoSeleccionada = null;
@@ -576,23 +752,37 @@ public class ProfileActivity extends BaseDrawerActivity {
     // Habilita campos y acciones de edicion.
     private void setEditingMode(boolean editando) {
         estaEditando = editando;
+        contenedorMetadataPerfil.setVisibility(editando ? View.GONE : View.VISIBLE);
+        contenedorEdicionPerfil.setVisibility(editando ? View.VISIBLE : View.GONE);
         campoNombre.setEnabled(editando);
         campoApellido.setEnabled(editando);
         campoNick.setEnabled(editando);
         campoFechaNacimiento.setEnabled(editando);
+        botonCambiarFoto.setVisibility(editando ? View.VISIBLE : View.GONE);
         botonCambiarFoto.setEnabled(editando && !estaGuardando);
         botonCancelar.setVisibility(editando ? View.VISIBLE : View.GONE);
-        botonEditarGuardar.setText(editando
-                ? getString(R.string.perfil_boton_guardar)
-                : getString(R.string.perfil_boton_editar));
+        botonGuardarPerfil.setVisibility(editando ? View.VISIBLE : View.GONE);
+        botonGuardarPerfil.setEnabled(!estaGuardando);
+        if (campoBusquedaDestacadosPerfil != null) {
+            if (editando) {
+                editFeaturedComicIds.clear();
+                editFeaturedComicIds.addAll(featuredComicIdsOriginal);
+                busquedaDestacados = "";
+                campoBusquedaDestacadosPerfil.setText("");
+            } else {
+                busquedaDestacados = "";
+                campoBusquedaDestacadosPerfil.setText("");
+            }
+        }
+        refreshFeaturedComicsSection();
     }
 
     // Actualiza estado visual durante guardado.
     private void setSavingState(boolean guardando) {
         estaGuardando = guardando;
         barraCarga.setVisibility(guardando ? View.VISIBLE : View.GONE);
-        botonEditarGuardar.setEnabled(!guardando);
         botonCancelar.setEnabled(!guardando);
+        botonGuardarPerfil.setEnabled(!guardando);
         botonCambiarFoto.setEnabled(estaEditando && !guardando);
         campoNombre.setEnabled(estaEditando && !guardando);
         campoApellido.setEnabled(estaEditando && !guardando);
@@ -745,6 +935,82 @@ public class ProfileActivity extends BaseDrawerActivity {
         imagenPerfil.setImageResource(R.drawable.default_profile_picture);
     }
 
+    // Actualiza el header con el nick y las cantidades.
+    private void updateProfileHeader() {
+        textoNickCabecera.setText(TextUtils.isEmpty(nickOriginal)
+                ? getString(R.string.menu_perfil_default)
+                : nickOriginal);
+        botonTotalComics.setText(buildCounterText(R.string.perfil_boton_comics, totalComicsOriginal));
+        botonTotalTomos.setText(buildCounterText(R.string.perfil_boton_tomos, totalTomosOriginal));
+    }
+
+    // Pinta de blanco solo el numero del contador en el boton.
+    private CharSequence buildCounterText(int idTexto, int cantidad) {
+        String textoCompleto = getString(idTexto, cantidad);
+        SpannableString textoConEstilo = new SpannableString(textoCompleto);
+        Matcher matcherNumero = Pattern.compile("(\\d+)(?!.*\\d)").matcher(textoCompleto);
+        if (matcherNumero.find()) {
+            textoConEstilo.setSpan(
+                    new ForegroundColorSpan(getColor(android.R.color.white)),
+                    matcherNumero.start(),
+                    matcherNumero.end(),
+                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+        return textoConEstilo;
+    }
+
+    // Actualiza los datos del bloque metadata en modo lectura.
+    private void updateProfileMetadata() {
+        String nombreCompleto = (nombreOriginal + " " + apellidoOriginal).trim();
+        if (TextUtils.isEmpty(nombreCompleto)) {
+            nombreCompleto = getString(R.string.perfil_nombre_no_definido);
+        }
+        textoNombreCompletoPerfil.setText(nombreCompleto);
+        textoEmail.setText(emailOriginal);
+        textoFechaNacimientoPerfil.setText(formatDate(milisegundosCumpleanos));
+        textoTotalAmigos.setText(String.valueOf(totalAmigosOriginal));
+    }
+
+    // Conecta los botones con la pantalla de biblioteca.
+    private void setupLibraryButtons() {
+        botonTotalComics.setOnClickListener(v -> openLibraryForProfile());
+        botonTotalTomos.setOnClickListener(v -> openLibraryForProfile());
+    }
+
+    // Abre la biblioteca del perfil actual.
+    private void openLibraryForProfile() {
+        String uidObjetivo = resolveProfileUserId();
+        if (TextUtils.isEmpty(uidObjetivo)) {
+            showError(getString(R.string.error_perfil_carga));
+            return;
+        }
+
+        Intent pantallaBiblioteca = new Intent(this, LibraryActivity.class);
+        if (!uidObjetivo.equals(uidUsuarioActual)) {
+            pantallaBiblioteca.putExtra(LibraryActivity.EXTRA_LIBRARY_USER_ID, uidObjetivo);
+            pantallaBiblioteca.putExtra(
+                    LibraryActivity.EXTRA_LIBRARY_USER_NICK,
+                    TextUtils.isEmpty(nickOriginal) ? campoNick.getText().toString().trim() : nickOriginal
+            );
+        }
+        startActivity(pantallaBiblioteca);
+    }
+
+    // Devuelve el uid del perfil visible.
+    private String resolveProfileUserId() {
+        if (!TextUtils.isEmpty(uidPerfilExterno)) {
+            return uidPerfilExterno;
+        }
+        return uidUsuarioActual;
+    }
+
+    // Indica si el perfil visible es el del usuario actual.
+    public boolean isShowingCurrentUserProfile() {
+        String uidPerfil = resolveProfileUserId();
+        return !TextUtils.isEmpty(uidPerfil) && uidPerfil.equals(uidUsuarioActual);
+    }
+
     // Muestra error principal de perfil.
     private void showError(String mensaje) {
         textoError.setText(mensaje);
@@ -757,9 +1023,262 @@ public class ProfileActivity extends BaseDrawerActivity {
     }
 
 
+    // Lee una lista de textos guardada en el documento.
+    private List<String> readStringList(DocumentSnapshot documento, String campo) {
+        Object valor = documento.get(campo);
+        if (!(valor instanceof List)) {
+            return new ArrayList<>();
+        }
+        List<?> lista = (List<?>) valor;
+        List<String> resultado = new ArrayList<>();
+        for (Object item : lista) {
+            if (item != null) {
+                resultado.add(String.valueOf(item));
+            }
+        }
+        return resultado;
+    }
+
     private int readInt(DocumentSnapshot documento, String campo) {
         Long valor = documento.getLong(campo);
         return valor == null ? 0 : valor.intValue();
+    }
+
+    // Carga la biblioteca del usuario para mostrar y editar destacados.
+    private void loadFeaturedLibraryItems(String uidObjetivo) {
+        if (TextUtils.isEmpty(uidObjetivo)) {
+            bibliotecaUsuario.clear();
+            bibliotecaListo = true;
+            refreshFeaturedComicsSection();
+            return;
+        }
+
+        UserShelfRepository.getUserLibraryItems(uidObjetivo)
+                .addOnSuccessListener(items -> {
+                    bibliotecaUsuario.clear();
+                    if (items != null) {
+                        bibliotecaUsuario.addAll(items);
+                    }
+                    bibliotecaListo = true;
+                    refreshFeaturedComicsSection();
+                })
+                .addOnFailureListener(error -> {
+                    bibliotecaUsuario.clear();
+                    bibliotecaListo = true;
+                    refreshFeaturedComicsSection();
+                    showError(getString(R.string.error_perfil_carga));
+                });
+    }
+
+    // Refresca la seccion de destacados segun el modo actual.
+    private void refreshFeaturedComicsSection() {
+        if (contenedorCarruselDestacadosPerfil == null
+                || textoAyudaDestacadosPerfil == null
+                || textoEstadoDestacadosPerfil == null
+                || textoContadorDestacadosPerfil == null
+                || contenedorBusquedaDestacadosPerfil == null
+                || componenteDestacadosPerfil == null) {
+            return;
+        }
+
+        boolean modoEdicion = estaEditando && isShowingCurrentUserProfile();
+        boolean esPerfilPropio = isShowingCurrentUserProfile();
+        contenedorBusquedaDestacadosPerfil.setVisibility(modoEdicion ? View.VISIBLE : View.GONE);
+
+        if (textoTituloDestacadosPerfil != null) {
+            textoTituloDestacadosPerfil.setText(modoEdicion
+                    ? getString(R.string.perfil_destacados_titulo_edicion)
+                    : getString(R.string.perfil_destacados_titulo));
+        }
+
+        if (modoEdicion) {
+            textoAyudaDestacadosPerfil.setVisibility(View.VISIBLE);
+            textoAyudaDestacadosPerfil.setText(getString(R.string.perfil_destacados_ayuda_edicion));
+            textoContadorDestacadosPerfil.setVisibility(View.VISIBLE);
+            textoContadorDestacadosPerfil.setText(getString(
+                    R.string.perfil_destacados_contador_seleccion,
+                    editFeaturedComicIds.size(),
+                    MAX_COMICS_DESTACADOS
+            ));
+        } else {
+            if (esPerfilPropio) {
+                textoAyudaDestacadosPerfil.setVisibility(View.VISIBLE);
+                textoAyudaDestacadosPerfil.setText(getString(R.string.perfil_destacados_ayuda_lectura));
+            } else {
+                textoAyudaDestacadosPerfil.setVisibility(View.GONE);
+            }
+            textoContadorDestacadosPerfil.setVisibility(View.GONE);
+            if (campoBusquedaDestacadosPerfil != null && !TextUtils.isEmpty(campoBusquedaDestacadosPerfil.getText())) {
+                campoBusquedaDestacadosPerfil.setText("");
+            }
+        }
+
+        if (!perfilListo || !bibliotecaListo) {
+            textoEstadoDestacadosPerfil.setVisibility(View.VISIBLE);
+            textoEstadoDestacadosPerfil.setText(getString(R.string.perfil_destacados_cargando));
+            contenedorCarruselDestacadosPerfil.removeAllViews();
+            return;
+        }
+
+        List<UserShelfComicGroupData> comicsVisibles = modoEdicion
+                ? getFilteredLibraryComics()
+                : getFeaturedLibraryComics();
+
+        if (comicsVisibles.isEmpty()) {
+            textoEstadoDestacadosPerfil.setVisibility(View.VISIBLE);
+            textoEstadoDestacadosPerfil.setText(getString(modoEdicion
+                    ? R.string.perfil_destacados_sin_resultados
+                    : R.string.perfil_destacados_sin_destacados));
+            contenedorCarruselDestacadosPerfil.removeAllViews();
+            return;
+        }
+
+        textoEstadoDestacadosPerfil.setVisibility(View.GONE);
+        componenteDestacadosPerfil.renderComics(
+                contenedorCarruselDestacadosPerfil,
+                comicsVisibles,
+                modoEdicion,
+                new HashSet<>(editFeaturedComicIds),
+                item -> handleFeaturedComicClick(item, modoEdicion)
+        );
+    }
+
+    // Devuelve los comics destacados que existen en la biblioteca.
+    private List<UserShelfComicGroupData> getFeaturedLibraryComics() {
+        if (featuredComicIdsOriginal.isEmpty() || bibliotecaUsuario.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Set<String> destacados = new HashSet<>(featuredComicIdsOriginal);
+        List<UserShelfComicGroupData> resultado = new ArrayList<>();
+        for (UserShelfComicGroupData item : bibliotecaUsuario) {
+            if (item != null && destacados.contains(item.comicId)) {
+                resultado.add(item);
+                if (resultado.size() >= MAX_COMICS_DESTACADOS) {
+                    break;
+                }
+            }
+        }
+        return resultado;
+    }
+
+    // Filtra la biblioteca segun el texto de busqueda.
+    private List<UserShelfComicGroupData> getFilteredLibraryComics() {
+        if (bibliotecaUsuario.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String busqueda = busquedaDestacados == null ? "" : busquedaDestacados.trim().toLowerCase(Locale.getDefault());
+        List<UserShelfComicGroupData> resultado = new ArrayList<>();
+        for (UserShelfComicGroupData item : bibliotecaUsuario) {
+            if (item == null || item.comic == null) {
+                continue;
+            }
+            if (TextUtils.isEmpty(busqueda) || getComicSearchText(item).contains(busqueda)) {
+                resultado.add(item);
+            }
+        }
+        return resultado;
+    }
+
+    // Devuelve el texto usado para buscar un comic.
+    private String getComicSearchText(UserShelfComicGroupData item) {
+        StringBuilder texto = new StringBuilder();
+        if (item.comic != null) {
+            if (!TextUtils.isEmpty(item.comic.nombre)) {
+                texto.append(item.comic.nombre).append(' ');
+            }
+            texto.append(item.comic.getAutoresFormateados()).append(' ');
+            texto.append(item.comic.getGenerosFormateados()).append(' ');
+        }
+        if (item.tomos != null) {
+            for (int i = 0; i < item.tomos.size(); i++) {
+                if (item.tomos.get(i) != null && item.tomos.get(i).tomo != null) {
+                    texto.append(item.tomos.get(i).tomo.getNumeroFormateado()).append(' ');
+                }
+            }
+        }
+        return texto.toString().toLowerCase(Locale.getDefault());
+    }
+
+    // Maneja un toque sobre una card de destacado.
+    private void handleFeaturedComicClick(UserShelfComicGroupData item, boolean modoEdicion) {
+        if (item == null || TextUtils.isEmpty(item.comicId)) {
+            return;
+        }
+
+        if (modoEdicion) {
+            toggleFeaturedComic(item.comicId);
+            return;
+        }
+
+        openComicDetail(item.comicId);
+    }
+
+    // Alterna si un comic queda destacado o no.
+    private void toggleFeaturedComic(String comicId) {
+        if (TextUtils.isEmpty(comicId)) {
+            return;
+        }
+
+        if (editFeaturedComicIds.contains(comicId)) {
+            editFeaturedComicIds.remove(comicId);
+            refreshFeaturedComicsSection();
+            return;
+        }
+
+        if (editFeaturedComicIds.size() >= MAX_COMICS_DESTACADOS) {
+            textoEstadoDestacadosPerfil.setVisibility(View.VISIBLE);
+            textoEstadoDestacadosPerfil.setText(getString(R.string.perfil_destacados_limite));
+            return;
+        }
+
+        editFeaturedComicIds.add(comicId);
+        refreshFeaturedComicsSection();
+    }
+
+    // Devuelve la lista final de destacados para guardar.
+    private List<String> resolveFeaturedComicIdsToSave() {
+        List<String> resultado = new ArrayList<>();
+        List<String> origen = estaEditando ? editFeaturedComicIds : featuredComicIdsOriginal;
+        if (bibliotecaUsuario.isEmpty()) {
+            for (String comicId : origen) {
+                if (!TextUtils.isEmpty(comicId) && !resultado.contains(comicId)) {
+                    resultado.add(comicId);
+                }
+                if (resultado.size() >= MAX_COMICS_DESTACADOS) {
+                    break;
+                }
+            }
+            return resultado;
+        }
+
+        Set<String> idsDeLaBiblioteca = new HashSet<>();
+        for (UserShelfComicGroupData item : bibliotecaUsuario) {
+            if (item != null && !TextUtils.isEmpty(item.comicId)) {
+                idsDeLaBiblioteca.add(item.comicId);
+            }
+        }
+
+        for (String comicId : origen) {
+            if (!TextUtils.isEmpty(comicId) && idsDeLaBiblioteca.contains(comicId) && !resultado.contains(comicId)) {
+                resultado.add(comicId);
+            }
+            if (resultado.size() >= MAX_COMICS_DESTACADOS) {
+                break;
+            }
+        }
+        return resultado;
+    }
+
+    // Abre la pantalla de detalle de comic.
+    private void openComicDetail(String comicId) {
+        if (TextUtils.isEmpty(comicId)) {
+            return;
+        }
+        Intent pantallaDetalleComic = new Intent(this, ComicDetailActivity.class);
+        pantallaDetalleComic.putExtra(ComicDetailActivity.EXTRA_COMIC_ID, comicId);
+        startActivity(pantallaDetalleComic);
     }
 
     // Lee fecha de nacimiento desde timestamp.
@@ -779,11 +1298,11 @@ public class ProfileActivity extends BaseDrawerActivity {
         Calendar calendario = Calendar.getInstance();
         calendario.setTimeInMillis(milisegundos);
         return String.format(
-                Locale.US,
-                "%04d-%02d-%02d",
-                calendario.get(Calendar.YEAR),
+                Locale.getDefault(),
+                "%02d-%02d-%04d",
+                calendario.get(Calendar.DAY_OF_MONTH),
                 calendario.get(Calendar.MONTH) + 1,
-                calendario.get(Calendar.DAY_OF_MONTH)
+                calendario.get(Calendar.YEAR)
         );
     }
 

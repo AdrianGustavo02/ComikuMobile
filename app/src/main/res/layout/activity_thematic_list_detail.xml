@@ -4,12 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarDetalleListaTematica"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -20,32 +14,23 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <LinearLayout
-                android:id="@+id/contenedorWallpaperDetalle"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal" />
-
             <TextView
                 android:id="@+id/textoNombreListaDetalle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:textSize="20sp"
+                android:layout_marginBottom="32dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="#232323"
+                android:textSize="28sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textoDescripcionListaDetalle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp" />
 
             <LinearLayout
                 android:id="@+id/contenedorCreadorDetalle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="start|center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
@@ -53,13 +38,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
-                    android:text="@string/detalle_lista_creador" />
+                    android:text="@string/detalle_lista_creador"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/textoNickCreadorDetalle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/iconoFlechaCreadorDetalle"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="6dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_creator_arrow_right"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <TextView
@@ -67,44 +64,86 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="@string/listas_tematicas_guia_badge"
+                android:text="@string/detalle_lista_guia_badge_formato"
+                android:textSize="16sp"
                 android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/textoDescripcionListaDetalle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:gravity="start"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+
             <LinearLayout
+                android:id="@+id/filaAccionesDetalle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/botonMeGustaDetalle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/detalle_lista_me_gusta" />
+                    android:layout_height="48dp"
+                    android:minHeight="48dp"
+                    style="@style/Theme.Comiku.ButtonPrimaryAction"
+                    android:text="0" />
 
-                <TextView
-                    android:id="@+id/textoLikesDetalle"
+                <LinearLayout
+                    android:id="@+id/contenedorComentariosResumenDetalle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical" />
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_button_secondary_action_default"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingBottom="0dp"
+                    android:paddingEnd="16dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="0dp">
+
+                    <ImageView
+                        android:id="@+id/iconoComentariosResumenDetalle"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_comment_outline" />
+
+                    <TextView
+                        android:id="@+id/textoComentariosCantidadDetalle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="0"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/botonGuardarListaDetalle"
+                    style="@style/Theme.Comiku.ButtonSecondaryAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:minHeight="48dp"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/detalle_lista_guardar_lista"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/botonEditarListaDetalle"
+                    style="@style/Theme.Comiku.ButtonSecondaryAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:minHeight="48dp"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/detalle_lista_editar"
+                    android:visibility="gone" />
             </LinearLayout>
-
-            <Button
-                android:id="@+id/botonGuardarListaDetalle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/detalle_lista_guardar_lista"
-                android:visibility="gone" />
-
-            <Button
-                android:id="@+id/botonEditarListaDetalle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/detalle_lista_editar"
-                android:visibility="gone" />
 
             <ProgressBar
                 android:id="@+id/barraCargaDetalle"
@@ -114,12 +153,14 @@
                 android:visibility="gone" />
 
             <TextView
+                android:id="@+id/textoTituloTomosDetalle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginTop="12dp"
                 android:text="@string/detalle_lista_tomos_titulo"
-                android:textSize="16sp"
+                android:textColor="#232323"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -137,54 +178,42 @@
 
             <!-- Seccion de comentarios -->
             <TextView
+                android:id="@+id/textoTituloComentariosDetalle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="8dp"
-                android:text="@string/detalle_lista_comentarios_titulo"
-                android:textSize="16sp"
+                android:text="@string/detalle_lista_comentarios_titulo_formato"
+                android:textColor="#232323"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:id="@+id/contenedorComentarios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:layout_marginBottom="8dp"
+                android:gravity="top"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textoEstadoComentarios"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="13sp"
-                android:visibility="gone" />
+                <EditText
+                    android:id="@+id/campoComentario"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/detalle_lista_comentario_hint"
+                    android:inputType="textMultiLine"
+                    android:maxLength="500"
+                    android:maxLines="5"
+                    android:minLines="2" />
 
-            <!-- Formulario para agregar comentario -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/detalle_lista_agregar_comentario_label"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/campoComentario"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/detalle_lista_comentario_hint"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:maxLines="5"
-                android:maxLength="500" />
-
-            <Button
-                android:id="@+id/botonEnviarComentario"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/detalle_lista_boton_comentar" />
+                <Button
+                    android:id="@+id/botonEnviarComentario"
+                    style="@style/Theme.Comiku.ButtonPrimaryAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/detalle_lista_boton_comentar" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textoErrorComentario"
@@ -192,6 +221,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="#D32F2F"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/contenedorComentarios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/textoEstadoComentarios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:textSize="13sp"
                 android:visibility="gone" />
         </LinearLayout>

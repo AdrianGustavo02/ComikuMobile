@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -55,18 +55,22 @@ public final class MissingVolumeCarouselComponent {
     ) {
         LinearLayout tarjeta = new LinearLayout(contexto);
         tarjeta.setOrientation(LinearLayout.VERTICAL);
+        tarjeta.setBackground(contexto.getDrawable(R.drawable.bg_volume_cover_card));
         LinearLayout.LayoutParams paramsTarjeta = new LinearLayout.LayoutParams(dpToPx(150), ViewGroup.LayoutParams.WRAP_CONTENT);
         paramsTarjeta.setMarginEnd(dpToPx(10));
         tarjeta.setLayoutParams(paramsTarjeta);
-        tarjeta.setPadding(dpToPx(6), dpToPx(6), dpToPx(6), dpToPx(6));
+        tarjeta.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
+        tarjeta.setFocusable(true);
 
         ImageView imagenPortada = new ImageView(contexto);
         LinearLayout.LayoutParams paramsImagen = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                dpToPx(210)
+                dpToPx(200)
         );
         imagenPortada.setLayoutParams(paramsImagen);
         imagenPortada.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imagenPortada.setBackground(contexto.getDrawable(R.drawable.bg_volume_cover_image));
+        imagenPortada.setClipToOutline(true);
         Bitmap bitmap = decodeDataUrl(tomoFaltante != null && tomoFaltante.tomo != null
                 ? tomoFaltante.tomo.getPortadaDataUrl()
                 : null);
@@ -77,31 +81,41 @@ public final class MissingVolumeCarouselComponent {
         }
         tarjeta.addView(imagenPortada);
 
+        // Nombre del comic (negrita y blanco)
+        TextView textoComic = new TextView(contexto);
+        textoComic.setText(tomoFaltante != null ? String.valueOf(tomoFaltante.comicNombre) : "");
+        textoComic.setTextSize(12f);
+        textoComic.setTypeface(null, android.graphics.Typeface.BOLD);
+        textoComic.setMaxLines(3);
+        textoComic.setEllipsize(TextUtils.TruncateAt.END);
+        textoComic.setTextColor(contexto.getColor(android.R.color.white));
+        textoComic.setPadding(0, dpToPx(10), 0, 0);
+        tarjeta.addView(textoComic);
+
+        // Tomo y número (color de descripción)
         TextView textoTomo = new TextView(contexto);
         textoTomo.setText(getVolumeLabel(tomoFaltante != null ? tomoFaltante.tomo : null));
-        textoTomo.setTextSize(13f);
-        textoTomo.setPadding(0, dpToPx(6), 0, 0);
+        textoTomo.setTextSize(11f);
+        textoTomo.setMaxLines(2);
+        textoTomo.setEllipsize(TextUtils.TruncateAt.END);
+        textoTomo.setTextColor(contexto.getColor(R.color.carousel_subtitle));
+        textoTomo.setPadding(0, dpToPx(4), 0, 0);
         tarjeta.addView(textoTomo);
 
-        if (mostrarNombreComic) {
-            TextView textoComic = new TextView(contexto);
-            textoComic.setText(tomoFaltante != null ? String.valueOf(tomoFaltante.comicNombre) : "");
-            textoComic.setTextSize(12f);
-            textoComic.setMaxLines(2);
-            textoComic.setEllipsize(TextUtils.TruncateAt.END);
-            tarjeta.addView(textoComic);
-        }
+        // ISBN (color de descripción)
+        TextView textoIsbn = new TextView(contexto);
+        String isbnText = "ISBN: " + (tomoFaltante != null && tomoFaltante.tomo != null && tomoFaltante.tomo.isbn != null
+                ? String.valueOf(tomoFaltante.tomo.isbn)
+                : "N/A");
+        textoIsbn.setText(isbnText);
+        textoIsbn.setTextSize(11f);
+        textoIsbn.setMaxLines(2);
+        textoIsbn.setEllipsize(TextUtils.TruncateAt.END);
+        textoIsbn.setTextColor(contexto.getColor(R.color.carousel_subtitle));
+        textoIsbn.setPadding(0, dpToPx(2), 0, 0);
+        tarjeta.addView(textoIsbn);
 
-        Button botonAbrir = new Button(contexto);
-        botonAbrir.setText(R.string.tomos_faltantes_ver_detalle);
-        botonAbrir.setOnClickListener(v -> {
-            if (listener != null && tomoFaltante != null) {
-                listener.onVolumeClick(tomoFaltante);
-            }
-        });
-        tarjeta.addView(botonAbrir);
-
-        imagenPortada.setOnClickListener(v -> {
+        tarjeta.setOnClickListener(v -> {
             if (listener != null && tomoFaltante != null) {
                 listener.onVolumeClick(tomoFaltante);
             }

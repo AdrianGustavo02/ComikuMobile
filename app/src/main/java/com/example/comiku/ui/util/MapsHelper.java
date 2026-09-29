@@ -9,17 +9,17 @@ import android.widget.Toast;
 
 import com.example.comiku.data.model.places.NearbyBookstoreDto;
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ToastUtils;
 
 import java.util.Locale;
 
-// Utilidades para trabajar con Google Maps y ubicacion.
 public class MapsHelper {
     private static final String PAQUETE_GOOGLE_MAPS = "com.google.android.apps.maps";
 
     private MapsHelper() {
     }
 
-    // Abre un comercio en Google Maps.
+    // Abre un local en Google Maps.
     public static void openPlace(Context context, NearbyBookstoreDto place) {
         if (context == null || place == null) {
             return;
@@ -40,10 +40,10 @@ public class MapsHelper {
             return;
         }
 
-        Toast.makeText(context, R.string.volume_detail_error_abrir_mapa, Toast.LENGTH_SHORT).show();
+        ToastUtils.showTextToast(context, R.string.volume_detail_error_abrir_mapa, Toast.LENGTH_SHORT);
     }
 
-    // Abre las indicaciones para llegar a un comercio en Google Maps.
+    // Abre las indicaciones para llegar a un local en Google Maps.
     public static void openDirections(Context context, NearbyBookstoreDto place) {
         if (context == null || place == null) {
             return;
@@ -63,7 +63,7 @@ public class MapsHelper {
             return;
         }
 
-        Toast.makeText(context, R.string.volume_detail_error_abrir_mapa, Toast.LENGTH_SHORT).show();
+        ToastUtils.showTextToast(context, R.string.volume_detail_error_abrir_mapa, Toast.LENGTH_SHORT);
     }
 
     // Intenta abrir una URL primero con Google Maps y luego con cualquier app compatible.

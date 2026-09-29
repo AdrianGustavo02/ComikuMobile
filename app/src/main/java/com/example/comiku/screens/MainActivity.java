@@ -3,8 +3,8 @@ package com.example.comiku.screens;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Toast;
-import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.HomePresentationCarouselComponent;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.ui.MissingVolumeCarouselComponent;
 import com.example.comiku.core.ui.RecentVolumeCarouselComponent;
 import com.example.comiku.core.ui.RecommendationCarouselComponent;
@@ -51,6 +53,7 @@ public class MainActivity extends BaseDrawerActivity {
     private LinearLayout contenedorRecomendacionesInicio;
     private TextView textoEstadoRecomendacionesInicio;
     private RecommendationCarouselComponent componenteCarruselRecomendaciones;
+    private HomePresentationCarouselComponent componenteCarruselPresentacion;
 
     // Inicializa el home usando el componente de navbar.
     @Override
@@ -72,16 +75,10 @@ public class MainActivity extends BaseDrawerActivity {
     // Ajusta textos del home al cargar contenido.
     @Override
     protected void onScreenContentReady() {
-        TextView textoTitulo = findViewById(R.id.textoTituloInicio);
-        textoTitulo.setText(getString(R.string.inicio_titulo));
-
-        TextView textoMensaje = findViewById(R.id.textoMensajeInicio);
-        textoMensaje.setText(getString(R.string.inicio_mensaje));
-
-        Button botonIrCreacionManual = findViewById(R.id.botonIrCreacionManual);
-        botonIrCreacionManual.setOnClickListener(v -> openManualCreation());
-
         barraCargaInicio = findViewById(R.id.barraCargaInicio);
+        View vistaCarruselPresentacionInicio = findViewById(R.id.vistaCarruselPresentacionInicio);
+        View indicadorPresentacionUno = findViewById(R.id.indicadorPresentacionInicioUno);
+        View indicadorPresentacionDos = findViewById(R.id.indicadorPresentacionInicioDos);
         contenedorCarruselTomosFaltantesInicio = findViewById(R.id.contenedorCarruselTomosFaltantesInicio);
         botonIzquierdaTomosFaltantesInicio = findViewById(R.id.botonIzquierdaTomosFaltantesInicio);
         botonDerechaTomosFaltantesInicio = findViewById(R.id.botonDerechaTomosFaltantesInicio);
@@ -95,6 +92,7 @@ public class MainActivity extends BaseDrawerActivity {
         contenedorUltimosTomosInicio = findViewById(R.id.contenedorUltimosTomosInicio);
         textoEstadoUltimosTomosInicio = findViewById(R.id.textoEstadoUltimosTomosInicio);
 
+        componenteCarruselPresentacion = new HomePresentationCarouselComponent(this);
         componenteCarruselFaltantes = new MissingVolumeCarouselComponent(this);
         componenteCarruselRecientes = new RecentVolumeCarouselComponent(this);
         componenteCarruselRecomendaciones = new RecommendationCarouselComponent(this);
@@ -104,6 +102,9 @@ public class MainActivity extends BaseDrawerActivity {
         scrollRecomendacionesInicio = findViewById(R.id.scrollRecomendacionesInicio);
         contenedorRecomendacionesInicio = findViewById(R.id.contenedorRecomendacionesInicio);
         textoEstadoRecomendacionesInicio = findViewById(R.id.textoEstadoRecomendacionesInicio);
+        componenteCarruselPresentacion.bind(vistaCarruselPresentacionInicio);
+        componenteCarruselPresentacion.setIndicatorViews(indicadorPresentacionUno, indicadorPresentacionDos);
+        componenteCarruselPresentacion.setOnCreateComicClickListener(v -> openManualCreation());
         setupMissingCarouselScroll();
         loadHomeHighlights();
         mostrarConfirmacionPendiente();
@@ -311,7 +312,8 @@ public class MainActivity extends BaseDrawerActivity {
         if (TextUtils.isEmpty(mensaje)) {
             return;
         }
-        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+        ToastUtils.showTextToast(this, mensaje, Toast.LENGTH_LONG);
         intentActual.removeExtra(EXTRA_HOME_NOTICE);
     }
 }
+

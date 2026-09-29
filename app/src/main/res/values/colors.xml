@@ -5,13 +5,29 @@
     <color name="gray">#FF9E9E9E</color>
     <color name="gray_light">#FFF5F5F5</color>
     <color name="gray_dark">#FF616161</color>
+    <color name="group_member_divider">#FFD0D0D0</color>
     <color name="red">#FFF44336</color>
     <color name="orange">#FFFF9800</color>
+    <color name="primary_button_orange_flat">#FF8A1F</color>
     <color name="blue">#FF2196F3</color>
     <color name="blue_light">#FFE3F2FD</color>
+    <color name="fondo_login_registro">#FF1F1F1F</color>
+    <color name="contenedor_login_registro">#190E2A</color>
 
     <!-- Colores de chat -->
     <color name="chat_escribiendo">#FF2196F3</color>
     <color name="chat_estado_activo">#FF9E9E9E</color>
     <color name="badge_azul_claro">#FF81D4FA</color>
+
+    <!-- VolumeDetailActivity -->
+    <color name="review_star_fill">#FFB05C</color>
+    <color name="review_star_stroke">#FF8A1F6B</color>
+    <color name="volume_detail_nearby_store_card_border">#23232324</color>
+    <color name="volume_detail_nearby_store_distance">#A34300</color>
+    <color name="volume_detail_search_button">#B74D00</color>
+    <color name="volume_detail_search_button_hover">#A34400</color>
+    <color name="volume_detail_radius_toggle_border">#23232324</color>
+
+    <color name="text_color">#FFF8F3FF</color>
+    <color name="carousel_subtitle">#FFCDBFE3</color>
 </resources>

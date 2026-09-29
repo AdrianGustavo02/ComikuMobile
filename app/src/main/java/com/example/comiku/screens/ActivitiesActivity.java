@@ -1,13 +1,13 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.view.ContextThemeWrapper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ThematicListUiHelper;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.core.validation.InputValidator;
 import com.example.comiku.data.model.FriendActivityCommentData;
 import com.example.comiku.data.model.FriendActivityCommentPageData;
@@ -275,16 +277,19 @@ public class ActivitiesActivity extends BaseDrawerActivity {
         );
         paramsTarjeta.bottomMargin = dpToPx(10);
         tarjeta.setLayoutParams(paramsTarjeta);
-        tarjeta.setBackgroundResource(android.R.drawable.dialog_holo_light_frame);
+        tarjeta.setBackgroundResource(R.drawable.bg_activity_card);
 
         TextView textoDescripcion = new TextView(this);
         textoDescripcion.setTypeface(null, android.graphics.Typeface.BOLD);
         textoDescripcion.setText(buildActivityDescription(actividad));
+        textoDescripcion.setTextSize(16f);
+        textoDescripcion.setTextColor(getColor(R.color.carousel_subtitle));
         tarjeta.addView(textoDescripcion);
 
         TextView textoFecha = new TextView(this);
         textoFecha.setText(formatDateTime(actividad.fecha));
-        textoFecha.setTextSize(12f);
+        textoFecha.setTextSize(13f);
+        textoFecha.setTextColor(getColor(R.color.carousel_subtitle));
         LinearLayout.LayoutParams paramsFecha = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -308,23 +313,43 @@ public class ActivitiesActivity extends BaseDrawerActivity {
         paramsPie.topMargin = dpToPx(8);
         pie.setLayoutParams(paramsPie);
 
-        TextView textoLikes = new TextView(this);
-        textoLikes.setText(getString(R.string.actividades_likes_formato, actividad.cantidadLikes));
-        pie.addView(textoLikes);
-
-        TextView textoComentarios = new TextView(this);
-        LinearLayout.LayoutParams paramsComentarios = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        paramsComentarios.leftMargin = dpToPx(12);
-        textoComentarios.setLayoutParams(paramsComentarios);
-        textoComentarios.setText(getString(R.string.actividades_comentarios_formato, actividad.cantidadComentarios));
-        pie.addView(textoComentarios);
+        pie.addView(buildStatItem(R.drawable.ic_like_outline, actividad.cantidadLikes, false));
+        pie.addView(buildStatItem(R.drawable.ic_comment_outline, actividad.cantidadComentarios, true));
 
         tarjeta.addView(pie);
         tarjeta.setOnClickListener(v -> openActivityDialog(actividad));
         return tarjeta;
+    }
+
+    // Crea un indicador con icono y cantidad para likes o comentarios.
+    private View buildStatItem(int iconoResId, int cantidad, boolean agregarMargenInicio) {
+        LinearLayout item = new LinearLayout(this);
+        item.setOrientation(LinearLayout.HORIZONTAL);
+        item.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams paramsItem = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        if (agregarMargenInicio) {
+            paramsItem.leftMargin = dpToPx(12);
+        }
+        item.setLayoutParams(paramsItem);
+
+        ImageView icono = new ImageView(this);
+        LinearLayout.LayoutParams paramsIcono = new LinearLayout.LayoutParams(dpToPx(18), dpToPx(18));
+        paramsIcono.rightMargin = dpToPx(6);
+        icono.setLayoutParams(paramsIcono);
+        icono.setImageResource(iconoResId);
+        icono.setColorFilter(Color.WHITE);
+        item.addView(icono);
+
+        TextView textoCantidad = new TextView(this);
+        textoCantidad.setText(String.valueOf(cantidad));
+        textoCantidad.setTextColor(Color.WHITE);
+        textoCantidad.setTextSize(15f);
+        item.addView(textoCantidad);
+
+        return item;
     }
 
     // Crea el texto legible de una actividad para lista y modal.
@@ -404,7 +429,6 @@ public class ActivitiesActivity extends BaseDrawerActivity {
         View vistaDialogo = LayoutInflater.from(this).inflate(R.layout.dialog_activity_detail, null, false);
         AlertDialog dialogo = new AlertDialog.Builder(this)
                 .setView(vistaDialogo)
-                .setNegativeButton(R.string.reporte_boton_cancelar, (d, w) -> d.dismiss())
                 .create();
 
         DialogState estadoDialogo = new DialogState();
@@ -415,6 +439,7 @@ public class ActivitiesActivity extends BaseDrawerActivity {
         estadoDialogo.botonLike = vistaDialogo.findViewById(R.id.botonLikeActividadDialog);
         estadoDialogo.textoLikes = vistaDialogo.findViewById(R.id.textoLikesActividadDialog);
         estadoDialogo.textoComentarios = vistaDialogo.findViewById(R.id.textoComentariosActividadDialog);
+        estadoDialogo.textoTituloComentarios = vistaDialogo.findViewById(R.id.textoTituloComentariosActividadDialog);
         estadoDialogo.contenedorDetalle = vistaDialogo.findViewById(R.id.contenedorDetalleActividadDialog);
         estadoDialogo.campoComentario = vistaDialogo.findViewById(R.id.campoComentarioActividadDialog);
         estadoDialogo.botonEnviarComentario = vistaDialogo.findViewById(R.id.botonEnviarComentarioActividadDialog);
@@ -423,14 +448,22 @@ public class ActivitiesActivity extends BaseDrawerActivity {
         estadoDialogo.botonCargarMasComentarios = vistaDialogo.findViewById(R.id.botonCargarMasComentariosActividadDialog);
         estadoDialogo.cantidadLikes = actividad.cantidadLikes;
         estadoDialogo.cantidadComentarios = actividad.cantidadComentarios;
+        estadoDialogo.botonLike.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_like_outline, 0, 0, 0);
+        estadoDialogo.botonLike.setCompoundDrawablePadding(dpToPx(6));
 
         estadoDialogo.textoTitulo.setText(buildActivityDescription(actividad));
+        estadoDialogo.textoTitulo.setTextColor(Color.WHITE);
         estadoDialogo.textoFecha.setText(formatDateTime(actividad.fecha));
+        estadoDialogo.textoFecha.setTextColor(Color.WHITE);
+        estadoDialogo.textoTituloComentarios.setTextColor(Color.WHITE);
         renderDialogStats(estadoDialogo);
         renderDialogDetail(estadoDialogo);
         setupDialogActions(estadoDialogo);
 
         dialogo.show();
+        if (dialogo.getWindow() != null) {
+            dialogo.getWindow().setBackgroundDrawableResource(R.drawable.bg_activity_dialog_rounded);
+        }
         loadLikeStatusForDialog(estadoDialogo);
         loadCommentsForDialog(estadoDialogo, true);
     }
@@ -528,7 +561,8 @@ public class ActivitiesActivity extends BaseDrawerActivity {
                     updateActivityStats(estadoDialogo.actividad.id, estadoDialogo.cantidadLikes, null);
                 })
                 .addOnFailureListener(error ->
-                        Toast.makeText(this, R.string.actividades_error_like, Toast.LENGTH_SHORT).show())
+                        ToastUtils.showTextToast(this, R.string.actividades_error_like, Toast.LENGTH_SHORT)
+                )
                 .addOnCompleteListener(unused -> {
                     estadoDialogo.procesandoLike = false;
                     estadoDialogo.botonLike.setEnabled(true);
@@ -645,55 +679,98 @@ public class ActivitiesActivity extends BaseDrawerActivity {
     // Crea la tarjeta visual de un comentario.
     private View buildCommentCard(DialogState estadoDialogo, FriendActivityCommentData comentario) {
         LinearLayout tarjeta = new LinearLayout(this);
-        tarjeta.setOrientation(LinearLayout.HORIZONTAL);
-        tarjeta.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
+        tarjeta.setOrientation(LinearLayout.VERTICAL);
+        tarjeta.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
         LinearLayout.LayoutParams paramsTarjeta = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        paramsTarjeta.bottomMargin = dpToPx(8);
+        paramsTarjeta.bottomMargin = dpToPx(12);
         tarjeta.setLayoutParams(paramsTarjeta);
-        tarjeta.setBackgroundResource(android.R.drawable.dialog_holo_light_frame);
+        tarjeta.setBackgroundResource(R.drawable.bg_card_generic_premium);
 
-        ImageView imagenPerfil = createCircleImage(comentario.fotoPerfilDataUrl, 40);
-        imagenPerfil.setOnClickListener(v -> openUserProfile(comentario.userId));
-        tarjeta.addView(imagenPerfil);
+        LinearLayout filaAutor = new LinearLayout(this);
+        filaAutor.setOrientation(LinearLayout.HORIZONTAL);
+        filaAutor.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        RoundedImageView imagenPerfil = ThematicListUiHelper.createCircularProfileImage(this, 44);
+        LinearLayout.LayoutParams paramsImagen = new LinearLayout.LayoutParams(dpToPx(44), dpToPx(44));
+        paramsImagen.setMarginEnd(dpToPx(8));
+        imagenPerfil.setLayoutParams(paramsImagen);
+        Bitmap bitmapPerfil = decodeDataUrl(comentario.fotoPerfilDataUrl);
+        if (bitmapPerfil != null) {
+            imagenPerfil.setImageBitmap(bitmapPerfil);
+        }
+        filaAutor.addView(imagenPerfil);
 
         LinearLayout columna = new LinearLayout(this);
         columna.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams paramsColumna = new LinearLayout.LayoutParams(
+        columna.setLayoutParams(new LinearLayout.LayoutParams(
                 0,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 1f
-        );
-        paramsColumna.leftMargin = dpToPx(8);
-        columna.setLayoutParams(paramsColumna);
+        ));
 
-        Button botonNick = new Button(this);
-        botonNick.setText(safeText(comentario.nick));
-        botonNick.setAllCaps(false);
-        botonNick.setBackground(null);
-        botonNick.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        botonNick.setPadding(0, 0, 0, 0);
-        botonNick.setOnClickListener(v -> openUserProfile(comentario.userId));
-        columna.addView(botonNick);
+        TextView textoNick = new TextView(this);
+        textoNick.setText(safeText(comentario.nick));
+        textoNick.setTextSize(15f);
+        textoNick.setTypeface(null, android.graphics.Typeface.BOLD);
+        textoNick.setTextColor(getColor(R.color.primary_button_orange_flat));
+        columna.addView(textoNick);
 
         TextView textoFecha = new TextView(this);
         textoFecha.setText(formatDateTime(comentario.fecha));
         textoFecha.setTextSize(12f);
+        textoFecha.setTextColor(getColor(R.color.carousel_subtitle));
         columna.addView(textoFecha);
 
-        TextView textoComentario = new TextView(this);
-        textoComentario.setText(safeText(comentario.texto));
-        columna.addView(textoComentario);
-        tarjeta.addView(columna);
+        filaAutor.addView(columna);
 
         if (TextUtils.equals(comentario.userId, uidActual)) {
-            Button botonEliminar = new Button(this);
+            ContextThemeWrapper contextoDanger = new ContextThemeWrapper(this, R.style.Theme_Comiku_DangerButton);
+            Button botonEliminar = new Button(contextoDanger, null, 0);
+            LinearLayout.LayoutParams paramsBoton = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            paramsBoton.setMarginStart(dpToPx(8));
+            botonEliminar.setLayoutParams(paramsBoton);
             botonEliminar.setText(getString(R.string.detalle_lista_boton_eliminar_comentario));
+            botonEliminar.setAllCaps(false);
+            botonEliminar.setBackgroundResource(R.drawable.bg_button_danger);
+            botonEliminar.setBackgroundTintList(null);
+            botonEliminar.setTextColor(getColorStateList(R.color.button_danger_text));
+            botonEliminar.setTypeface(null, android.graphics.Typeface.BOLD);
+            botonEliminar.setTextSize(15f);
+            botonEliminar.setPadding(dpToPx(16), dpToPx(11), dpToPx(16), dpToPx(11));
+            botonEliminar.setMinHeight(0);
             botonEliminar.setOnClickListener(v -> deleteCommentInDialog(estadoDialogo, comentario.id));
-            tarjeta.addView(botonEliminar);
+            filaAutor.addView(botonEliminar);
         }
+
+        tarjeta.addView(filaAutor);
+
+        TextView textoComentario = new TextView(this);
+        LinearLayout.LayoutParams paramsComentario = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsComentario.topMargin = dpToPx(6);
+        textoComentario.setLayoutParams(paramsComentario);
+        textoComentario.setPadding(dpToPx(2), dpToPx(6), dpToPx(2), dpToPx(2));
+        textoComentario.setText(safeText(comentario.texto));
+        textoComentario.setTextSize(16f);
+        textoComentario.setTextColor(getColor(R.color.carousel_subtitle));
+        tarjeta.addView(textoComentario);
+
+        if (!TextUtils.isEmpty(comentario.userId)) {
+            textoNick.setOnClickListener(v -> openUserProfile(comentario.userId));
+            imagenPerfil.setOnClickListener(v -> openUserProfile(comentario.userId));
+        }
+
         return tarjeta;
     }
 
@@ -723,11 +800,16 @@ public class ActivitiesActivity extends BaseDrawerActivity {
 
     // Refresca texto de likes y comentarios en el modal.
     private void renderDialogStats(DialogState estadoDialogo) {
-        estadoDialogo.botonLike.setText(estadoDialogo.likeActivo
-                ? getString(R.string.actividades_like_activo)
-                : getString(R.string.actividades_like));
-        estadoDialogo.textoLikes.setText(getString(R.string.actividades_likes_formato, estadoDialogo.cantidadLikes));
-        estadoDialogo.textoComentarios.setText(getString(R.string.actividades_comentarios_formato, estadoDialogo.cantidadComentarios));
+        estadoDialogo.botonLike.setActivated(estadoDialogo.likeActivo);
+        estadoDialogo.botonLike.setText(String.valueOf(estadoDialogo.cantidadLikes));
+        estadoDialogo.textoLikes.setVisibility(View.GONE);
+        estadoDialogo.textoComentarios.setVisibility(View.GONE);
+        estadoDialogo.textoLikes.setTextColor(Color.WHITE);
+        estadoDialogo.textoComentarios.setTextColor(Color.WHITE);
+        estadoDialogo.textoTituloComentarios.setTextColor(Color.WHITE);
+        estadoDialogo.textoTituloComentarios.setText(
+                getString(R.string.actividades_comentarios_titulo_con_total, estadoDialogo.cantidadComentarios)
+        );
     }
 
     // Actualiza contadores en la lista principal cuando cambia una actividad.
@@ -783,15 +865,18 @@ public class ActivitiesActivity extends BaseDrawerActivity {
 
     // Crea una imagen de portada para lista y modal.
     private ImageView createCoverImage(String dataUrl, int anchoDp, int altoDp) {
-        ImageView imagen = new ImageView(this);
-        imagen.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dpToPx(anchoDp), dpToPx(altoDp));
+        ImageView imagen = ThematicListUiHelper.createMiniCover(this, dataUrl, anchoDp, altoDp);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) imagen.getLayoutParams();
+        params.rightMargin = 0;
         imagen.setLayoutParams(params);
-
-        Bitmap bitmap = decodeDataUrl(dataUrl);
-        if (bitmap != null) {
-            imagen.setImageBitmap(bitmap);
+        imagen.setBackgroundResource(R.drawable.bg_volume_cover_image);
+        imagen.setClipToOutline(true);
+        if (!(imagen instanceof RoundedImageView)) {
+            imagen.setScaleType(ImageView.ScaleType.CENTER_CROP);
         } else {
+            ((RoundedImageView) imagen).setCornerRadius(dpToPx(10));
+        }
+        if (ThematicListUiHelper.decodeDataUrl(dataUrl) == null) {
             imagen.setImageResource(android.R.drawable.ic_menu_report_image);
         }
         return imagen;
@@ -843,7 +928,7 @@ public class ActivitiesActivity extends BaseDrawerActivity {
         FriendshipRepository.canOpenUserProfile(uidActual, uidPerfil)
                 .addOnSuccessListener(canOpen -> {
                     if (!Boolean.TRUE.equals(canOpen)) {
-                        Toast.makeText(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT).show();
+                        ToastUtils.showTextToast(this, R.string.perfil_acceso_bloqueado, Toast.LENGTH_SHORT);
                         return;
                     }
                     Intent pantallaPerfil = new Intent(this, ProfileActivity.class);
@@ -851,7 +936,8 @@ public class ActivitiesActivity extends BaseDrawerActivity {
                     startActivity(pantallaPerfil);
                 })
                 .addOnFailureListener(error ->
-                        Toast.makeText(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT).show());
+                        ToastUtils.showTextToast(this, R.string.error_perfil_carga, Toast.LENGTH_SHORT)
+                );
     }
 
     // Convierte una fecha en texto legible para el usuario.
@@ -866,19 +952,7 @@ public class ActivitiesActivity extends BaseDrawerActivity {
 
     // Convierte dataUrl a bitmap para mostrar imagenes.
     private Bitmap decodeDataUrl(String dataUrl) {
-        if (TextUtils.isEmpty(dataUrl)) {
-            return null;
-        }
-        int indiceComa = dataUrl.indexOf(',');
-        if (indiceComa < 0 || indiceComa >= dataUrl.length() - 1) {
-            return null;
-        }
-        try {
-            byte[] bytes = Base64.decode(dataUrl.substring(indiceComa + 1), Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        } catch (IllegalArgumentException error) {
-            return null;
-        }
+        return ThematicListUiHelper.decodeDataUrl(dataUrl);
     }
 
     // Convierte dp a pixeles para vistas dinamicas.
@@ -906,6 +980,7 @@ public class ActivitiesActivity extends BaseDrawerActivity {
         private Button botonLike;
         private TextView textoLikes;
         private TextView textoComentarios;
+        private TextView textoTituloComentarios;
         private LinearLayout contenedorDetalle;
         private EditText campoComentario;
         private Button botonEnviarComentario;

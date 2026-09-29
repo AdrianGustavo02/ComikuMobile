@@ -1,12 +1,18 @@
 package com.example.comiku.screens;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.graphics.Typeface;
+import android.content.res.ColorStateList;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.Button;
@@ -22,6 +28,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.GenericFormContainerComponent;
 import com.example.comiku.data.model.ComicDraftData;
 import com.example.comiku.data.repository.ManualCreationRepository;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,7 +56,10 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
     private EditText campoIsbnTomo;
     private EditText campoFechaPublicacionTomo;
     private ImageView imagenPortadaTomo;
+    private TextView textoTituloResumenTomos;
+    private TextView textoContadorTomos;
     private TextView textoResumenTomos;
+    private LinearLayout contenedorResumenTomos;
     private TextView textoError;
     private TextView textoConfirmacion;
     private ProgressBar barraCarga;
@@ -102,6 +112,10 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
 
     @Override
     protected void onScreenContentReady() {
+        GenericFormContainerComponent.inflateFormContent(
+                findViewById(android.R.id.content),
+                R.layout.view_form_create_volume_content
+        );
         bindViews();
         applyPrefilledIsbn();
         setupListeners();
@@ -126,13 +140,25 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
         campoIsbnTomo = findViewById(R.id.campoIsbnTomoManual);
         campoFechaPublicacionTomo = findViewById(R.id.campoFechaPublicacionTomoManual);
         imagenPortadaTomo = findViewById(R.id.imagenPortadaTomoManual);
+        textoTituloResumenTomos = findViewById(R.id.textoTituloResumenTomosManual);
+        textoContadorTomos = findViewById(R.id.textoContadorTomosManual);
         textoResumenTomos = findViewById(R.id.textoResumenTomosManual);
+        contenedorResumenTomos = findViewById(R.id.contenedorResumenTomosManual);
         textoError = findViewById(R.id.textoErrorCreacionManualTomo);
         textoConfirmacion = findViewById(R.id.textoConfirmacionCreacionManualTomo);
         barraCarga = findViewById(R.id.barraCargaCreacionManualTomo);
         botonElegirPortada = findViewById(R.id.botonElegirPortadaTomoManual);
         botonAgregarTomoResumen = findViewById(R.id.botonAgregarTomoResumenManual);
         botonFinalizar = findViewById(R.id.botonFinalizarCreacionManualTomo);
+        textoTituloResumenTomos.setText(getString(R.string.creacion_manual_resumen_titulo));
+        configureCoverPreview();
+    }
+
+    // Ajusta la vista previa para mostrar la portada con esquinas redondeadas.
+    private void configureCoverPreview() {
+        if (imagenPortadaTomo instanceof RoundedImageView) {
+            ((RoundedImageView) imagenPortadaTomo).setCornerRadius(dpToPx(10));
+        }
     }
 
     // Conecta eventos del formulario.
@@ -271,7 +297,7 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
         contenedor.addView(selectorMes, params);
         contenedor.addView(selectorAnio, params);
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialogoFecha = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.creacion_manual_tomo_fecha_publicacion))
                 .setView(contenedor)
                 .setPositiveButton(android.R.string.ok, (dialogo, which) -> {
@@ -281,7 +307,76 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
                     campoFechaPublicacionTomo.setText(valorVisible);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+
+        dialogoFecha.setOnShowListener(dialogInterface -> {
+            Button botonAceptar = dialogoFecha.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button botonCancelar = dialogoFecha.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+            if (botonAceptar != null) {
+                applyDialogButtonStyle(
+                        botonAceptar,
+                        R.drawable.bg_button_primary_action,
+                        getColorStateList(R.color.button_primary_action_text)
+                );
+            }
+
+            if (botonCancelar != null) {
+                applyDialogButtonStyle(
+                        botonCancelar,
+                        R.drawable.bg_button_danger,
+                        getColorStateList(R.color.button_danger_text)
+                );
+            }
+
+            applyDialogButtonsSpacing(botonCancelar, botonAceptar);
+        });
+
+        dialogoFecha.show();
+        if (dialogoFecha.getWindow() != null) {
+            dialogoFecha.getWindow().setBackgroundDrawableResource(R.drawable.bg_report_dialog_rounded);
+        }
+    }
+
+    // Aplica estilo visual al boton del dialogo.
+    private void applyDialogButtonStyle(Button boton, int fondoResId, ColorStateList colorTexto) {
+        boton.setAllCaps(false);
+        boton.setBackgroundResource(fondoResId);
+        boton.setBackgroundTintList(null);
+        boton.setTextColor(colorTexto);
+        boton.setTypeface(null, Typeface.BOLD);
+        boton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        boton.setPadding(dpToPx(16), dpToPx(11), dpToPx(16), dpToPx(11));
+        boton.setMinHeight(0);
+    }
+
+    // Separa los botones del dialogo para evitar que queden pegados.
+    private void applyDialogButtonsSpacing(Button botonCancelar, Button botonAceptar) {
+        applyDialogButtonMargin(botonCancelar, 0, 8);
+        applyDialogButtonMargin(botonAceptar, 8, 0);
+    }
+
+    // Aplica margen lateral al boton cuando el layout lo permite.
+    private void applyDialogButtonMargin(Button boton, int margenInicioDp, int margenFinDp) {
+        if (boton == null) {
+            return;
+        }
+
+        ViewGroup.LayoutParams params = boton.getLayoutParams();
+        if (!(params instanceof ViewGroup.MarginLayoutParams)) {
+            return;
+        }
+
+        ViewGroup.MarginLayoutParams paramsMargen = (ViewGroup.MarginLayoutParams) params;
+        paramsMargen.setMarginStart(dpToPx(margenInicioDp));
+        paramsMargen.setMarginEnd(dpToPx(margenFinDp));
+        boton.setLayoutParams(paramsMargen);
+    }
+
+    // Convierte dp a pixeles para mantener espaciado uniforme.
+    private int dpToPx(int valorDp) {
+        float densidad = getResources().getDisplayMetrics().density;
+        return Math.round(valorDp * densidad);
     }
 
     // Agrega el tomo actual al resumen temporal.
@@ -548,27 +643,140 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
     // Renderiza resumen de tomos agregados.
     private void renderVolumeSummary() {
         if (tomosAgregados.isEmpty()) {
+            textoContadorTomos.setVisibility(View.GONE);
             textoResumenTomos.setText(getString(R.string.creacion_manual_resumen_vacio));
+            textoResumenTomos.setGravity(Gravity.CENTER_HORIZONTAL);
+            textoResumenTomos.setTypeface(null, Typeface.BOLD);
+            textoResumenTomos.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
+            textoResumenTomos.setVisibility(View.VISIBLE);
+            contenedorResumenTomos.removeAllViews();
             updateModeUi();
             return;
         }
 
-        StringBuilder resumen = new StringBuilder();
-        resumen.append(getString(R.string.creacion_manual_resumen_titulo)).append("\n");
-        for (int i = 0; i < tomosAgregados.size(); i++) {
-            DraftVolume tomo = tomosAgregados.get(i);
-            resumen.append(i + 1).append(". ");
-            if (tomo.tomoUnico) {
-                resumen.append(getString(R.string.creacion_manual_resumen_tomo_unico));
-            } else {
-                resumen.append(getString(R.string.creacion_manual_resumen_numero)).append(" ").append(tomo.numeroTomo);
-            }
-            resumen.append(" | ISBN ").append(tomo.isbn);
-            resumen.append(" | ").append(tomo.fechaPublicacion);
-            resumen.append("\n");
+        textoContadorTomos.setText(getString(R.string.creacion_manual_resumen_contador, tomosAgregados.size()));
+        textoContadorTomos.setVisibility(View.VISIBLE);
+        textoResumenTomos.setVisibility(View.GONE);
+        contenedorResumenTomos.removeAllViews();
+        for (DraftVolume tomo : tomosAgregados) {
+            contenedorResumenTomos.addView(buildSummaryVolumeCard(tomo));
         }
-        textoResumenTomos.setText(resumen.toString().trim());
         updateModeUi();
+    }
+
+    // Crea una card de resumen con portada y datos del tomo.
+    private View buildSummaryVolumeCard(DraftVolume tomo) {
+        LinearLayout card = new LinearLayout(this);
+        LinearLayout.LayoutParams paramsCard = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsCard.bottomMargin = dpToPx(10);
+        card.setLayoutParams(paramsCard);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setBackgroundResource(R.drawable.bg_carousel_container);
+        card.setPadding(dpToPx(14), dpToPx(14), dpToPx(14), dpToPx(14));
+        card.setGravity(Gravity.CENTER_VERTICAL);
+
+        RoundedImageView portada = new RoundedImageView(this);
+        LinearLayout.LayoutParams paramsPortada = new LinearLayout.LayoutParams(dpToPx(74), dpToPx(106));
+        paramsPortada.setMarginEnd(dpToPx(12));
+        portada.setLayoutParams(paramsPortada);
+        portada.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        portada.setCornerRadius(dpToPx(10));
+        byte[] bytesPortada = decodeBase64FromDataUrl(tomo.dataUrlPortada);
+        if (bytesPortada != null && bytesPortada.length > 0) {
+            portada.setImageBitmap(BitmapFactory.decodeByteArray(bytesPortada, 0, bytesPortada.length));
+        }
+        card.addView(portada);
+
+        LinearLayout columnaTexto = new LinearLayout(this);
+        columnaTexto.setLayoutParams(new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+        columnaTexto.setOrientation(LinearLayout.VERTICAL);
+
+        TextView textoTomo = buildSummaryMetadataText("Tomo", buildVolumeLabel(tomo));
+        TextView textoIsbn = buildSummaryMetadataText("ISBN", String.valueOf(tomo.isbn));
+        TextView textoPublicacion = buildSummaryMetadataText("Publicacion", formatPublicationDate(tomo.fechaPublicacion));
+
+        columnaTexto.addView(textoTomo);
+        columnaTexto.addView(textoIsbn);
+        columnaTexto.addView(textoPublicacion);
+        card.addView(columnaTexto);
+
+        return card;
+    }
+
+    // Crea una linea de texto con label en negrita y valor normal.
+    private TextView buildSummaryMetadataText(String etiqueta, String valor) {
+        TextView texto = new TextView(this);
+        LinearLayout.LayoutParams paramsTexto = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        paramsTexto.bottomMargin = dpToPx(6);
+        texto.setLayoutParams(paramsTexto);
+        texto.setText(buildMetadataText(etiqueta, valor));
+        texto.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        texto.setTextColor(getColor(R.color.carousel_subtitle));
+        return texto;
+    }
+
+    // Arma el texto de metadata con label en negrita y valor normal.
+    private CharSequence buildMetadataText(String label, String valor) {
+        android.text.SpannableStringBuilder texto = new android.text.SpannableStringBuilder();
+        String prefijo = label + ": ";
+        texto.append(prefijo);
+        texto.setSpan(
+                new android.text.style.StyleSpan(Typeface.BOLD),
+                0,
+                prefijo.length(),
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        texto.append(valor);
+        return texto;
+    }
+
+    // Devuelve la etiqueta visible del tomo segun el modo.
+    private String buildVolumeLabel(DraftVolume tomo) {
+        if (tomo.tomoUnico || tomo.numeroTomo == null) {
+            return getString(R.string.creacion_manual_resumen_tomo_unico);
+        }
+        return String.valueOf(tomo.numeroTomo);
+    }
+
+    // Formatea la fecha interna del tomo para vista de resumen.
+    private String formatPublicationDate(String fechaPublicacion) {
+        if (TextUtils.isEmpty(fechaPublicacion)) {
+            return "";
+        }
+        String valorLimpio = fechaPublicacion.trim();
+        if (!valorLimpio.matches("^\\d{4}-\\d{2}$")) {
+            return valorLimpio;
+        }
+        String anio = valorLimpio.substring(0, 4);
+        String mes = valorLimpio.substring(5, 7);
+        return mes + "-" + anio;
+    }
+
+    // Extrae los bytes base64 de un data url de imagen.
+    private byte[] decodeBase64FromDataUrl(String dataUrl) {
+        if (TextUtils.isEmpty(dataUrl)) {
+            return null;
+        }
+        int indiceComa = dataUrl.indexOf(',');
+        if (indiceComa <= 0 || indiceComa >= dataUrl.length() - 1) {
+            return null;
+        }
+        String base64 = dataUrl.substring(indiceComa + 1);
+        try {
+            return Base64.decode(base64, Base64.DEFAULT);
+        } catch (IllegalArgumentException error) {
+            return null;
+        }
     }
 
     // Ajusta ui del modo de tomo segun estado de formulario y resumen.
@@ -576,8 +784,6 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
         boolean modoUnico = isSingleVolumeMode();
         campoNumeroTomo.setVisibility(modoUnico ? View.GONE : View.VISIBLE);
         botonAgregarTomoResumen.setVisibility(modoUnico ? View.GONE : View.VISIBLE);
-        boolean ocultarEstadoVacio = modoUnico && tomosAgregados.isEmpty();
-        textoResumenTomos.setVisibility(ocultarEstadoVacio ? View.GONE : View.VISIBLE);
 
         boolean bloquearCambioModo = containsSingleVolumeInSummary();
         if (bloquearCambioModo) {
@@ -646,17 +852,23 @@ public class ManualVolumeCreationActivity extends BaseDrawerActivity {
     // Muestra error en pantalla.
     private void showError(String mensaje) {
         textoError.setText(mensaje);
+        textoError.setVisibility(View.VISIBLE);
+        textoConfirmacion.setVisibility(View.GONE);
     }
 
     // Muestra confirmacion en pantalla.
     private void showNotice(String mensaje) {
         textoConfirmacion.setText(mensaje);
+        textoConfirmacion.setVisibility(View.VISIBLE);
+        textoError.setVisibility(View.GONE);
     }
 
     // Limpia mensajes de error y confirmacion.
     private void clearMessages() {
         textoError.setText("");
         textoConfirmacion.setText("");
+        textoError.setVisibility(View.GONE);
+        textoConfirmacion.setVisibility(View.GONE);
     }
 
     // Indica si el modo actual es tomo unico.

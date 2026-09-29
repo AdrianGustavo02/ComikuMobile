@@ -3,18 +3,23 @@ package com.example.comiku.screens;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.view.GravityCompat;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -32,6 +37,8 @@ import java.util.Map;
 public abstract class BaseDrawerActivity extends AppCompatActivity {
     private DrawerLayout layoutDrawer;
     private NavigationView vistaNavegacion;
+    private LinearLayout contenedorCerrarSesionFooter;
+    private android.view.View contenedorPerfilMenu;
     private ImageView imagenPerfilMenu;
     private TextView textoNickMenu;
     private ListenerRegistration escuchadorPerfilMenu;
@@ -39,12 +46,20 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
     // Configura el contenedor comun con navbar y menu.
     protected void setupDrawerShell(@NonNull String tituloPantalla) {
         setContentView(R.layout.activity_with_navbar);
+        configureStatusBar();
         bindDrawerViews();
         inflateScreenContent();
         setupToolbar(tituloPantalla);
         setupDrawerToggle();
         setupDrawerActions();
         listenProfileHeader();
+    }
+
+    // Hace que la barra de estado use el mismo tono oscuro que el navbar.
+    private void configureStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.parseColor("#12091D"));
+        }
     }
 
     // Devuelve el layout de contenido de cada pantalla.
@@ -58,13 +73,19 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
     private void bindDrawerViews() {
         layoutDrawer = findViewById(R.id.layoutDrawerPrincipal);
         vistaNavegacion = findViewById(R.id.vistaNavegacionPrincipal);
+        contenedorCerrarSesionFooter = findViewById(R.id.contenedorCerrarSesionFooter);
 
         ViewEncabezadoMenu enlaceEncabezado = new ViewEncabezadoMenu(vistaNavegacion);
+        contenedorPerfilMenu = enlaceEncabezado.contenedorPerfil;
         imagenPerfilMenu = enlaceEncabezado.imagenPerfil;
         textoNickMenu = enlaceEncabezado.textoNick;
-        enlaceEncabezado.contenedorPerfil.setOnClickListener(v -> {
+        contenedorPerfilMenu.setOnClickListener(v -> {
             openProfile();
             layoutDrawer.closeDrawers();
+        });
+        contenedorCerrarSesionFooter.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            openLoginAndClearStack();
         });
     }
 
@@ -75,35 +96,66 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
         onScreenContentReady();
     }
 
-    // Configura el titulo y la barra superior.
+    // Configura la barra superior con el logo de la app y el texto Comiku centrados.
     private void setupToolbar(@NonNull String tituloPantalla) {
         Toolbar barraSuperior = findViewById(R.id.barraSuperiorPrincipal);
         setSupportActionBar(barraSuperior);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(tituloPantalla);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+
+        LinearLayout contenedorTitulo = new LinearLayout(this);
+        contenedorTitulo.setOrientation(LinearLayout.HORIZONTAL);
+        contenedorTitulo.setGravity(Gravity.CENTER);
+        contenedorTitulo.setPadding(16, 0, 16, 0);
+        contenedorTitulo.setLayoutParams(new Toolbar.LayoutParams(
+                Toolbar.LayoutParams.MATCH_PARENT,
+                Toolbar.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER
+        ));
+        contenedorTitulo.setOnClickListener(v -> openHome());
+
+        ImageView logoApp = new ImageView(this);
+        logoApp.setImageResource(R.mipmap.ic_launcher_round);
+        logoApp.setContentDescription(getString(R.string.app_name));
+        int tamanoLogo = (int) (30 * getResources().getDisplayMetrics().density);
+        LinearLayout.LayoutParams paramsLogo = new LinearLayout.LayoutParams(tamanoLogo, tamanoLogo);
+        paramsLogo.setMargins(0, 0, 10, 0);
+        logoApp.setLayoutParams(paramsLogo);
+
+        TextView textoApp = new TextView(this);
+        textoApp.setText(R.string.app_name);
+        textoApp.setTextColor(getResources().getColor(android.R.color.white, getTheme()));
+        textoApp.setTextSize(20);
+        textoApp.setTypeface(null, android.graphics.Typeface.BOLD);
+        textoApp.setGravity(Gravity.CENTER);
+
+        contenedorTitulo.addView(logoApp);
+        contenedorTitulo.addView(textoApp);
+        barraSuperior.addView(contenedorTitulo);
     }
 
     // Activa el comportamiento del boton hamburguesa.
     private void setupDrawerToggle() {
         Toolbar barraSuperior = findViewById(R.id.barraSuperiorPrincipal);
-        ActionBarDrawerToggle alternadorDrawer = new ActionBarDrawerToggle(
-                this,
-                layoutDrawer,
-                barraSuperior,
-                R.string.menu_abrir,
-                R.string.menu_cerrar
-        );
-        layoutDrawer.addDrawerListener(alternadorDrawer);
-        alternadorDrawer.syncState();
+        barraSuperior.setNavigationIcon(R.drawable.ic_menu_hamburguesa_blanco);
+        barraSuperior.setNavigationContentDescription(R.string.menu_abrir);
+        barraSuperior.setNavigationOnClickListener(v -> {
+            if (layoutDrawer.isDrawerOpen(GravityCompat.START)) {
+                layoutDrawer.closeDrawer(GravityCompat.START);
+            } else {
+                layoutDrawer.openDrawer(GravityCompat.START);
+            }
+        });
     }
 
     // Conecta acciones del menu lateral comun.
     private void setupDrawerActions() {
+        syncCurrentDrawerSelection();
         vistaNavegacion.setNavigationItemSelectedListener(item -> {
             int idItem = item.getItemId();
-            if (idItem == R.id.menu_perfil) {
-                openProfile();
+            if (idItem == R.id.menu_inicio) {
+                openHome();
             } else if (idItem == R.id.menu_biblioteca) {
                 openLibrary();
             } else if (idItem == R.id.menu_deseados) {
@@ -120,13 +172,55 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                 openActivities();
             } else if (idItem == R.id.menu_notificaciones) {
                 openNotifications();
-            } else if (idItem == R.id.menu_cerrar_sesion) {
-                FirebaseAuth.getInstance().signOut();
-                openLoginAndClearStack();
             }
             layoutDrawer.closeDrawers();
+            syncCurrentDrawerSelection();
             return true;
         });
+    }
+
+    // Marca el acceso actual en el menu lateral para resaltar la pantalla activa.
+    private void syncCurrentDrawerSelection() {
+        int itemActual = -1;
+
+        if (this instanceof MainActivity) {
+            itemActual = R.id.menu_inicio;
+        } else if (this instanceof LibraryActivity) {
+            itemActual = R.id.menu_biblioteca;
+        } else if (this instanceof WishlistActivity) {
+            itemActual = R.id.menu_deseados;
+        } else if (this instanceof ThematicListsActivity) {
+            itemActual = R.id.menu_listas_tematicas;
+        } else if (this instanceof FriendsActivity) {
+            itemActual = R.id.menu_amigos;
+        } else if (getClass().equals(ChatsActivity.class)) {
+            itemActual = R.id.menu_chats;
+        } else if (this instanceof ContactActivity) {
+            itemActual = R.id.menu_contactanos;
+        } else if (this instanceof ActivitiesActivity) {
+            itemActual = R.id.menu_actividades;
+        } else if (this instanceof NotificationsActivity) {
+            itemActual = R.id.menu_notificaciones;
+        }
+
+        Menu menu = vistaNavegacion.getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem itemMenu = menu.getItem(i);
+            itemMenu.setChecked(itemMenu.getItemId() == itemActual);
+        }
+
+        boolean perfilActivo = this instanceof ProfileActivity;
+        if (perfilActivo) {
+            contenedorPerfilMenu.setBackgroundResource(R.drawable.nav_item_background);
+            contenedorPerfilMenu.setSelected(true);
+            contenedorPerfilMenu.setActivated(true);
+            textoNickMenu.setTextColor(getResources().getColor(android.R.color.black, getTheme()));
+        } else {
+            contenedorPerfilMenu.setBackgroundResource(android.R.color.transparent);
+            contenedorPerfilMenu.setSelected(false);
+            contenedorPerfilMenu.setActivated(false);
+            textoNickMenu.setTextColor(getResources().getColor(android.R.color.white, getTheme()));
+        }
     }
 
     // Crea el menu de opciones con icono de busqueda.
@@ -188,9 +282,19 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
         });
     }
 
+    // Abre la pantalla de inicio si no estamos ya en ella.
+    private void openHome() {
+        if (this instanceof MainActivity) {
+            return;
+        }
+        Intent pantallaInicio = new Intent(this, MainActivity.class);
+        startActivity(pantallaInicio);
+    }
+
     // Navega a perfil si no estamos ya en esa pantalla.
     private void openProfile() {
-        if (this instanceof ProfileActivity) {
+        if (this instanceof ProfileActivity
+                && ((ProfileActivity) this).isShowingCurrentUserProfile()) {
             return;
         }
         Intent pantallaPerfil = new Intent(this, ProfileActivity.class);
@@ -199,7 +303,8 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
 
     // Abre la pantalla de biblioteca.
     private void openLibrary() {
-        if (this instanceof LibraryActivity) {
+        if (this instanceof LibraryActivity
+                && ((LibraryActivity) this).isShowingCurrentUserLibrary()) {
             return;
         }
         Intent pantallaBiblioteca = new Intent(this, LibraryActivity.class);

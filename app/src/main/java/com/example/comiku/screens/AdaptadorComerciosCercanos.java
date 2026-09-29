@@ -42,9 +42,9 @@ public class AdaptadorComerciosCercanos extends RecyclerView.Adapter<AdaptadorCo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         NearbyBookstoreDto comercio = comercios.get(position);
 
+        holder.textoOrdenComercio.setText(String.valueOf(position + 1));
         holder.nombreComercio.setText(comercio.getName());
         holder.direccionComercio.setText(comercio.getAddress());
-        holder.tipoComercio.setText(comercio.getType());
         holder.distanciaComercio.setText(MapsHelper.formatDistance(comercio.getDistanceMeters()));
 
         holder.botonVerMapa.setOnClickListener(v -> MapsHelper.openPlace(context, comercio));
@@ -64,18 +64,18 @@ public class AdaptadorComerciosCercanos extends RecyclerView.Adapter<AdaptadorCo
 
     // ViewHolder para un elemento de comercio cercano
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView textoOrdenComercio;
         TextView nombreComercio;
         TextView direccionComercio;
-        TextView tipoComercio;
         TextView distanciaComercio;
         Button botonVerMapa;
         Button botonComoLlegar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            textoOrdenComercio = itemView.findViewById(R.id.textViewOrdenComercio);
             nombreComercio = itemView.findViewById(R.id.textViewNombreComercio);
             direccionComercio = itemView.findViewById(R.id.textViewDireccionComercio);
-            tipoComercio = itemView.findViewById(R.id.textViewTipoComercio);
             distanciaComercio = itemView.findViewById(R.id.textViewDistanciaComercio);
             botonVerMapa = itemView.findViewById(R.id.botonVerMapa);
             botonComoLlegar = itemView.findViewById(R.id.botonComoLlegar);

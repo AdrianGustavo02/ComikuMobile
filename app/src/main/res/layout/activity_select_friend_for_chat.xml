@@ -9,23 +9,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <Button
-            android:id="@+id/botonRetroceso"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/atras" />
-
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="16dp"
+            android:gravity="center_vertical"
             android:text="Selecciona un amigo"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -68,14 +61,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="No tienes amigos aun"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textColor="@color/gray_dark" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Busca usuarios en amigos para iniciar una conversacion"
-                android:textSize="14sp"
+                android:textSize="15sp"
                 android:textColor="@color/gray"
                 android:layout_marginTop="8dp" />
         </LinearLayout>

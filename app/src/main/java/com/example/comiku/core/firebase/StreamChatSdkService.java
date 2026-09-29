@@ -4,6 +4,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -43,8 +45,15 @@ public class StreamChatSdkService {
     private final Context context;
     private final FirebaseAuth auth;
     private final StreamChatRepository repositorio;
+    private final Handler handlerPrincipal;
     private ChatClient cliente;
     private String apiKeyActual;
+    private boolean estaConectando = false;
+    private final List<StreamClientCallback> callbacksPendientes = new ArrayList<>();
+    private static final int MAX_INTENTOS_CONEXION = 3;
+    private static final long RETRASO_REINTENTO_CONEXION_MS = 700L;
+    private static final int MAX_INTENTOS_CARGA_MENSAJES = 3;
+    private static final long RETRASO_REINTENTO_CARGA_MS = 500L;
 
     public interface StreamSendCallback {
         void onExito(ChatMessageData mensaje);
@@ -65,6 +74,7 @@ public class StreamChatSdkService {
         this.context = context.getApplicationContext();
         this.auth = FirebaseAuth.getInstance();
         this.repositorio = StreamChatRepository.obtenerInstancia(context);
+        this.handlerPrincipal = new Handler(Looper.getMainLooper());
     }
 
     // Obtiene la instancia compartida del servicio.
@@ -97,18 +107,7 @@ public class StreamChatSdkService {
                     callback.onError("No se pudo obtener la apiKey de StreamChat");
                     return;
                 }
-                apiKeyActual = response.getApiKey();
-                cliente = construirCliente(apiKeyActual);
-                User usuarioStream = crearUsuarioStream(usuarioFirebase);
-
-                cliente.connectUser(usuarioStream, response.getToken()).enqueue(result -> {
-                    if (result.isSuccess()) {
-                        callback.onExito(cliente);
-                    } else {
-                        Error error = result.errorOrNull();
-                        callback.onError(error != null ? error.getMessage() : "No se pudo conectar a StreamChat");
-                    }
-                });
+                iniciarConexionConReintento(response.getApiKey(), response.getToken(), usuarioFirebase, callback);
             }
 
             @Override
@@ -136,23 +135,142 @@ public class StreamChatSdkService {
             return;
         }
 
-        apiKeyActual = apiKey;
-        cliente = construirCliente(apiKeyActual);
-        User usuarioStream = crearUsuarioStream(usuarioFirebase);
-
-        cliente.connectUser(usuarioStream, token).enqueue(result -> {
-            if (result.isSuccess()) {
-                callback.onExito(cliente);
-                return;
-            }
-            Error error = result.errorOrNull();
-            callback.onError(error != null ? error.getMessage() : "No se pudo conectar a StreamChat");
-        });
+        iniciarConexionConReintento(apiKey, token, usuarioFirebase, callback);
     }
 
     // Devuelve el cliente de StreamChat que esta conectado en esta sesion.
     public ChatClient obtenerClienteActual() {
         return cliente;
+    }
+
+    // Inicia una conexion unica con reintentos cortos si la red tarda en responder.
+    private void iniciarConexionConReintento(String apiKey, String token, FirebaseUser usuarioFirebase,
+                                             StreamClientCallback callback) {
+        if (TextUtils.isEmpty(apiKey) || TextUtils.isEmpty(token)) {
+            callback.onError("Credenciales de StreamChat incompletas");
+            return;
+        }
+
+        synchronized (this) {
+            if (cliente != null && cliente.getCurrentUser() != null
+                    && usuarioFirebase.getUid().equals(cliente.getCurrentUser().getId())
+                    && tienePluginEstado()) {
+                callback.onExito(cliente);
+                return;
+            }
+
+            callbacksPendientes.add(callback);
+            apiKeyActual = apiKey;
+            if (estaConectando) {
+                return;
+            }
+            estaConectando = true;
+            cliente = construirCliente(apiKeyActual);
+        }
+
+        User usuarioStream = crearUsuarioStream(usuarioFirebase);
+        intentarConexionUsuario(usuarioStream, token, 0);
+    }
+
+    // Reintenta la conexion de Stream sin mostrar un error inmediato por fallas transitorias.
+    private void intentarConexionUsuario(User usuarioStream, String token, int intentoActual) {
+        ChatClient clienteActual = cliente;
+        if (clienteActual == null) {
+            notificarFalloConexion("No se pudo crear el cliente de StreamChat");
+            return;
+        }
+
+        clienteActual.connectUser(usuarioStream, token).enqueue(result -> {
+            if (result.isSuccess()) {
+                synchronized (this) {
+                    estaConectando = false;
+                }
+                notificarConexionExitosa(clienteActual);
+                return;
+            }
+
+            Error error = result.errorOrNull();
+            String mensajeError = error != null ? error.getMessage() : "No se pudo conectar a StreamChat";
+            if (intentoActual + 1 < MAX_INTENTOS_CONEXION && esErrorTransitorio(mensajeError)) {
+                handlerPrincipal.postDelayed(() -> intentarConexionUsuario(usuarioStream, token, intentoActual + 1),
+                        RETRASO_REINTENTO_CONEXION_MS);
+                return;
+            }
+
+            synchronized (this) {
+                estaConectando = false;
+            }
+            notificarFalloConexion(mensajeError);
+        });
+    }
+
+    // Notifica exito a todos los callbacks pendientes.
+    private void notificarConexionExitosa(ChatClient clienteConectado) {
+        List<StreamClientCallback> callbacks;
+        synchronized (this) {
+            callbacks = new ArrayList<>(callbacksPendientes);
+            callbacksPendientes.clear();
+        }
+        for (StreamClientCallback callback : callbacks) {
+            callback.onExito(clienteConectado);
+        }
+    }
+
+    // Notifica un error a todos los callbacks pendientes.
+    private void notificarFalloConexion(String error) {
+        List<StreamClientCallback> callbacks;
+        synchronized (this) {
+            callbacks = new ArrayList<>(callbacksPendientes);
+            callbacksPendientes.clear();
+            estaConectando = false;
+            cliente = null;
+        }
+        for (StreamClientCallback callback : callbacks) {
+            callback.onError(error);
+        }
+    }
+
+    // Carga mensajes de Stream con un reintento corto para fallas transitorias de conexion.
+    private void cargarMensajesConReintento(ChannelClient canal, String channelId, StreamMessagesCallback callback,
+                                            int intentoActual) {
+        canal.watch().enqueue(result -> {
+            if (!result.isSuccess()) {
+                Error error = result.errorOrNull();
+                String mensajeError = error != null ? error.getMessage() : "No se pudo cargar mensajes desde StreamChat";
+                if (intentoActual + 1 < MAX_INTENTOS_CARGA_MENSAJES && esErrorTransitorio(mensajeError)) {
+                    handlerPrincipal.postDelayed(() ->
+                                    cargarMensajesConReintento(canal, channelId, callback, intentoActual + 1),
+                            RETRASO_REINTENTO_CARGA_MS);
+                    return;
+                }
+                callback.onError(mensajeError);
+                return;
+            }
+
+            io.getstream.chat.android.models.Channel canalStream = result.getOrNull();
+            if (canalStream == null) {
+                callback.onError("No se pudo leer el canal de StreamChat");
+                return;
+            }
+
+            List<Message> mensajesStream = canalStream.getMessages();
+            List<ChatMessageData> mensajes = convertirMensajesDesdeStream(channelId, mensajesStream);
+            callback.onExito(mensajes);
+        });
+    }
+
+    // Decide si el error parece transitorio y vale la pena reintentar.
+    private boolean esErrorTransitorio(String error) {
+        if (TextUtils.isEmpty(error)) {
+            return false;
+        }
+        String mensaje = error.toLowerCase();
+        return mensaje.contains("network")
+                || mensaje.contains("connect")
+                || mensaje.contains("timeout")
+                || mensaje.contains("socket")
+                || mensaje.contains("unavailable")
+                || mensaje.contains("tempor");
     }
 
     // Crea el cliente de StreamChat con el plugin de estado habilitado.
@@ -221,24 +339,7 @@ public class StreamChatSdkService {
         asegurarCliente(new StreamClientCallback() {
             @Override
             public void onExito(ChatClient clienteStream) {
-                ChannelClient canal = clienteStream.channel(STREAM_CHANNEL_TYPE, channelId);
-                canal.watch().enqueue(result -> {
-                    if (!result.isSuccess()) {
-                        Error error = result.errorOrNull();
-                        callback.onError(error != null ? error.getMessage() : "No se pudo cargar mensajes desde StreamChat");
-                        return;
-                    }
-
-                    io.getstream.chat.android.models.Channel canalStream = result.getOrNull();
-                    if (canalStream == null) {
-                        callback.onError("No se pudo leer el canal de StreamChat");
-                        return;
-                    }
-
-                    List<Message> mensajesStream = canalStream.getMessages();
-                    List<ChatMessageData> mensajes = convertirMensajesDesdeStream(channelId, mensajesStream);
-                    callback.onExito(mensajes);
-                });
+                cargarMensajesConReintento(clienteStream.channel(STREAM_CHANNEL_TYPE, channelId), channelId, callback, 0);
             }
 
             @Override

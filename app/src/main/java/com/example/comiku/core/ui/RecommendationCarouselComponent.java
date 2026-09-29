@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,13 +53,18 @@ public final class RecommendationCarouselComponent {
         params.setMarginEnd(dpToPx(12));
         tarjeta.setLayoutParams(params);
         tarjeta.setOrientation(LinearLayout.VERTICAL);
+        tarjeta.setBackground(contexto.getDrawable(R.drawable.bg_volume_cover_card));
+        tarjeta.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
+        tarjeta.setFocusable(true);
 
         // Portada del tomo destacado.
         ImageView imagenPortada = new ImageView(contexto);
-        LinearLayout.LayoutParams portadaParams = new LinearLayout.LayoutParams(dpToPx(160), dpToPx(220));
+        LinearLayout.LayoutParams portadaParams = new LinearLayout.LayoutParams(dpToPx(140), dpToPx(187));
         imagenPortada.setLayoutParams(portadaParams);
         imagenPortada.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imagenPortada.setBackground(contexto.getDrawable(R.drawable.bg_volume_cover_image));
         imagenPortada.setContentDescription(contexto.getString(R.string.portada_del_tomo));
+        imagenPortada.setClipToOutline(true);
 
         String dataUrl = recomendacion != null && recomendacion.tomoDestacado != null
                 ? recomendacion.tomoDestacado.getPortadaDataUrl()
@@ -71,24 +77,25 @@ public final class RecommendationCarouselComponent {
         }
         tarjeta.addView(imagenPortada);
 
-        // Nombre del comic.
+        // Título del comic (negrita y blanco)
         TextView textoNombre = new TextView(contexto);
         LinearLayout.LayoutParams nombreParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        nombreParams.topMargin = dpToPx(6);
+        nombreParams.topMargin = dpToPx(10);
         textoNombre.setLayoutParams(nombreParams);
         textoNombre.setText(recomendacion != null ? recomendacion.comicNombre : "");
-        textoNombre.setTextSize(13f);
+        textoNombre.setTextSize(12f);
         textoNombre.setTypeface(null, android.graphics.Typeface.BOLD);
-        textoNombre.setMaxLines(2);
+        textoNombre.setMaxLines(3);
         textoNombre.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        textoNombre.setTextColor(contexto.getColor(android.R.color.white));
         tarjeta.addView(textoNombre);
 
-        // Autores del comic.
+        // Autores (color de descripción)
         TextView textoAutores = new TextView(contexto);
         LinearLayout.LayoutParams autoresParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        autoresParams.topMargin = dpToPx(2);
+        autoresParams.topMargin = dpToPx(6);
         textoAutores.setLayoutParams(autoresParams);
         String autores = recomendacion != null && recomendacion.comicAutores != null
                 && !recomendacion.comicAutores.isEmpty()
@@ -96,15 +103,16 @@ public final class RecommendationCarouselComponent {
                 : contexto.getString(R.string.autores_desconocidos);
         textoAutores.setText(autores);
         textoAutores.setTextSize(11f);
-        textoAutores.setMaxLines(1);
+        textoAutores.setMaxLines(3);
         textoAutores.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        textoAutores.setTextColor(contexto.getColor(R.color.carousel_subtitle));
         tarjeta.addView(textoAutores);
 
-        // Generos coincidentes o mensaje general.
+        // Géneros (color de descripción)
         TextView textoGeneros = new TextView(contexto);
         LinearLayout.LayoutParams generosParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        generosParams.topMargin = dpToPx(2);
+        generosParams.topMargin = dpToPx(4);
         textoGeneros.setLayoutParams(generosParams);
         String generos = recomendacion != null && recomendacion.generosCoincidentes != null
                 && !recomendacion.generosCoincidentes.isEmpty()
@@ -112,8 +120,9 @@ public final class RecommendationCarouselComponent {
                 : contexto.getString(R.string.inicio_recomendaciones_sugerencia_general);
         textoGeneros.setText(generos);
         textoGeneros.setTextSize(11f);
-        textoGeneros.setMaxLines(1);
+        textoGeneros.setMaxLines(3);
         textoGeneros.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        textoGeneros.setTextColor(contexto.getColor(R.color.carousel_subtitle));
         tarjeta.addView(textoGeneros);
 
         // Click abre el detalle del comic.

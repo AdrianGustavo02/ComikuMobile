@@ -2,7 +2,11 @@ package com.example.comiku.screens;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -12,9 +16,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.comiku.R;
+import com.example.comiku.core.ui.ToastUtils;
 import com.example.comiku.data.repository.DeleteAccountRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DeleteAccountDialog {
     private final Context contexto;
@@ -71,11 +79,15 @@ public class DeleteAccountDialog {
 
         mostrarEtapa1();
         dialogo.show();
+        if (dialogo.getWindow() != null) {
+            dialogo.getWindow().setBackgroundDrawableResource(R.drawable.bg_report_dialog_rounded);
+        }
     }
 
+    // Muestra la primera etapa de confirmacion.
     private void mostrarEtapa1() {
         etapaActual = 1;
-        textoAdvertencia.setText(contexto.getString(R.string.delete_account_warning_1));
+        aplicarTextoAdvertencia(contexto.getString(R.string.delete_account_warning_1));
         campoConfirmacion.setHint(contexto.getString(R.string.delete_account_input_hint_1));
         campoConfirmacion.setText("");
         campoConfirmacion.setVisibility(View.GONE);
@@ -83,14 +95,35 @@ public class DeleteAccountDialog {
         botonConfirmar.setText(contexto.getString(R.string.delete_account_understand));
     }
 
+    // Muestra la segunda etapa de confirmacion.
     private void mostrarEtapa2() {
         etapaActual = 2;
-        textoAdvertencia.setText(contexto.getString(R.string.delete_account_warning_2, nickUsuario));
+        aplicarTextoAdvertencia(contexto.getString(R.string.delete_account_warning_2, nickUsuario));
         campoConfirmacion.setHint(contexto.getString(R.string.delete_account_input_hint_2));
         campoConfirmacion.setText("");
         campoConfirmacion.setVisibility(View.VISIBLE);
         barraProgreso.setVisibility(View.GONE);
         botonConfirmar.setText(contexto.getString(R.string.delete_account_final_confirm));
+    }
+
+    // Aplica el texto con palabras en mayusculas en negrita.
+    private void aplicarTextoAdvertencia(String texto) {
+        if (TextUtils.isEmpty(texto)) {
+            textoAdvertencia.setText("");
+            return;
+        }
+        SpannableString textoFormateado = new SpannableString(texto);
+        Pattern patronMayusculas = Pattern.compile("\\b[\\p{Lu}0-9]{2,}\\b");
+        Matcher matcher = patronMayusculas.matcher(texto);
+        while (matcher.find()) {
+            textoFormateado.setSpan(
+                    new StyleSpan(Typeface.BOLD),
+                    matcher.start(),
+                    matcher.end(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+        textoAdvertencia.setText(textoFormateado);
     }
 
     private void procederConConfirmacion() {
@@ -103,12 +136,12 @@ public class DeleteAccountDialog {
             String inputUsuario = campoConfirmacion.getText().toString().trim();
 
             if (TextUtils.isEmpty(inputUsuario)) {
-                Toast.makeText(contexto, contexto.getString(R.string.delete_account_empty_confirmation), Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(contexto, contexto.getString(R.string.delete_account_empty_confirmation), Toast.LENGTH_SHORT);
                 return;
             }
 
             if (!inputUsuario.equals(nickUsuario)) {
-                Toast.makeText(contexto, contexto.getString(R.string.delete_account_nick_mismatch), Toast.LENGTH_SHORT).show();
+                ToastUtils.showTextToast(contexto, contexto.getString(R.string.delete_account_nick_mismatch), Toast.LENGTH_SHORT);
                 campoConfirmacion.setText("");
                 return;
             }
@@ -152,7 +185,7 @@ public class DeleteAccountDialog {
         campoConfirmacion.setEnabled(true);
         barraProgreso.setVisibility(View.GONE);
 
-        Toast.makeText(contexto, mensaje, Toast.LENGTH_LONG).show();
+        ToastUtils.showTextToast(contexto, mensaje, Toast.LENGTH_LONG);
         textoAdvertencia.setText("Error: " + mensaje);
     }
 }
